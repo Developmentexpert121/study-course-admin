@@ -70,7 +70,7 @@ export function UserInfo() {
       <DropdownTrigger className="rounded align-middle outline-none ring-primary ring-offset-2 focus-visible:ring-1 dark:ring-offset-gray-dark">
         <span className="sr-only">My Account</span>
 
-        <figure className="flex items-center gap-3">
+        <figure className="flex items-center gap-3 size-12 rounded-full overflow-hidden">
           <Image
             src={userImage}
             className="size-12"
@@ -103,7 +103,7 @@ export function UserInfo() {
         <figure className="flex items-center gap-2.5 px-5 py-3.5">
           <Image
             src={userImage}
-            className="size-12"
+            className="size-12   rounded-full overflow-hidden"
             alt={`Avatar for ${USER.name}`}
             role="presentation"
             width={200}
