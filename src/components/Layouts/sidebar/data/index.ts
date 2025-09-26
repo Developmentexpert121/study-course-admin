@@ -71,9 +71,21 @@ export const NAV_DATA = [
         type: "user", // Show to both admin and user
       },
 
- 
+ {
+        title: "Code",
+        url: "/user-panel/code",
+        icon: Icons.User,
+        items: [],
+        type: "user", // Show to both admin and user
+      },
      
-       
+       {
+        title: "Code +",
+        url: "/code",
+        icon: Icons.User,
+        items: [],
+        type: "admin", // Show to both admin and user
+      },
     ],
   },
 ];
