@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import { useEffect, useState } from "react";
-import { Pencil, SearchIcon, Trash2, Eye, Code, Play } from "lucide-react";
+import { Pencil, SearchIcon, Trash2, Eye, Code } from "lucide-react";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -83,41 +83,46 @@ export default function CodingQuestions({ className }: any) {
     }
   }, [courseId]);
 
-  const handleEdit = (id: number) => {
-    router.push(`/coding/edit-coding-question?id=${id}&course_id=${courseId}`);
-  };
+ const handleEdit = (questionId: number) => {
+  // Pass both course_id and question_id for editing
+  router.push(`updatecode/?course_id=${courseId}&question_id=${questionId}&mode=edit`);
+};
 
   const handleView = (id: number) => {
     router.push(`/coding/view-coding-question?id=${id}&course_id=${courseId}`);
   };
 
-  const handleTest = (id: number) => {
-    router.push(`/coding/test-coding-question?id=${id}&course_id=${courseId}`);
-  };
-
-  const handleToggleStatus = async (id: number, currentStatus: boolean) => {
-    try {
-      const response = await api.put(`coding/${id}/status`, {
-        is_active: !currentStatus
-      });
-      
-      if (response.success) {
-        toasterSuccess(
-          `Coding question ${!currentStatus ? "activated" : "deactivated"} successfully`, 
-          3000, 
-          "status-toggle"
-        );
-        if (courseId) {
-          await fetchCodingQuestions(courseId);
-        }
-      } else {
-        toasterError(response.error?.code || "Operation failed", 3000, "status-toggle");
+const handleToggleStatus = async (id: number, currentStatus: boolean) => {
+  try {
+    // Fixed: Use the correct endpoint with the question ID and proper payload
+    const response = await api.put(`coding/${id}/status`, {
+      is_active: !currentStatus
+    });
+    
+    if (response.success) {
+      toasterSuccess(
+        `Coding question ${!currentStatus ? "activated" : "deactivated"} successfully`, 
+        3000, 
+        "status-toggle"
+      );
+      // Refresh the data
+      if (courseId) {
+        await fetchCodingQuestions(parseInt(courseId));
       }
-    } catch (error) {
-      console.log("Failed to toggle status:", error);
-      toasterError("Failed to update status", 3000, "status-toggle");
+    } else {
+      toasterError(response.message || response.error?.code || "Operation failed", 3000, "status-toggle");
     }
-  };
+  } catch (error: any) {
+    console.error("Failed to toggle status:", error);
+    toasterError(
+      error?.response?.data?.message || 
+      error?.message || 
+      "Failed to update status", 
+      3000, 
+      "status-toggle"
+    );
+  }
+};
 
   const handleDelete = async (id: number) => {
     const confirmDelete = confirm("Are you sure you want to delete this coding question?");
@@ -197,7 +202,7 @@ export default function CodingQuestions({ className }: any) {
 
           {/* Add Coding Question Button */}
           <button
-            onClick={() => router.push(`/coding/code-question?course_id=${courseId}`)}
+              onClick={() => router.push(`code-question/?course_id=${courseId}`)}
             className="w-full sm:w-auto rounded-full bg-green-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50"
             disabled={!courseId}
           >
@@ -282,9 +287,13 @@ export default function CodingQuestions({ className }: any) {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(question.is_active)}`}>
+                    <button
+                      onClick={() => handleToggleStatus(question.id, question.is_active)}
+                      className={`px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 hover:scale-105 cursor-pointer ${getStatusColor(question.is_active)} hover:shadow-md`}
+                      title={`Click to ${question.is_active ? 'deactivate' : 'activate'} this question`}
+                    >
                       {question.is_active ? 'Active' : 'Inactive'}
-                    </span>
+                    </button>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm">
@@ -297,37 +306,13 @@ export default function CodingQuestions({ className }: any) {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-center gap-1">
-                      <button
-                        className="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50 transition-colors"
-                        onClick={() => handleView(question.id)}
-                        title="View Question"
-                      >
-                        <Eye size={16} />
-                      </button>
-                      <button
-                        className="text-green-600 hover:text-green-800 p-1.5 rounded hover:bg-green-50 transition-colors"
-                        onClick={() => handleTest(question.id)}
-                        title="Test Question"
-                      >
-                        <Play size={16} />
-                      </button>
+                     
                       <button
                         className="text-yellow-600 hover:text-yellow-800 p-1.5 rounded hover:bg-yellow-50 transition-colors"
-                        onClick={() => handleEdit(question.id)}
+                        onClick={() => handleEdit(  question.id)}
                         title="Edit Question"
                       >
                         <Pencil size={16} />
-                      </button>
-                      <button
-                        className={`p-1.5 rounded transition-colors ${
-                          question.is_active 
-                            ? 'text-orange-600 hover:text-orange-800 hover:bg-orange-50' 
-                            : 'text-green-600 hover:text-green-800 hover:bg-green-50'
-                        }`}
-                        onClick={() => handleToggleStatus(question.id, question.is_active)}
-                        title={question.is_active ? "Deactivate" : "Activate"}
-                      >
-                        {question.is_active ? '⏸️' : '▶️'}
                       </button>
                       <button
                         className="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition-colors"

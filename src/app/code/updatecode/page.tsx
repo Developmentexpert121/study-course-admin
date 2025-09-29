@@ -2,16 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Plus, Trash2, Code } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Code, Save } from "lucide-react";
 import api from "@/lib/api";
 import { toasterSuccess, toasterError } from "@/components/core/Toaster";
 
-export default function AddCodingQuestion() {
+export default function UpdateCodingQuestion() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const courseId = searchParams.get("course_id");
+  const id = searchParams.get("question_id");
+  console.log("[[[[[[[[[[[[[[[[[[object]]]]]]]]]]]]]]]]]]",id)
+  const mode = searchParams.get("mode");
   
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
   const [chapters, setChapters] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     title: "",
@@ -57,7 +61,120 @@ export default function AddCodingQuestion() {
     { value: "csharp", label: "C#" }
   ];
 
-  // Fetch chapters for the course
+  // Fetch existing question data
+  useEffect(() => {
+// Update the fetchQuestionData function - Line ~57
+
+
+
+const fetchQuestionData = async () => {
+  if (!id) return;
+  
+  setFetchLoading(true);
+  try {
+    console.log(`🔍 Fetching question data for ID-----------: ${id}`);
+    
+  
+    const response = await api.get(`coding/code/${id}`)  // ✅ Correct
+    console.log("📡 Full API Response:", response);
+    
+    if (response.data && response.data.success) {
+      const questionData = response.data.data;
+      console.log("✅ Question data loaded:", questionData);
+      
+      if (!questionData) {
+        toasterError("No question data found", 3000, "fetch-error");
+        return;
+      }
+      
+      // Populate form with existing data
+      setFormData({
+        title: questionData.title || "",
+        description: questionData.description || "",
+        difficulty: questionData.difficulty || "medium",
+        chapter_id: questionData.chapter_id?.toString() || "",
+        time_limit: questionData.time_limit || 2000,
+        memory_limit: questionData.memory_limit || 128000,
+        hints: questionData.hints && Array.isArray(questionData.hints) && questionData.hints.length > 0 
+          ? questionData.hints 
+          : [""],
+        tags: questionData.tags && Array.isArray(questionData.tags) && questionData.tags.length > 0 
+          ? questionData.tags 
+          : [""],
+        allowed_languages: questionData.allowed_languages || ["javascript", "python", "java", "cpp"],
+        starter_code: questionData.starter_code || {
+          javascript: "// Write your solution here",
+          python: "# Write your solution here",
+          java: "// Write your solution here",
+          cpp: "// Write your solution here"
+        },
+        solution_code: questionData.solution_code || {
+          javascript: "// Solution code",
+          python: "# Solution code",
+          java: "// Solution code",
+          cpp: "// Solution code"
+        }
+      });
+
+      // ✅ Load test cases from JSONB field
+      if (questionData.test_cases && Array.isArray(questionData.test_cases) && questionData.test_cases.length > 0) {
+        setTestCases(questionData.test_cases.map((tc: any, index: number) => ({
+          id: tc.id || index + 1,
+          input: tc.input || "",
+          expected_output: tc.expected_output || "",
+          is_sample: tc.is_sample || false
+        })));
+      } else {
+        setTestCases([{ id: 1, input: "", expected_output: "", is_sample: true }]);
+      }
+
+      // ✅ Optionally load chapter data if included in response
+      if (questionData.Chapter) {
+        console.log("📚 Chapter info:", questionData.Chapter);
+      }
+
+      // ✅ Optionally load course data if included in response
+      if (questionData.Course) {
+        console.log("📖 Course info:", questionData.Course);
+      }
+
+    } else {
+      toasterError(response.data?.message || "Failed to load question data", 3000, "fetch-error");
+    }
+  } catch (error: any) {
+    console.error("❌ Failed to fetch question data:", error);
+    
+    if (error.response) {
+      console.error("Error response:", error.response.data);
+      console.error("Error status:", error.response.status);
+      
+      const status = error.response.status;
+      const errorMessage = error.response.data?.message || "Failed to load question data";
+      
+      if (status === 404) {
+        toasterError("Question not found. It may have been deleted.", 3000, "not-found-error");
+      } else if (status === 401) {
+        toasterError("You are not authorized. Please login again.", 3000, "auth-error");
+      } else {
+        toasterError(errorMessage, 3000, "fetch-error");
+      }
+    } else if (error.request) {
+      toasterError("Network error. Please check your connection.", 3000, "network-error");
+    } else {
+      toasterError(error?.message || "An unexpected error occurred.", 3000, "unknown-error");
+    }
+  } finally {
+    setFetchLoading(false);
+  }
+};
+
+    if (id && mode === "edit") {
+      fetchQuestionData();
+    } else {
+      setFetchLoading(false);
+    }
+  }, [id, mode, courseId, router]);
+
   useEffect(() => {
     const fetchChapters = async () => {
       if (!courseId) return;
@@ -115,7 +232,7 @@ export default function AddCodingQuestion() {
     }
   };
 
-  const updateTestCase = (id: number, field: string, value: string) => {
+  const updateTestCase = (id: number, field: string, value: string | boolean) => {
     setTestCases(prev => prev.map(tc => 
       tc.id === id ? { ...tc, [field]: value } : tc
     ));
@@ -185,85 +302,105 @@ export default function AddCodingQuestion() {
     });
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  
-  if (!courseId || !formData.chapter_id) {
-    toasterError("Course and chapter are required", 3000, "id");
-    return;
-  }
-
-  if (testCases.some(tc => !tc.input.trim() || !tc.expected_output.trim())) {
-    toasterError("All test cases must have input and expected output", 3000, "id");
-    return;
-  }
-
-  // Validate that at least one language is selected
-  if (formData.allowed_languages.length === 0) {
-    toasterError("At least one programming language must be selected", 3000, "id");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const submissionData = {
-      ...formData,
-      course_id: parseInt(courseId), // Ensure it's a number
-      chapter_id: parseInt(formData.chapter_id), // Ensure it's a number
-      test_cases: testCases.map((tc, index) => ({
-        id: index + 1, // Add sequential IDs for test cases
-        input: tc.input.trim(),
-        expected_output: tc.expected_output.trim(),
-        is_sample: tc.is_sample || false
-      })),
-      hints: formData.hints.filter(hint => hint.trim() !== ""),
-      tags: formData.tags.filter(tag => tag.trim() !== "")
-    };
-
-    console.log("Submitting data:", submissionData); // Debug log
-
-    // The correct endpoint path based on your backend routes
-    const response = await api.post("coding/createquestion/code", submissionData);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    if (response.success || response.status === 200) {
-      toasterSuccess("Coding question created successfully!", 3000, "id");
-      // Redirect to coding questions list instead of the same page
-   router.push(`code-question/?course_id=${courseId}`);
-    } else {
-      toasterError(response.error?.message || response.message || "Failed to create question", 3000, "id");
+    if (!courseId || !formData.chapter_id || !id) {
+      toasterError("Course, chapter, and question ID are required", 3000, "validation-error");
+      return;
     }
-  } catch (error: any) {
-    console.log("Error creating coding question:", error);
-    
-    // Handle different types of errors
-    if (error.response) {
-      const status = error.response.status;
-      const errorMessage = error.response.data?.message || error.response.data?.error || "Failed to create coding question";
+
+    if (testCases.some(tc => !tc.input.trim() || !tc.expected_output.trim())) {
+      toasterError("All test cases must have input and expected output", 3000, "validation-error");
+      return;
+    }
+
+    if (formData.allowed_languages.length === 0) {
+      toasterError("At least one programming language must be selected", 3000, "validation-error");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const submissionData = {
+        ...formData,
+        course_id: parseInt(courseId),
+        chapter_id: parseInt(formData.chapter_id),
+        test_cases: testCases.map((tc, index) => ({
+          id: tc.id,
+          input: tc.input.trim(),
+          expected_output: tc.expected_output.trim(),
+          is_sample: tc.is_sample || false
+        })),
+        hints: formData.hints.filter(hint => hint.trim() !== ""),
+        tags: formData.tags.filter(tag => tag.trim() !== "")
+      };
+
+      console.log("Updating question data:", submissionData);
+
+      // Update endpoint - using PUT method with question ID
+      const response = await api.put(`coding/${id}`, submissionData);
       
-      if (status === 401) {
-        toasterError("You are not authorized to perform this action. Please login again.", 3000, "id");
-      } else if (status === 403) {
-        toasterError("You don't have permission to create coding questions.", 3000, "id");
-      } else if (status === 404) {
-        toasterError("API endpoint not found. Please check the server configuration.", 3000, "id");
+      if (response.success || response.status === 200) {
+        toasterSuccess("Coding question updated successfully!", 3000, "update-success");
+        
+             router.push(`/code/code-questions-page?course_id=${courseId}`);
+        
       } else {
-        toasterError(errorMessage, 3000, "id");
+        toasterError(response.error?.message || response.message || "Failed to update question", 3000, "update-error");
       }
-    } else if (error.request) {
-      toasterError("Network error. Please check your connection.", 3000, "id");
-    } else {
-      toasterError("An unexpected error occurred.", 3000, "id");
+    } catch (error: any) {
+      console.log("Error updating coding question:", error);
+      
+      if (error.response) {
+        const status = error.response.status;
+        const errorMessage = error.response.data?.message || error.response.data?.error || "Failed to update coding question";
+        
+        if (status === 401) {
+          toasterError("You are not authorized to perform this action. Please login again.", 3000, "auth-error");
+        } else if (status === 403) {
+          toasterError("You don't have permission to update this coding question.", 3000, "permission-error");
+        } else if (status === 404) {
+          toasterError("Question not found or API endpoint not available.", 3000, "not-found-error");
+        } else {
+          toasterError(errorMessage, 3000, "update-error");
+        }
+      } else if (error.request) {
+        toasterError("Network error. Please check your connection.", 3000, "network-error");
+      } else {
+        toasterError("An unexpected error occurred.", 3000, "unknown-error");
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-  if (!courseId) {
+  // Validation checks
+  if (!courseId || !id) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-600">Course ID is required</div>
+        <div className="text-red-600">Course ID and Question ID are required</div>
+      </div>
+    );
+  }
+
+  if (mode !== "edit") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-600">Invalid mode. Expected 'edit' mode.</div>
+      </div>
+    );
+  }
+
+  // Loading state while fetching question data
+  if (fetchLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          <div className="text-gray-600 dark:text-gray-400">Loading question data...</div>
+        </div>
       </div>
     );
   }
@@ -274,7 +411,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => router.push(`/coding/createquestion/?course_id=${courseId}`)}
+             onClick={() => router.back()}
             className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white mb-4"
           >
             <ArrowLeft className="mr-2" size={20} />
@@ -283,10 +420,10 @@ const handleSubmit = async (e: React.FormEvent) => {
           
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             <Code className="inline mr-3" size={32} />
-            Add New Coding Question
+            Update Coding Question
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Create a new coding challenge for your students
+            Modify the existing coding challenge
           </p>
         </div>
 
@@ -616,7 +753,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           <div className="mt-8 flex justify-end gap-4">
             <button
               type="button"
-              onClick={() => router.push(`coding-questions?course_id=${courseId}`)}
+              onClick={() => router.back()}
               className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               Cancel
@@ -624,9 +761,10 @@ const handleSubmit = async (e: React.FormEvent) => {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             >
-              {loading ? "Creating..." : "Create Coding Question"}
+              <Save size={16} className="mr-2" />
+              {loading ? "Updating..." : "Update Question"}
             </button>
           </div>
         </form>
