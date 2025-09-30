@@ -42,7 +42,7 @@ export default function CoursesPage() {
 
 
 const handleCourseClick = (courseId:any) => {
-  router.push(`code/code-questions-page?course_id=${courseId}`);
+  router.push(`code/chapters?course_id=${courseId}`);
 };
  
 

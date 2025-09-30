@@ -24,6 +24,7 @@ export default function CodingQuestions({ className }: any) {
 
   const searchParams = useSearchParams();
   const courseId = searchParams.get("course_id");
+  const chapterId = searchParams.get("chapter_id");
 
   const fetchCodingQuestions = async (course_id?: number) => {
     if (!course_id) {
@@ -88,9 +89,7 @@ export default function CodingQuestions({ className }: any) {
   router.push(`updatecode/?course_id=${courseId}&question_id=${questionId}&mode=edit`);
 };
 
-  const handleView = (id: number) => {
-    router.push(`/coding/view-coding-question?id=${id}&course_id=${courseId}`);
-  };
+ 
 
 const handleToggleStatus = async (id: number, currentStatus: boolean) => {
   try {
@@ -228,9 +227,9 @@ const handleToggleStatus = async (id: number, currentStatus: boolean) => {
               <TableHead className="!text-left">Title</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Difficulty</TableHead>
-              <TableHead>Test Cases</TableHead>
+             
               <TableHead>Languages</TableHead>
-              <TableHead>Chapter</TableHead>
+           
               <TableHead>Status</TableHead>
               <TableHead>Created At</TableHead>
               <TableHead>Actions</TableHead>
@@ -239,7 +238,7 @@ const handleToggleStatus = async (id: number, currentStatus: boolean) => {
 
           <TableBody>
             {filteredQuestions.length > 0 ? (
-              filteredQuestions.map((question: any) => (
+              filteredQuestions.filter((question:any)=> question.chapter_id == chapterId  ).map((question: any) => (
                 <TableRow
                   className="text-center text-base font-medium text-dark dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800"
                   key={question.id}
@@ -259,11 +258,7 @@ const handleToggleStatus = async (id: number, currentStatus: boolean) => {
                       {question.difficulty || 'Medium'}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                      {question.test_cases?.length || 0}
-                    </span>
-                  </TableCell>
+                 
                   <TableCell>
                     <div className="flex flex-wrap gap-1 justify-center max-w-[150px]">
                       {question.allowed_languages?.slice(0, 2).map((lang: string, index: number) => (
@@ -281,11 +276,7 @@ const handleToggleStatus = async (id: number, currentStatus: boolean) => {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <span className="text-sm">
-                      {question.Chapter?.title || 'No Chapter'}
-                    </span>
-                  </TableCell>
+                  
                   <TableCell>
                     <button
                       onClick={() => handleToggleStatus(question.id, question.is_active)}
