@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { 
-  Play, 
-  Clock, 
-  Cpu, 
-  Lightbulb, 
-  ChevronLeft, 
-  CheckCircle, 
+import {
+  Play,
+  Clock,
+  Cpu,
+  Lightbulb,
+  ChevronLeft,
+  CheckCircle,
   XCircle,
   Code2,
-  History
+  History,
+  AlertCircle,
+  Info
 } from "lucide-react";
 import api from "@/lib/api";
 import Cookies from "js-cookie";
@@ -47,9 +49,9 @@ export default function CodingQuestionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const courseId = searchParams.get("course_id");
-  const chapterId = searchParams.get("chapter_id");
+  const chapterId = searchParams.get("chapterId");
   const question_id = searchParams.get("questionId");
-  
+
   console.log("object,questionId", question_id);
 
   const [questionData, setQuestionData] = useState<QuestionData | null>(null);
@@ -65,6 +67,11 @@ export default function CodingQuestionPage() {
     is_completed: false
   });
 
+
+  const [runResult, setRunResult] = useState<any>(null);
+  const [showRunResult, setShowRunResult] = useState(false);
+
+
   // Mock data for hints and submissions (replace with actual API calls)
   const [hints] = useState({
     revealed: [] as string[], // You can implement hint revealing logic
@@ -77,20 +84,20 @@ export default function CodingQuestionPage() {
   // Fetch question data
   const fetchQuestion = async (questionId: string) => {
     if (!questionId) return;
-    
+
     try {
       setLoading(true);
-      
+
       // Call your getCodingQuestionForUser API
       const res = await api.get(`coding/code-question/${questionId}`);
-      
-      console.log("🔍 API Response:", res.data?.data);
+
+
 
       if (res.data.success) {
         // Directly set the question data from API response
         const question = res.data.data;
         setQuestionData(question);
-        
+
         // Set initial code from starter_code
         if (question && question.starter_code && question.starter_code[selectedLanguage]) {
           setSourceCode(question.starter_code[selectedLanguage]);
@@ -120,44 +127,69 @@ export default function CodingQuestionPage() {
     }
   }, [question_id]);
 
-  // Handle code submission
+  // Handle code submission - FIXED VERSION
   const handleSubmitCode = async () => {
-    if (!questionData || !sourceCode.trim() || !courseId || !chapterId) return;
+    if (!questionData || !sourceCode.trim() || !courseId || !chapterId) {
+      alert("Missing required information");
+      return;
+    }
 
     try {
       setSubmitting(true);
       const userId = Cookies.get("userId");
 
       if (!userId) {
-        alert("User not authenticated");
+        alert("User not authenticated. Please log in.");
         return;
       }
 
+      // FIXED: Changed chapter_id and coding_question_id to strings (not parseInt)
       const submissionData = {
         user_id: userId,
-        chapter_id: parseInt(chapterId),
-        coding_question_id: questionData.id, // Use questionData.id directly
+        chapter_id: chapterId, // Keep as string
+        coding_question_id: question_id, // Use question_id from URL params
         source_code: sourceCode,
         language: selectedLanguage
       };
 
+
+
       const res = await api.post("/coding/submit", submissionData);
 
+
+
       if (res.data.success) {
+        // Update test results
         setTestResults(res.data.data.test_results || []);
         setActiveTab("results");
-        
-        // Refresh question data to update progress
-        await fetchQuestion(question_id!);
-        
-        // Show success message
-        if (res.data.data.passed) {
-          alert("🎉 Congratulations! All test cases passed!");
+
+        // Update user progress stats
+        setUserProgress(prev => ({
+          ...prev,
+          best_score: Math.max(prev.best_score, res.data.data.score || 0),
+          total_attempts: prev.total_attempts + 1,
+          is_completed: res.data.data.passed || prev.is_completed
+        }));
+
+        // Show success/failure message
+        alert(res.data.message || "Submission completed!");
+
+        // Optional: Refresh question data
+        if (question_id) {
+          await fetchQuestion(question_id);
         }
+      } else {
+        alert(res.data.message || "Submission failed");
       }
-    } catch (err) {
-      console.error("❌ Failed to submit code:", err);
-      alert("Failed to submit code. Please try again.");
+    } catch (err: any) {
+      console.error("❌ Submission error:", err);
+
+      // Better error handling
+      const errorMessage = err.response?.data?.message
+        || err.message
+        || "Failed to submit code. Please try again.";
+
+      alert(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -165,7 +197,46 @@ export default function CodingQuestionPage() {
 
   // Handle run code
   const handleRunCode = async () => {
-    alert("Run feature coming soon!");
+    if (!questionData || !sourceCode.trim()) {
+      alert("Please write some code first");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setShowRunResult(false);
+
+
+      // Find a sample test case
+      const sampleTest = questionData.test_cases.find(tc => tc.is_sample);
+
+      if (!sampleTest) {
+        alert("No sample test case available");
+        return;
+      }
+
+      const userId = Cookies.get("userId");
+
+      const testData = {
+        user_id: userId || "guest",
+        chapter_id: chapterId,
+        coding_question_id: question_id,
+        source_code: sourceCode,
+        language: selectedLanguage
+      };
+
+      const res = await api.post("coding/submit", testData);
+
+      if (res.data.success) {
+
+        console.log("resdddddd", res?.data?.data)
+        setRunResult(res)
+      }
+    } catch (err: any) {
+      alert("Run failed: " + (err.response?.data?.message || err.message));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Reset code to starter template
@@ -191,7 +262,7 @@ export default function CodingQuestionPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-500 dark:text-red-400">Question not found</p>
-          <button 
+          <button
             onClick={() => router.back()}
             className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
           >
@@ -220,13 +291,12 @@ export default function CodingQuestionPage() {
                   {questionData.title}
                 </h1>
                 <div className="flex items-center space-x-2 mt-1">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    questionData.difficulty === 'easy' 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : questionData.difficulty === 'medium'
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${questionData.difficulty === 'easy'
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : questionData.difficulty === 'medium'
                       ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                       : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                  }`}>
+                    }`}>
                     {questionData.difficulty.charAt(0).toUpperCase() + questionData.difficulty.slice(1)}
                   </span>
                   <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -279,12 +349,12 @@ export default function CodingQuestionPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="prose dark:prose-invert max-w-none">
-                <div 
+                <div
                   className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{ 
-                    __html: questionData.description.replace(/\n/g, '<br/>') 
+                  dangerouslySetInnerHTML={{
+                    __html: questionData.description.replace(/\n/g, '<br/>')
                   }}
                 />
               </div>
@@ -332,7 +402,7 @@ export default function CodingQuestionPage() {
                 </div>
                 <div className="space-y-3">
                   {hints.revealed.map((hint, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg"
                     >
@@ -361,7 +431,7 @@ export default function CodingQuestionPage() {
                 </div>
                 <div className="space-y-2">
                   {recentSubmissions.map((submission) => (
-                    <div 
+                    <div
                       key={submission.id}
                       className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
                     >
@@ -377,9 +447,8 @@ export default function CodingQuestionPage() {
                         )}
                       </div>
                       <div className="text-right">
-                        <div className={`text-sm font-bold ${
-                          submission.passed ? 'text-green-500' : 'text-red-500'
-                        }`}>
+                        <div className={`text-sm font-bold ${submission.passed ? 'text-green-500' : 'text-red-500'
+                          }`}>
                           {submission.score}%
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -442,7 +511,7 @@ export default function CodingQuestionPage() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="p-1">
                 <textarea
                   value={sourceCode}
@@ -464,7 +533,7 @@ export default function CodingQuestionPage() {
                     <Play className="w-4 h-4" />
                     <span>Run Code</span>
                   </button>
-                  
+
                   <button
                     onClick={handleSubmitCode}
                     disabled={submitting || !sourceCode.trim()}
@@ -486,6 +555,26 @@ export default function CodingQuestionPage() {
               </div>
             </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             {/* Test Results */}
             {activeTab === "results" && testResults.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -496,11 +585,10 @@ export default function CodingQuestionPage() {
                   {testResults.map((result, index) => (
                     <div
                       key={index}
-                      className={`p-3 rounded-lg border ${
-                        result.passed
-                          ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                          : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
-                      }`}
+                      className={`p-3 rounded-lg border ${result.passed
+                        ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+                        : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+                        }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
@@ -526,6 +614,112 @@ export default function CodingQuestionPage() {
               </div>
             )}
           </div>
+
+
+
+
+        </div>
+
+        <div className="mt-5">  
+          {runResult && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Run Results
+              </h3>
+              <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${runResult.data.data.passed
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                }`}>
+                {runResult.data.data.passed ? (
+                  <CheckCircle className="w-4 h-4" />
+                ) : (
+                  <XCircle className="w-4 h-4" />
+                )}
+                <span className="text-sm font-medium">
+                  {runResult.data.data.passed ? 'All Tests Passed' : 'Tests Failed'}
+                </span>
+              </div>
+            </div>
+
+            {/* Summary Stats */}
+            <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {runResult.data.data.score}%
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-300">Score</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {runResult.data.data.passed_test_cases}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-300">Passed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-600 dark:text-gray-300">
+                  {runResult.data.data.total_test_cases}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-300">Total</div>
+              </div>
+            </div>
+
+            {/* Test Cases Results */}
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900 dark:text-white mb-3">
+                Test Cases Details:
+              </h4>
+              {runResult.data.data.test_results.map((test: any) => (
+                <div
+                  key={test.test_case_id}
+                  className={`p-4 rounded-lg border ${test.passed
+                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+                    : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+                    }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      {test.passed ? (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <XCircle className="w-5 h-5 text-red-500" />
+                      )}
+                      <div>
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          Test Case {test.test_case_id}
+                        </span>
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                          Input: <code className="bg-white dark:bg-gray-800 px-1 rounded">{test.input}</code>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${test.passed
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        }`}>
+                        {test.status}
+                      </span>
+                      {test.error && (
+                        <div className="mt-1 text-xs text-red-600 dark:text-red-400">
+                          Error: {test.error}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Submission Info */}
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+              <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                <Info className="w-4 h-4" />
+                <span>Submission ID: {runResult.data.data.submission_id}</span>
+              </div>
+            </div>
+          </div>
+        )}
         </div>
       </div>
     </div>

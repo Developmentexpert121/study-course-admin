@@ -231,7 +231,7 @@ export default function CodingQuestions({ className }: any) {
                       {question.created_at && new Date(question.created_at).toLocaleDateString()}
                     </div>
                     <button
-                      onClick={() => router.push(`/user-panel/code/solv-code?questionId=${question.id}&?course_id=${courseId}`)}
+                      onClick={() => router.push(`/user-panel/code/solv-code?questionId=${question.id}&?course_id=${courseId}&chapterId=${question.chapter_id}`)}
                       className="inline-flex items-center gap-1 rounded-full border border-green-600 bg-white text-green-600 px-3 py-1.5 text-sm font-medium hover:bg-green-50 hover:text-green-700 transition-colors"
                     >
                       <Eye size={14} />
