@@ -4,42 +4,50 @@ export const NAV_DATA = [
   {
     label: "MAIN MENU",
     items: [
+      // User-specific items
       {
         title: "Home",
         url: "/",
         icon: Icons.User,
         items: [],
-        type: "user", // Show to both admin and user
+        type: "user",
       },
+      {
+        title: "Course",
+        url: "/user-panel/courses",
+        icon: Icons.User,
+        items: [],
+        type: "user",
+      },
+
+      // Admin-specific items
       {
         title: "Dashboard",
         icon: Icons.HomeIcon,
         url: "/",
         items: [],
-        type: "admin", // Show to both admin and user
+        type: "admin",
       },
       {
         title: "COURSES",
         url: "/courses",
         icon: Icons.Calendar,
         items: [],
-        type: "admin", // Only show to admin
+        type: "admin",
       },
       {
         title: "CHAPTERS",
         url: "/add-chapter",
         icon: Icons.Calendar,
         items: [],
-        type: "admin", // Only show to admin
+        type: "admin",
       },
-    
-
-       {
-       title: "MCQ",
+      {
+        title: "MCQ",
         url: "/add-mcq",
         icon: Icons.Calendar,
         items: [],
-        type: "admin", 
+        type: "admin",
       },
       {
         title: "USER DETAILS",
@@ -54,26 +62,63 @@ export const NAV_DATA = [
             url: "/users/user-details",
           },
         ],
-        type: "admin", // Only show to admin
+        type: "admin",
       },
+
+      // Super Admin-specific items
+      {
+        title: "Super Admin Dashboard",
+        url: "/super-admin/dashboard",
+        icon: Icons.HomeIcon,
+        items: [],
+        type: "Super-Admin",
+      },
+      {
+        title: "Admins Requests",
+        url: "/super-admin/admins-requests",
+        icon: Icons.User,
+        items: [],
+        type: "Super-Admin",
+      },
+      {
+        title: "System Settings",
+        url: "/super-admin/settings",
+        icon: Icons.Calendar,
+        items: [],
+        type: "Super-Admin",
+      },
+      {
+        title: "Admin Log details",
+        url: "/super-admin/log-details",
+        icon: Icons.Alphabet,
+        items: [],
+        type: "Super-Admin",
+      },
+
+      // Common items for all roles
       {
         title: "Profile",
         url: "/profile",
         icon: Icons.User,
         items: [],
-        type: "both", // Show to both admin and user
+        type: "both",
       },
       {
-        title: "Course",
-        url: "/user-panel/courses",
+        title: "Manage Admins",
+        url:"/super-admin/manage-admins",
         icon: Icons.User,
         items: [],
-        type: "user", // Show to both admin and user
+        type: "Super-Admin",
       },
+      {
+        title: "All User",
+        url:"/super-admin/all-user",
+        icon: Icons.User,
+        items: [],
+        type: "Super-Admin",
+      }
 
- 
-     
-       
+      
     ],
   },
 ];

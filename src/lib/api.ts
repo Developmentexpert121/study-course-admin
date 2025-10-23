@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie';
 
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
 
 const handleResponse = async (response: Response) => {
@@ -48,7 +49,7 @@ const refreshAccessToken = async () => {
 };
 
 const request = async (
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
   url: string,
   body?: any,
   includeToken: boolean = true,
@@ -90,6 +91,7 @@ const api = {
   get: (url: string) => request("GET", url),
   post: (url: string, body: any) => request("POST", url, body),
   put: (url: string, body: any) => request("PUT", url, body),
+  patch: (url: string, body?: any) => request("PATCH", url, body), 
   delete: (url: string) => request("DELETE", url),
   postFile: (url: string, formData: FormData) => request("POST", url, formData, true, true),
 };

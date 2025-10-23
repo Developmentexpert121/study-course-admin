@@ -44,19 +44,33 @@ export function Sidebar() {
 
   const isUser = role === 'user';
   const isAdmin = role === 'admin';
+  const isSuperAdmin = role === 'Super-Admin';
 
   // Filter navigation items based on user role and item type
   const getFilteredNavData = () => {
     return NAV_DATA.map((section) => ({
       ...section,
       items: section.items.filter((item) => {
-        if (isUser) {
-          // For users, only show items with type 'both' or 'user'
-          return item.type === 'both' || item.type === 'user';
-        } else if (isAdmin) {
-          // For admin, show items with type 'both' or 'admin'
-          return item.type === 'both' || item.type === 'admin';
+        // Items marked as 'both' are visible to all roles
+        if (item.type === 'both') {
+          return true;
         }
+
+        // Super Admin can see everything (admin, user, Super-Admin, and both items)
+        if (isSuperAdmin) {
+          return item.type === 'Super-Admin';
+        }
+
+        // Admin can see admin and both items
+        if (isAdmin) {
+          return item.type === 'admin';
+        }
+
+        // User can see user and both items
+        if (isUser) {
+          return item.type === 'user';
+        }
+
         // If no role, show nothing
         return false;
       })
@@ -64,6 +78,14 @@ export function Sidebar() {
   };
 
   const filteredNavData = getFilteredNavData();
+
+  // Determine home route based on role
+  const getHomeRoute = () => {
+    if (isSuperAdmin) return "/super-admin/dashboard";
+    if (isAdmin) return "/";
+    if (isUser) return "/user-dashboard";
+    return "/";
+  };
 
   return (
     <>
@@ -89,7 +111,7 @@ export function Sidebar() {
         <div className="flex h-full flex-col py-10 pl-[25px] pr-[7px]">
           <div className="relative pr-4.5">
             <Link
-              href={isUser ? "/user-dashboard" : "/"}
+              href={getHomeRoute()}
               onClick={() => isMobile && toggleSidebar()}
               className="px-0 py-2.5 min-[850px]:py-0"
             >

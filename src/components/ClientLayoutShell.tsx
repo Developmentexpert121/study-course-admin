@@ -8,7 +8,7 @@ import Cookies from 'js-cookie';
 import { Sidebar } from '@/components/Layouts/sidebar';
 import { Header } from '@/components/Layouts/header';
 import ToastProvider from '@/components/core/ToasterProvider';
-import UserCoursesDashboard from '@/components/UserCoursesDashboard'; // We'll create this component
+import UserCoursesDashboard from '@/components/UserCoursesDashboard';
 
 import type { PropsWithChildren } from 'react';
 
@@ -29,10 +29,13 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
 
   const isAdmin = role === 'admin';
   const isUser = role === 'user';
-  const isAuthenticated = !isAuthPage && (isAdmin || isUser);
+  const isSuperAdmin = role === 'Super-Admin' || role === 'Super-Admin';
+  const isAuthenticated = !isAuthPage && (isAdmin || isUser || isSuperAdmin);
 
-  // For admin: always show actual content
-  // For user: show courses dashboard only on dashboard, show actual content for other pages
+  // Role-based dashboard logic:
+  // - Super Admin: always show actual content (no special dashboard override)
+  // - Admin: always show actual content
+  // - User: show courses dashboard only on '/' or '/user-dashboard', show actual content for other pages
   const showUserDashboard = isUser && (pathname === '/' || pathname === '/user-dashboard');
 
   return (
@@ -50,8 +53,9 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
               <UserCoursesDashboard />
             ) : (
               // Show actual page content for:
+              // - Super Admin on all pages
               // - Admin on all pages
-              // - User on non-dashboard pages (like Profile)
+              // - User on non-dashboard pages (like Profile, Courses, etc.)
               children
             )}
           </main>

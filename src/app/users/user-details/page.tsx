@@ -72,8 +72,8 @@ export default function UsersWithProgressPage({ className }: any) {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.role || "User"}</TableCell>
                 <TableCell>
-                  <span className={user.verified ? "text-green-600" : "text-red-500"}>
-                    {user.verified ? "Verified" : "Unverified"}
+                  <span className={user.verifyUser ? "text-green-600" : "text-red-500"}>
+                    {user.verifyUser ? "Verified" : "Unverified"}
                   </span>
                 </TableCell>
 

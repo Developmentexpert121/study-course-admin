@@ -3,15 +3,19 @@ import { getOverviewData } from "../../fetch";
 import { OverviewCard } from "./card";
 import * as icons from "./icons";
 
-export async function OverviewCardsGroup({users}:any) {
+export async function OverviewCardsGroup({users}: any) {
+  const data = await getOverviewData();
+  
+  // Provide default values if data is undefined
   const {
-    totalUsers,
-    verifiedUsers,
-    adminUsers,
-    activeCourses,
-    inactiveCourses,
-    enrolledCourses
-  } = await getOverviewData();
+    totalUsers = 0,
+    verifiedUsers = 0,
+    adminUsers = 0,
+    activeCourses = 0,
+    inactiveCourses = 0,
+    enrolledCourses = 0
+  } = data || {};
+
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3 2xl:gap-7.5">
