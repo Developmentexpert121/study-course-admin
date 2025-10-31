@@ -21,11 +21,49 @@ export default function ProgressTab({
 
   const totalDuration = statistics.total_duration || 0;
 
+  // Calculate progress statistics from chapters data
+  const calculateProgressStats = () => {
+    const completedChapters = chapters.filter(
+      (chapter) => chapter.user_progress?.completed || chapter.completed,
+    ).length;
+
+    const completedLessons = chapters.reduce((total, chapter) => {
+      return (
+        total +
+        (chapter.lessons?.filter((lesson: any) => lesson.completed)?.length ||
+          0)
+      );
+    }, 0);
+
+    const totalLessons = chapters.reduce((total, chapter) => {
+      return total + (chapter.lessons?.length || 0);
+    }, 0);
+
+    const totalChapters = chapters.length;
+
+    return {
+      completedChapters,
+      completedLessons,
+      totalLessons,
+      totalChapters,
+      remainingChapters: totalChapters - completedChapters,
+      overallProgress: userData?.progress || 0, // Use the direct progress number
+    };
+  };
+
+  const progressStats = calculateProgressStats();
+
   const calculateChapterProgress = (chapter: any) => {
-    const totalItems =
-      (chapter.lessons?.length || 0) + (chapter.mcqs?.length || 0);
-    if (totalItems === 0) return 0;
-    return chapter.user_progress?.completed ? 100 : 0;
+    if (chapter.user_progress?.completed || chapter.completed) {
+      return 100;
+    }
+
+    const totalLessons = chapter.lessons?.length || 0;
+    if (totalLessons === 0) return 0;
+
+    const completedLessons =
+      chapter.lessons?.filter((lesson: any) => lesson.completed)?.length || 0;
+    return Math.round((completedLessons / totalLessons) * 100);
   };
 
   const getProgressColor = (progress: number) => {
@@ -52,14 +90,14 @@ export default function ProgressTab({
               Course Completion
             </span>
             <span className="font-medium text-gray-900 dark:text-white">
-              {Math.round(userData.progress.overall_progress)}%
+              {progressStats.overallProgress}%
             </span>
           </div>
           <div className="h-4 w-full rounded-full bg-gray-200 dark:bg-gray-700">
             <div
               className="h-full rounded-full bg-green-500 transition-all duration-300"
               style={{
-                width: `${userData.progress.overall_progress}%`,
+                width: `${progressStats.overallProgress}%`,
               }}
             />
           </div>
@@ -68,7 +106,7 @@ export default function ProgressTab({
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {userData.progress.chapters_completed}
+              {progressStats.completedChapters}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Chapters Completed
@@ -76,7 +114,7 @@ export default function ProgressTab({
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {userData.progress.lessons_completed}
+              {progressStats.completedLessons}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Lessons Finished
@@ -84,8 +122,7 @@ export default function ProgressTab({
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {userData.progress.total_chapters -
-                userData.progress.chapters_completed}
+              {progressStats.remainingChapters}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Chapters Remaining
@@ -96,7 +133,7 @@ export default function ProgressTab({
               {formatDuration(totalDuration)}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Time Invested
+              Total Duration
             </div>
           </div>
         </div>
@@ -110,19 +147,27 @@ export default function ProgressTab({
         <div className="space-y-4">
           {chapters.map((chapter: any, index: number) => {
             const progress = calculateChapterProgress(chapter);
+            const isCompleted = progress === 100;
+
             return (
               <div
                 key={chapter.id}
-                className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                className={cn(
+                  "rounded-lg border p-4 transition-colors",
+                  isCompleted
+                    ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20"
+                    : "border-gray-200 dark:border-gray-700",
+                )}
               >
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex-1">
                     <div className="font-medium text-gray-900 dark:text-white">
                       Chapter {index + 1}: {chapter.title}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       {chapter.lessons?.length || 0} lessons •{" "}
-                      {chapter.mcqs?.length || 0} MCQs
+                      {chapter.mcqs?.length || 0} MCQs •{" "}
+                      {formatDuration(chapter.duration || 0)}
                     </div>
                   </div>
                   <div className="text-right">
@@ -143,10 +188,15 @@ export default function ProgressTab({
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                {progress === 100 && (
+                {isCompleted && (
                   <div className="mt-2 flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
                     <CheckCircle className="h-4 w-4" />
                     Chapter Completed
+                  </div>
+                )}
+                {!isCompleted && progress > 0 && (
+                  <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+                    In Progress - {progress}% complete
                   </div>
                 )}
               </div>

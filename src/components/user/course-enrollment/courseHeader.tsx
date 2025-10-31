@@ -20,6 +20,10 @@ export default function CourseHeader({
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   };
 
+  // Safe progress calculation - userData.progress is a number, not an object
+  const progress = userData?.progress || 0;
+  const safeProgress = Math.min(Math.max(Number(progress) || 0, 0), 100);
+
   return (
     <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-800">
       <div className="mb-4 flex items-start gap-6">
@@ -60,22 +64,22 @@ export default function CourseHeader({
             </p>
           )}
 
-          {/* Progress Bar for Enrolled Users */}
-          {isEnrolled && userData.progress && (
+          {/* Progress Bar for Enrolled Users - FIXED */}
+          {isEnrolled && safeProgress > 0 && (
             <div className="mb-4">
               <div className="mb-2 flex items-center justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">
                   Your Progress
                 </span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {Math.round(userData.progress.overall_progress)}%
+                  {safeProgress}%
                 </span>
               </div>
               <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                 <div
                   className="h-full rounded-full bg-green-500 transition-all duration-300"
                   style={{
-                    width: `${userData.progress.overall_progress}%`,
+                    width: `${safeProgress}%`,
                   }}
                 />
               </div>

@@ -1,5 +1,5 @@
 // components/course-learn/CourseContentSidebar.tsx
-import React from "react";
+import React, { useState } from "react";
 import ChapterAccordion from "./ChapterAccordion";
 import { BookOpen, Clock, CheckCircle2, Target } from "lucide-react";
 
@@ -18,8 +18,34 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
   onStartMCQ,
   selectedLesson,
 }) => {
+  // State to store MCQ results for each chapter
+  const [mcqResults, setMcqResults] = useState<{ [chapterId: number]: any }>(
+    {},
+  );
+
+  // Function to handle MCQ results from API
+  const handleMCQResult = (chapterId: number, result: any) => {
+    setMcqResults((prev) => ({
+      ...prev,
+      [chapterId]: result,
+    }));
+  };
+
+  // Update your onStartMCQ to handle results if needed
+  const handleStartMCQ = (chapter: any) => {
+    // If you need to handle MCQ start logic, do it here
+    onStartMCQ(chapter);
+  };
+
   const getChapterProgress = (chapter: any) => {
-    if (!courseProgress) return null;
+    // Safe check for courseProgress structure
+    if (
+      !courseProgress ||
+      !courseProgress.chapters ||
+      !Array.isArray(courseProgress.chapters)
+    ) {
+      return null;
+    }
     const progressChapter = courseProgress.chapters.find(
       (ch: any) => ch.id === chapter.id,
     );
@@ -52,6 +78,10 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
     return `${mins}m`;
   };
 
+  // Calculate progress percentage safely
+  const progressPercentage =
+    totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
   return (
     <div className="h-full border-l border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
       <div className="flex h-full flex-col">
@@ -78,7 +108,7 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
                 Progress
               </span>
               <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-                {Math.round((completedLessons / totalLessons) * 100)}%
+                {progressPercentage}%
               </span>
             </div>
 
@@ -86,7 +116,7 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
             <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-500"
-                style={{ width: `${(completedLessons / totalLessons) * 100}%` }}
+                style={{ width: `${progressPercentage}%` }}
               />
             </div>
 
@@ -118,7 +148,8 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
                   chapter={chapter}
                   chapterProgress={getChapterProgress(chapter)}
                   onLessonClick={onLessonClick}
-                  onStartMCQ={onStartMCQ}
+                  onStartMCQ={handleStartMCQ}
+                  mcqResults={mcqResults[chapter.id]} // Pass specific chapter results
                   defaultOpen={index === 0}
                   selectedLesson={selectedLesson}
                 />

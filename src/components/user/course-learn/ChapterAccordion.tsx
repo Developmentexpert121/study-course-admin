@@ -20,6 +20,7 @@ const ChapterAccordion: React.FC<any> = ({
   onStartMCQ,
   defaultOpen = true,
   selectedLesson,
+  mcqResults,
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -172,6 +173,7 @@ const ChapterAccordion: React.FC<any> = ({
               chapter={chapter}
               chapterProgress={chapterProgress}
               onStartMCQ={() => onStartMCQ(chapter)}
+              mcqResults={mcqResults}
             />
           )}
         </div>

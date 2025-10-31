@@ -254,18 +254,16 @@ export default function CourseSidebar({
               {new Date(courseData.updatedAt).toLocaleDateString()}
             </span>
           </div>
-          {isEnrolled &&
-            userData &&
-            userData.progress && ( // Add null check for userData
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Your Progress
-                </span>
-                <span className="font-medium text-green-600 dark:text-green-400">
-                  {Math.round(userData.progress.overall_progress)}%
-                </span>
-              </div>
-            )}
+          {isEnrolled && userData && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                Your Progress
+              </span>
+              <span className="font-medium text-green-600 dark:text-green-400">
+                {Math.round(userData.progress || 0)}%
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

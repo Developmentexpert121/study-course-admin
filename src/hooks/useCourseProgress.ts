@@ -12,10 +12,30 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
 
     const getUserId = useCallback(() => {
         const user = getDecryptedItem('userId');
-        return user
+        return user;
     }, []);
 
-    // hooks/useCourseProgress.ts - update handleLessonComplete
+    // Add this helper function to useCourseProgress.ts
+    const loadProgressData = async () => {
+        if (!courseId) return;
+
+        try {
+            const userId = getUserId();
+            if (!userId) return;
+
+            console.log('🔄 [FRONTEND] Loading progress data...');
+            const progressResponse = await api.get(`progress/${courseId}/progress?user_id=${userId}`);
+
+            if (progressResponse.success) {
+                console.log('✅ [FRONTEND] Progress data loaded:', progressResponse.data);
+                setCourseProgress(progressResponse.data.data);
+            }
+        } catch (error) {
+            console.error('❌ [FRONTEND] Error loading progress:', error);
+        }
+    };
+
+    // Add the missing handleLessonComplete function
     const handleLessonComplete = useCallback(async (lessonId: number, chapterId: number) => {
         if (!courseId) {
             console.error('Course ID is required');
@@ -28,7 +48,12 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
                 throw new Error('User not authenticated');
             }
 
-            console.log('Calling complete-lesson API:', { courseId, lessonId, chapterId, userId });
+            console.log('🎯 [FRONTEND] Calling complete-lesson API:', {
+                courseId,
+                lessonId,
+                chapterId,
+                userId
+            });
 
             const response = await api.post(`progress/${courseId}/complete-lesson`, {
                 user_id: userId,
@@ -36,9 +61,11 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
                 chapter_id: chapterId
             });
 
-            console.log('Complete-lesson API response:', response);
+            console.log('🎯 [FRONTEND] Complete-lesson API response:', response);
 
             if (response.success) {
+                console.log('✅ [FRONTEND] Lesson marked as completed successfully');
+
                 // Update local state
                 setCourse((prev: any) => {
                     if (!prev) return prev;
@@ -61,24 +88,22 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
                     };
                 });
 
-                // Update progress data
-                if (response.data?.data?.progress) {
-                    setCourseProgress(response.data.data.progress);
-                }
+                // Reload progress data to get updated state
+                console.log('🔄 [FRONTEND] Reloading progress data...');
+                await loadProgressData();
 
                 return true;
             } else {
-                console.error('Failed to mark lesson as completed:', response.error);
+                console.error('❌ [FRONTEND] Failed to mark lesson as completed:', response.error);
                 return false;
             }
         } catch (error) {
-            console.error('[handleLessonComplete] Error:', error);
+            console.error('❌ [FRONTEND] handleLessonComplete Error:', error);
             return false;
         }
-    }, [courseId, getUserId, api, setCourse, setCourseProgress]);
+    }, [courseId, getUserId, api, setCourse]);
 
-
-    // hooks/useCourseProgress.ts
+    // Fixed submitMCQTest function
     const submitMCQTest = useCallback(async () => {
         if (!currentMCQChapter || !courseId) {
             console.error('No MCQ chapter selected or course ID missing');
@@ -108,30 +133,41 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
             if (response.success) {
                 console.log('MCQ submitted successfully:', response.data);
 
-                // Update local state
+                const mcqResult = response.data.data; // This contains the actual result
+
+                // ✅ FIX: Use the actual passed status from API response
                 setCourse((prev: any) => {
                     if (!prev) return prev;
                     return {
                         ...prev,
                         chapters: prev.chapters.map((chapter: any) =>
                             chapter.id === currentMCQChapter.id
-                                ? { ...chapter, mcq_passed: true }
+                                ? {
+                                    ...chapter,
+                                    mcq_passed: mcqResult.passed, // Use actual result
+                                    mcq_results: mcqResult // Store the full results
+                                }
                                 : chapter
                         )
                     };
                 });
 
                 // Update progress
-                if (response.data?.data) {
-                    setCourseProgress(response.data.data);
+                if (mcqResult) {
+                    setCourseProgress(mcqResult);
+                }
+
+                // Show appropriate message based on result
+                if (mcqResult.passed) {
+                    alert('🎉 Congratulations! You passed the MCQ test!');
+                } else {
+                    alert(`❌ You scored ${mcqResult.score}% but need ${mcqResult.passing_threshold}% to pass. You can reattempt the test.`);
                 }
 
                 // Close modal and reset
                 setCurrentMCQChapter(null);
                 setUserAnswers({});
 
-                // Show success message
-                alert('MCQ submitted successfully!');
             } else {
                 console.error('Failed to submit MCQ:', response.error);
                 alert(response.error?.message || 'Failed to submit MCQ');
@@ -143,7 +179,6 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
             setSubmittingMCQ(false);
         }
     }, [currentMCQChapter, courseId, userAnswers, getUserId, api, setCourse, setCourseProgress]);
-
 
     const handleStartMCQ = useCallback((chapter: any) => {
         setCurrentMCQChapter(chapter);
@@ -166,11 +201,12 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
         setUserAnswers,
         submittingMCQ,
         currentMCQChapter,
-        handleLessonComplete,
+        handleLessonComplete, // ✅ Now included in return
         submitMCQTest,
         handleStartMCQ,
         handleCloseMCQ,
         initializeProgress,
         getUserId,
+        loadProgressData, // Also include this if needed
     };
 };

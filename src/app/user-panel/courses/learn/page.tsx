@@ -107,35 +107,36 @@ export default function CourseLearnPage() {
     }
   };
 
-  // In your handleLessonClick function - add debugging
   const handleLessonClick = async (chapter: any, lesson: any) => {
     if (chapter.locked) {
       alert("This chapter is locked. Complete previous chapters first.");
       return;
     }
 
-    console.log("Lesson clicked:", {
+    console.log("🎯 [FRONTEND] Lesson clicked:", {
       lessonId: lesson.id,
       chapterId: chapter.id,
       lessonCompleted: lesson.completed,
+      chapterTitle: chapter.title,
+      lessonTitle: lesson.title,
     });
 
+    // Set the selected lesson first
     setSelectedLesson({ chapter, lesson });
 
+    // Only mark as completed if it's not already completed
     if (!lesson.completed) {
-      console.log("Marking lesson as completed...");
+      console.log("🔄 [FRONTEND] Marking lesson as completed...");
       const success = await handleLessonComplete(lesson.id, chapter.id);
 
       if (success) {
-        console.log("✅ Lesson marked as completed successfully");
-        // Reload progress data
-        await loadCourseData();
+        console.log("✅ [FRONTEND] Lesson completion process finished");
       } else {
-        console.error("❌ Failed to mark lesson as completed");
+        console.error("❌ [FRONTEND] Failed to mark lesson as completed");
         alert("Failed to mark lesson as completed. Please try again.");
       }
     } else {
-      console.log("Lesson already completed");
+      console.log("ℹ️ [FRONTEND] Lesson already completed");
     }
   };
 
