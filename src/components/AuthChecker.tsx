@@ -30,7 +30,7 @@ export default function AuthChecker({
       const isAuthPage = pathname?.startsWith("/auth") || false;
       const isHomePage = pathname === "/" || pathname === "/home";
       const isPublicPage = isHomePage;
-      const isAccessDeniedPage = pathname === "/access-denied";
+      const isAccessDeniedPage = pathname === "access-denied";
       if (isPublicPage || isAccessDeniedPage) {
         console.log("✅ Allowing public page access");
         setLoading(false);

@@ -86,7 +86,7 @@ export function UserInfo() {
       <DropdownTrigger className="rounded align-middle outline-none ring-primary ring-offset-2 focus-visible:ring-1 dark:ring-offset-gray-dark">
         <span className="sr-only">My Account</span>
 
-        <figure className="flex size-10 items-center gap-3 overflow-hidden rounded-full">
+        <figure className="flex size-10 items-center  overflow-hidden rounded-full">
           <Image
             src={userImage || ""}
             className="size-10"
@@ -96,16 +96,16 @@ export function UserInfo() {
             height={200}
           />
           <figcaption className="flex items-center gap-1 font-medium text-dark dark:text-dark-6 max-[1024px]:sr-only">
-            <span>{userName}</span>
+            {/* <span>{userName}</span> */}
 
-            <ChevronUpIcon
+            {/* <ChevronUpIcon
               aria-hidden
               className={cn(
                 "rotate-180 transition-transform",
                 isOpen && "rotate-0",
               )}
               strokeWidth={1.5}
-            />
+            /> */}
           </figcaption>
         </figure>
       </DropdownTrigger>

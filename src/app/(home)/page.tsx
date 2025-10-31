@@ -1,4 +1,5 @@
-// app/page.tsx
+"use client";
+
 import { Suspense } from "react";
 import HomeContent from "./_components/home-content";
 import { OverviewCardsSkeleton } from "./_components/overview-cards/skeleton";

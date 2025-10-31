@@ -104,7 +104,7 @@ export const fetchUserById = createAsyncThunk(
     }
   }
 );
-console.log("updateUserProfileupdateUserProfileupdateUserProfileupdateUserProfileupdateUserProfile",fetchUserById)
+
 // Create user slice
 const userSlice = createSlice({
   name: 'user',
@@ -163,18 +163,13 @@ const userSlice = createSlice({
 // Export actions
 export const { clearUser, clearUpdateError, clearError, updateUserLocal } = userSlice.actions;
 
-// Selectors
-// export const selectCurrentUser = (state: { user: UserState }) => state.user.currentUser;
-// export const selectUserLoading = (state: { user: UserState }) => state.user.loading;
-// export const selectUserError = (state: { user: UserState }) => state.user.error;
-// export const selectUpdateLoading = (state: { user: UserState }) => state.user.updateLoading;
-// export const selectUpdateError = (state: { user: UserState }) => state.user.updateError;
 
-export const selectCurrentUser = (state: RootState) => state.user.currentUser;
-export const selectUserLoading = (state:RootState) => state.user.loading;
-export const selectUserError = (state:RootState) => state.user.error;
-export const selectUpdateLoading = (state:RootState) => state.user.updateLoading;
-export const selectUpdateError = (state:RootState) => state.user.updateError;
+
+export const selectCurrentUser = (state: any) => state.user.currentUser;
+export const selectUserLoading = (state:any) => state.user.loading;
+export const selectUserError = (state:any) => state.user.error;
+export const selectUpdateLoading = (state:any) => state.user.updateLoading;
+export const selectUpdateError = (state:any) => state.user.updateError;
 
 
 
