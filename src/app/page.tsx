@@ -8,7 +8,7 @@ import { getDecryptedItem } from "@/utils/storageHelper";
 export default function RootPage() {
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
-
+ 
   useEffect(() => {
     const checkAuthAndRedirect = () => {
       try {
