@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState } from "react";
 import {
   SearchIcon,
   Calendar,
@@ -40,7 +40,6 @@ export default function UserCourseDashboard({ className }: any) {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [courses, setCourses] = useState<any[]>([]);
-  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]); // Fixed: should be array, not string
   const [categories, setCategories] = useState<string[]>([]);
   const [role, setRole] = useState<any>();
   const [page, setPage] = useState(1);
@@ -143,24 +142,6 @@ export default function UserCourseDashboard({ className }: any) {
         setTotalPages(res.data?.data?.totalPages || 1);
         setTotalCourses(res.data?.data?.total || 0);
 
-        // Fixed: Extract enrolled courses properly
-        const userEnrollments = filteredCourses
-          .filter((course: any) =>
-            course.enrolled_users?.some(
-              (enrollment: any) =>
-                enrollment.user_id === parseInt(loggedInuserId),
-            ),
-          )
-          .map((course: any) => ({
-            courseId: course.id,
-            progress:
-              course.enrolled_users?.find(
-                (enrollment: any) =>
-                  enrollment.user_id === parseInt(loggedInuserId),
-              )?.progress || 0,
-          }));
-        setEnrolledCourses(userEnrollments);
-
         // Extract unique categories from courses
         const uniqueCategories = [
           ...new Set(
@@ -192,13 +173,14 @@ export default function UserCourseDashboard({ className }: any) {
       return;
     }
 
-    if (!course.has_chapters) {
-      // Show modal or toast message for courses without content
+    // Check if course is complete (has chapters, lessons, and MCQs)
+    if (!course.is_course_complete) {
+      // Show modal or toast message for incomplete courses
       alert("This course is being prepared. Content will be available soon!");
       return;
     }
 
-    // For active courses with chapters, go to enrollment page
+    // For active and complete courses, go to enrollment page
     router.push(`/user-panel/courses/CourseEnrollment/${course.id}`);
   };
 
@@ -210,12 +192,12 @@ export default function UserCourseDashboard({ className }: any) {
     });
   };
 
-  // Fixed: Get course progress function
-  const getCourseProgress = (courseId: number) => {
-    const enrolledCourse: any = enrolledCourses.find(
-      (course: any) => course.courseId === courseId,
-    );
-    return enrolledCourse ? enrolledCourse.progress || 0 : 0;
+  // Get course progress function - Since progress is not in API, we'll use 0 as default
+  // You'll need to implement a separate API call to get user progress
+  const getCourseProgress = (course: any) => {
+    // TODO: Implement separate API call to fetch user progress
+    // For now, return 0 for all enrolled courses
+    return 0;
   };
 
   const isUser = role === "user";
@@ -230,7 +212,7 @@ export default function UserCourseDashboard({ className }: any) {
     );
   };
 
-  // Filter courses by status
+  // Filter courses by status - only show active and inactive, exclude draft
   const activeCourses = courses.filter(
     (course: any) => course.status === "active",
   );
@@ -499,7 +481,7 @@ export default function UserCourseDashboard({ className }: any) {
                   key={course.id}
                   course={course}
                   isEnrolled={isEnrolled(course)}
-                  progress={getCourseProgress(course.id)}
+                  progress={getCourseProgress(course)}
                   onClick={() => handleCourseClick(course)}
                   onWishlistToggle={(e: React.MouseEvent) =>
                     handleWishlistToggle(course, e)
@@ -518,7 +500,7 @@ export default function UserCourseDashboard({ className }: any) {
                   key={course.id}
                   course={course}
                   isEnrolled={isEnrolled(course)}
-                  progress={getCourseProgress(course.id)}
+                  progress={getCourseProgress(course)}
                   onClick={() => handleCourseClick(course)}
                   onWishlistToggle={(e: React.MouseEvent) =>
                     handleWishlistToggle(course, e)
@@ -552,7 +534,7 @@ export default function UserCourseDashboard({ className }: any) {
                   key={course.id}
                   course={course}
                   isEnrolled={isEnrolled(course)}
-                  progress={getCourseProgress(course.id)}
+                  progress={getCourseProgress(course)}
                   onClick={() => handleCourseClick(course)}
                   onWishlistToggle={(e: React.MouseEvent) =>
                     handleWishlistToggle(course, e)
@@ -571,7 +553,7 @@ export default function UserCourseDashboard({ className }: any) {
                   key={course.id}
                   course={course}
                   isEnrolled={isEnrolled(course)}
-                  progress={getCourseProgress(course.id)}
+                  progress={getCourseProgress(course)}
                   onClick={() => handleCourseClick(course)}
                   onWishlistToggle={(e: React.MouseEvent) =>
                     handleWishlistToggle(course, e)
@@ -636,25 +618,14 @@ const CourseCard = ({
   formatDate,
   truncateText,
 }: any) => {
-  const hasChapters = course.has_chapters || course.chapters?.length > 0;
   const isActive = course.status === "active";
   const isInactive = course.status === "inactive";
-
-  // Determine course completeness
-  const hasContent = course.has_content;
-  const allChaptersHaveLessons = course.all_chapters_have_lessons;
-  const allChaptersHaveMCQs = course.all_chapters_have_mcqs;
-  const isCourseComplete =
-    hasChapters && allChaptersHaveLessons && allChaptersHaveMCQs;
+  const isCourseComplete = course.is_course_complete;
 
   // Determine course status
   const getCourseStatus = () => {
     if (isInactive) {
       return { status: "inactive", label: "Coming Soon", color: "gray" };
-    }
-
-    if (!hasChapters) {
-      return { status: "no_chapters", label: "No Content", color: "yellow" };
     }
 
     if (!isCourseComplete) {
@@ -712,17 +683,12 @@ const CourseCard = ({
             className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
               courseStatus.color === "gray"
                 ? "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                : courseStatus.color === "yellow"
-                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                  : courseStatus.color === "orange"
-                    ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                    : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                : courseStatus.color === "orange"
+                  ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                  : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
             }`}
           >
             {courseStatus.status === "inactive" && <Lock className="h-3 w-3" />}
-            {courseStatus.status === "no_chapters" && (
-              <AlertCircle className="h-3 w-3" />
-            )}
             {courseStatus.status === "under_development" && (
               <Wrench className="h-3 w-3" />
             )}
@@ -817,7 +783,7 @@ const CourseCard = ({
         <div className="mb-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">
           <div className="flex items-center">
             <User className="mr-2 h-4 w-4" />
-            <span>{course.creator}</span>
+            <span>{course.creator_name || course.creator}</span>
           </div>
           <div className="flex items-center">
             <Calendar className="mr-2 h-4 w-4" />
@@ -831,8 +797,8 @@ const CourseCard = ({
           )}
         </div>
 
-        {/* Course Stats - Only show if course has chapters */}
-        {hasChapters && (
+        {/* Course Stats - Only show if course has content */}
+        {course.has_chapters && (
           <div className="mb-3 grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <BookOpen className="h-3 w-3" />
@@ -889,11 +855,6 @@ const CourseCard = ({
                   <Lock className="h-4 w-4" />
                   Coming Soon
                 </>
-              ) : !hasChapters ? (
-                <>
-                  <AlertCircle className="h-4 w-4" />
-                  No Content
-                </>
               ) : !isCourseComplete ? (
                 <>
                   <Wrench className="h-4 w-4" />
@@ -936,18 +897,18 @@ const CourseListItem = ({
   formatDate,
   truncateText,
 }: any) => {
-  const hasChapters = course.has_chapters || course.chapters?.length > 0;
   const isActive = course.status === "active";
   const isInactive = course.status === "inactive";
+  const isCourseComplete = course.is_course_complete;
 
   return (
     <div
       className={`group flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 ${
-        isActive && hasChapters && !isEnrolled
+        isActive && isCourseComplete && !isEnrolled
           ? "cursor-pointer hover:shadow-lg"
           : "cursor-default"
       }`}
-      onClick={() => !isEnrolled && onClick()}
+      onClick={() => !isEnrolled && isActive && isCourseComplete && onClick()}
     >
       {/* Course Image */}
       <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
@@ -1011,7 +972,7 @@ const CourseListItem = ({
                   Enrolled
                 </span>
               )}
-              {isActive && !hasChapters && (
+              {isActive && !isCourseComplete && (
                 <span className="flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
                   <AlertCircle className="h-3 w-3" />
                   Preparing
@@ -1042,7 +1003,7 @@ const CourseListItem = ({
             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
               <div className="flex items-center gap-1">
                 <User className="h-4 w-4" />
-                <span>{course.creator}</span>
+                <span>{course.creator_name || course.creator}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
@@ -1096,9 +1057,9 @@ const CourseListItem = ({
             ) : (
               <button
                 onClick={onClick}
-                disabled={!isActive || !hasChapters}
+                disabled={!isActive || !isCourseComplete}
                 className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                  isActive && hasChapters
+                  isActive && isCourseComplete
                     ? "bg-blue-600 text-white hover:bg-blue-700"
                     : "cursor-not-allowed bg-gray-300 text-gray-500 dark:bg-gray-600 dark:text-gray-400"
                 }`}
@@ -1108,7 +1069,7 @@ const CourseListItem = ({
                     <Loader2 className="h-4 w-4" />
                     Coming Soon
                   </>
-                ) : !hasChapters ? (
+                ) : !isCourseComplete ? (
                   <>
                     <AlertCircle className="h-4 w-4" />
                     Preparing
@@ -1130,7 +1091,7 @@ const CourseListItem = ({
             <div className="mb-1 flex justify-between text-sm">
               <span className="text-gray-600 dark:text-gray-400">Progress</span>
               <span className="font-medium text-gray-900 dark:text-white">
-                {progress}%
+                {progress}%`
               </span>
             </div>
             <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">

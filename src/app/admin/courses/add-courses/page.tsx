@@ -39,7 +39,7 @@ const AddCourse = () => {
   const router = useRouter();
   const name = getDecryptedItem("userId");
   const naam: any = getDecryptedItem("name");
-  const userNames = naam.charAt(0).toUpperCase() + naam.slice(1).toLowerCase() ;
+  const userNames = naam.charAt(0).toUpperCase() + naam.slice(1).toLowerCase();
   const [formData, setFormData] = useState<any>({
     title: "",
     description: "",
