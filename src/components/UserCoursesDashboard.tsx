@@ -40,7 +40,7 @@ export default function UserCourseDashboard({ className }: any) {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [courses, setCourses] = useState<any[]>([]);
-  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [enrolledCourses, setEnrolledCourses] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [role, setRole] = useState<any>();
   const [page, setPage] = useState(1);
@@ -139,11 +139,12 @@ export default function UserCourseDashboard({ className }: any) {
         const filteredCourses = coursesData.filter(
           (course: any) => course.status !== "draft",
         );
-
         setCourses(filteredCourses);
         setTotalPages(res.data?.data?.totalPages || 1);
         setTotalCourses(res.data?.data?.total || 0);
-
+        setEnrolledCourses(
+          coursesData?.course_readiness?.completion_percentage,
+        );
         // Extract unique categories from courses
         const uniqueCategories = [
           ...new Set(

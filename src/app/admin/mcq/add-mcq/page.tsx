@@ -19,11 +19,12 @@ const AddMcq = () => {
 
   const [courses, setCourses] = useState<any[]>([]);
   const [chapter, setChapter] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     question: "",
     options: ["", "", "", ""],
-    answer: "",
+    answer: "", // This will store the index as string (e.g., "0", "1", "2", "3")
     course_id: courseId ?? "",
     chapter_id: chapterId ?? "",
   });
@@ -74,70 +75,82 @@ const AddMcq = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setLoading(true);
 
     const trimmedQuestion = formData.question.trim();
-    const trimmedAnswer = formData.answer.trim();
     const trimmedOptions = formData.options.map((opt) => opt.trim());
 
+    // ✅ VALIDATION: Check required fields
     if (!trimmedQuestion) {
       toasterError("Question is required ❌");
+      setLoading(false);
       return;
     }
 
     if (trimmedOptions.some((opt) => !opt)) {
       toasterError("All 4 options must be filled ❌");
+      setLoading(false);
       return;
     }
 
-    if (!trimmedAnswer) {
-      toasterError("Correct answer is required ❌");
+    if (!formData.answer) {
+      toasterError("Please select the correct answer ❌");
+      setLoading(false);
       return;
     }
 
     if (!formData.course_id) {
       toasterError("Please select a course ❌");
+      setLoading(false);
       return;
     }
 
     if (!formData.chapter_id) {
       toasterError("Please select a chapter ❌");
+      setLoading(false);
       return;
     }
 
+    // ✅ VALIDATION: Check for duplicate options
     const uniqueOptions = new Set(trimmedOptions);
     if (uniqueOptions.size !== trimmedOptions.length) {
       toasterError("Options must be unique ❌");
-      return;
-    }
-
-    if (!trimmedOptions.includes(trimmedAnswer)) {
-      toasterError("Answer must match one of the options ❌");
+      setLoading(false);
       return;
     }
 
     try {
+      // ✅ FIXED: Convert answer to number (index)
       const payload = {
         question: trimmedQuestion,
         options: trimmedOptions,
-        answer: trimmedAnswer,
+        answer: parseInt(formData.answer), // Convert to number (0, 1, 2, 3)
         course_id: parseInt(formData.course_id),
         chapter_id: parseInt(formData.chapter_id),
       };
 
+      console.log("Sending payload:", payload); // For debugging
+
       const res = await api.post("mcq/create-mcq", payload);
+
       if (res?.success) {
-        toasterSuccess("MCQ created successfully!", 2000, "id");
+        toasterSuccess("MCQ created successfully! ✅");
         router.push(
           `/admin/mcq?chapter_id=${formData.chapter_id}&course_id=${formData.course_id}`,
         );
       } else {
-        toasterError(res.error.code, 2000, "id");
+        toasterError(res.error?.message || "Failed to create MCQ ❌");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("MCQ creation failed:", err);
-      toasterError("Failed to create MCQ ❌");
+      toasterError(err.response?.data?.error || "Failed to create MCQ ❌");
+    } finally {
+      setLoading(false);
     }
   };
+
+  // ✅ Check if all options are filled to enable answer selection
+  const canSelectAnswer = formData.options.every((opt) => opt.trim() !== "");
 
   return (
     <>
@@ -151,41 +164,90 @@ const AddMcq = () => {
             value={formData.question}
             onChange={handleChange}
             required
+            rows={3}
           />
 
-          {formData.options.map((option, idx) => (
-            <InputGroup
-              key={idx}
-              label={`Option ${idx + 1}`}
-              name="options"
-              value={option}
-              placeholder={`Option ${idx + 1}`}
-              onChange={(e) => handleChange(e, idx)}
-              type="text"
-              required
-            />
-          ))}
+          {/* Options Section */}
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-white">
+              Options *
+            </label>
+            {formData.options.map((option, idx) => (
+              <div key={idx} className="flex items-center gap-3">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-white">
+                  {idx + 1}
+                </div>
+                <InputGroup
+                  label={`Option ${idx + 1}`}
+                  name="options"
+                  value={option}
+                  placeholder={`Enter option ${idx + 1}`}
+                  onChange={(e) => handleChange(e, idx)}
+                  type="text"
+                  required
+                  className="flex-1"
+                />
+              </div>
+            ))}
+          </div>
 
-          <InputGroup
-            label="Correct Answer"
-            name="answer"
-            value={formData.answer}
-            placeholder="Paste the correct option"
-            onChange={handleChange}
-            type="text"
-            required
-          />
+          {/* Correct Answer Selection */}
+          <div>
+            <label className="mb-3 block text-sm font-medium text-gray-700 dark:text-white">
+              Select Correct Answer *
+            </label>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {formData.options.map((option, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() =>
+                    setFormData({ ...formData, answer: idx.toString() })
+                  }
+                  disabled={!option.trim()}
+                  className={`rounded-lg border p-3 text-center transition-colors ${
+                    formData.answer === idx.toString()
+                      ? "border-primary bg-primary text-white"
+                      : "border-stroke bg-transparent text-dark hover:bg-gray-50 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2"
+                  } ${
+                    !option.trim()
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  <div className="text-sm font-medium">Option {idx + 1}</div>
+                  <div className="mt-1 truncate text-xs">
+                    {option.trim() || "Not set"}
+                  </div>
+                </button>
+              ))}
+            </div>
 
+            {!canSelectAnswer && (
+              <p className="mt-2 text-sm text-orange-600">
+                Please fill all options first to select the correct answer
+              </p>
+            )}
+
+            {formData.answer && (
+              <p className="mt-2 text-sm text-green-600">
+                Selected:{" "}
+                <strong>Option {parseInt(formData.answer) + 1}</strong> - "
+                {formData.options[parseInt(formData.answer)]}"
+              </p>
+            )}
+          </div>
+
+          {/* Course Selection */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
-              Select Course *
+              Course *
             </label>
             <select
               name="course_id"
               value={formData.course_id}
               onChange={handleChange}
-              disabled
-              className="dark:bg-boxdark w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-sm outline-none focus:border-primary disabled:cursor-not-allowed dark:border-dark-3"
+              className="dark:bg-boxdark w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-sm outline-none focus:border-primary dark:border-dark-3"
               required
             >
               <option value="">-- Select Course --</option>
@@ -197,16 +259,16 @@ const AddMcq = () => {
             </select>
           </div>
 
+          {/* Chapter Selection */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
-              Select Chapter *
+              Chapter *
             </label>
             <select
               name="chapter_id"
               value={formData.chapter_id}
-              disabled
               onChange={handleChange}
-              className="dark:bg-boxdark w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-sm outline-none focus:border-primary disabled:cursor-not-allowed dark:border-dark-3"
+              className="dark:bg-boxdark w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-sm outline-none focus:border-primary dark:border-dark-3"
               required
             >
               <option value="">-- Select Chapter --</option>
@@ -214,19 +276,29 @@ const AddMcq = () => {
             </select>
           </div>
 
-          <div className="flex justify-end gap-3">
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-6">
             <button
               className="rounded-lg border border-stroke px-6 py-3 font-medium text-dark hover:shadow-1 dark:border-dark-3 dark:text-white"
               type="button"
               onClick={() => router.back()}
+              disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-primary px-6 py-3 font-medium text-white hover:bg-opacity-90"
+              disabled={loading || !formData.answer}
+              className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Create MCQ
+              {loading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  Creating...
+                </>
+              ) : (
+                "Create MCQ"
+              )}
             </button>
           </div>
         </form>

@@ -28,7 +28,7 @@ const EditMcq = () => {
   const [formData, setFormData] = useState({
     question: "",
     options: ["", "", "", ""],
-    answer: "",
+    answer: "", // This will store the index as string (e.g., "0", "1", "2", "3")
     course_id: courseId || "",
     chapter_id: chapterId || "",
   });
@@ -67,11 +67,16 @@ const EditMcq = () => {
           return;
         }
 
+        console.log("MCQ Data:", mcqData); // Debug log
+
+        // ✅ FIXED: Handle both answer and correct_answer fields
+        const correctAnswer = mcqData.correct_answer ?? mcqData.answer;
+
         // Set form data from API response
         setFormData({
           question: mcqData.question || "",
           options: mcqData.options || ["", "", "", ""],
-          answer: mcqData.answer || "",
+          answer: correctAnswer?.toString() || "", // Convert to string for select
           course_id: mcqData.course_id?.toString() || courseId || "",
           chapter_id: mcqData.chapter_id?.toString() || chapterId || "",
         });
@@ -171,9 +176,9 @@ const EditMcq = () => {
       }
     });
 
-    // Validate answer
-    if (!formData.answer.trim()) {
-      newErrors.answer = "Correct answer is required";
+    // ✅ FIXED: Validate answer is selected
+    if (!formData.answer) {
+      newErrors.answer = "Please select the correct answer";
       isValid = false;
     }
 
@@ -197,12 +202,6 @@ const EditMcq = () => {
       isValid = false;
     }
 
-    // Check if answer matches one of the options
-    if (!trimmedOptions.includes(formData.answer.trim())) {
-      toasterError("Answer must match one of the options ❌");
-      isValid = false;
-    }
-
     setErrors(newErrors);
     return isValid;
   };
@@ -217,13 +216,16 @@ const EditMcq = () => {
     setLoading(true);
 
     try {
+      // ✅ FIXED: Convert answer to number (index) and use correct field names
       const payload = {
         question: formData.question.trim(),
         options: formData.options.map((opt) => opt.trim()),
-        answer: formData.answer.trim(),
+        correct_answer: parseInt(formData.answer), // Convert to number and use correct field name
         course_id: parseInt(formData.course_id),
         chapter_id: parseInt(formData.chapter_id),
       };
+
+      console.log("Update Payload:", payload); // Debug log
 
       const res = await api.put(`mcq/${mcqId}`, payload);
 
@@ -242,6 +244,9 @@ const EditMcq = () => {
       setLoading(false);
     }
   };
+
+  // ✅ Check if all options are filled to enable answer selection
+  const canSelectAnswer = formData.options.every((opt) => opt.trim() !== "");
 
   if (fetching) {
     return (
@@ -285,33 +290,83 @@ const EditMcq = () => {
             rows={3}
           />
 
+          {/* Options Section */}
           <div className="space-y-4">
             <label className="block text-sm font-medium text-gray-700 dark:text-white">
               Options *
             </label>
             {formData.options.map((option, idx) => (
-              <InputGroup
-                key={idx}
-                label={`Option ${idx + 1}`}
-                name="options"
-                value={option}
-                placeholder={`Enter option ${idx + 1}`}
-                onChange={(e) => handleChange(e, idx)}
-                type="text"
-              />
+              <div key={idx} className="flex items-center gap-3">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-white">
+                  {idx + 1}
+                </div>
+                <InputGroup
+                  label={`Option ${idx + 1}`}
+                  name="options"
+                  value={option}
+                  placeholder={`Enter option ${idx + 1}`}
+                  onChange={(e) => handleChange(e, idx)}
+                  type="text"
+                  required
+                  className="flex-1"
+                />
+              </div>
             ))}
           </div>
 
-          <InputGroup
-            label="Correct Answer *"
-            name="answer"
-            value={formData.answer}
-            placeholder="Enter the correct answer (must match one of the options exactly)"
-            onChange={handleChange}
-            type="text"
-          />
+          {/* ✅ FIXED: Correct Answer Selection */}
+          <div>
+            <label className="mb-3 block text-sm font-medium text-gray-700 dark:text-white">
+              Select Correct Answer *
+            </label>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {formData.options.map((option, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() =>
+                    setFormData({ ...formData, answer: idx.toString() })
+                  }
+                  disabled={!option.trim()}
+                  className={`rounded-lg border p-3 text-center transition-colors ${
+                    formData.answer === idx.toString()
+                      ? "border-primary bg-primary text-white"
+                      : "border-stroke bg-transparent text-dark hover:bg-gray-50 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2"
+                  } ${
+                    !option.trim()
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  <div className="text-sm font-medium">Option {idx + 1}</div>
+                  <div className="mt-1 truncate text-xs">
+                    {option.trim() || "Not set"}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {!canSelectAnswer && (
+              <p className="mt-2 text-sm text-orange-600">
+                Please fill all options first to select the correct answer
+              </p>
+            )}
+
+            {formData.answer && (
+              <p className="mt-2 text-sm text-green-600">
+                Selected:{" "}
+                <strong>Option {parseInt(formData.answer) + 1}</strong> - "
+                {formData.options[parseInt(formData.answer)]}"
+              </p>
+            )}
+
+            {errors.answer && (
+              <p className="mt-1 text-sm text-red-500">{errors.answer}</p>
+            )}
+          </div>
 
           <div className="grid gap-6 md:grid-cols-2">
+            {/* ✅ FIXED: Enabled course selection */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
                 Select Course *
@@ -319,9 +374,8 @@ const EditMcq = () => {
               <select
                 name="course_id"
                 value={formData.course_id}
-                disabled
                 onChange={handleChange}
-                className={`dark:bg-boxdark w-full rounded-lg border px-4 py-2 text-sm outline-none focus:border-primary disabled:cursor-not-allowed dark:border-dark-3 ${
+                className={`dark:bg-boxdark w-full rounded-lg border px-4 py-2 text-sm outline-none focus:border-primary dark:border-dark-3 ${
                   errors.course_id ? "border-red-500" : "border-stroke"
                 }`}
                 required
@@ -338,6 +392,7 @@ const EditMcq = () => {
               )}
             </div>
 
+            {/* ✅ FIXED: Enabled chapter selection */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
                 Select Chapter *
@@ -346,8 +401,9 @@ const EditMcq = () => {
                 name="chapter_id"
                 value={formData.chapter_id}
                 onChange={handleChange}
-                disabled
-                className="dark:bg-boxdark ${ w-full rounded-lg border border-stroke px-4 py-2 text-sm opacity-50 outline-none focus:border-primary disabled:cursor-not-allowed dark:border-dark-3"
+                className={`dark:bg-boxdark w-full rounded-lg border px-4 py-2 text-sm outline-none focus:border-primary dark:border-dark-3 ${
+                  errors.chapter_id ? "border-red-500" : "border-stroke"
+                }`}
                 required
               >
                 <option value="">-- Select Chapter --</option>
@@ -368,6 +424,20 @@ const EditMcq = () => {
             </div>
           </div>
 
+          {/* Help Text */}
+          <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+            <h4 className="mb-2 text-sm font-medium text-blue-800 dark:text-blue-300">
+              Editing MCQ:
+            </h4>
+            <ul className="list-inside list-disc space-y-1 text-xs text-blue-700 dark:text-blue-400">
+              <li>Update the question and options as needed</li>
+              <li>Click on the option button to select the correct answer</li>
+              <li>The answer is stored as an index (0, 1, 2, or 3)</li>
+              <li>All options must be unique</li>
+              <li>You can change the course and chapter if needed</li>
+            </ul>
+          </div>
+
           <div className="flex flex-col gap-4 pt-4 sm:flex-row sm:justify-end">
             <button
               type="button"
@@ -383,8 +453,8 @@ const EditMcq = () => {
             </button>
             <button
               type="submit"
-              disabled={loading}
-              className="hover:bg-primary-dark flex items-center justify-center rounded-lg bg-primary px-6 py-3 font-medium text-white disabled:opacity-50 sm:px-8"
+              disabled={loading || !formData.answer}
+              className="flex items-center justify-center rounded-lg bg-primary px-6 py-3 font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:px-8"
             >
               {loading ? (
                 <>
