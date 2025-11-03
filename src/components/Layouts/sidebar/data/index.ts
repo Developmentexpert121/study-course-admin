@@ -18,13 +18,13 @@ export const NAV_DATA = [
         items: [],
         type: "user",
       },
-      {
-        title: "Learning Path",
-        url: "/user-panel/learning-path",
-        icon: Icons.Target,
-        items: [],
-        type: "user",
-      },
+      // {
+      //   title: "Learning Path",
+      //   url: "/user-panel/learning-path",
+      //   icon: Icons.Target,
+      //   items: [],
+      //   type: "user",
+      // },
       {
         title: "Wishlist",
         url: "/user-panel/wishlist",
@@ -82,7 +82,7 @@ export const NAV_DATA = [
         items: [],
         type: "Super-Admin",
       },
-    
+
       {
         title: "User",
         url: "/super-admin/all-user",
@@ -100,8 +100,8 @@ export const NAV_DATA = [
         type: "both",
       },
 
-      
-      
+
+
 
       {
         title: "Courses",
@@ -118,24 +118,24 @@ export const NAV_DATA = [
         items: [],
         type: "Super-Admin",
       },
-       {
-        title: "rating",
+      {
+        title: "Rating",
         url: "/super-admin/rating",
         icon: Icons.Calendar,
         items: [],
         type: "Super-Admin",
       },
 
-       {
-        title: "mails",
+      {
+        title: "Mails",
         url: "/super-admin/mails",
         icon: Icons.Calendar,
         items: [],
         type: "Super-Admin",
       },
 
-       {
-        title: "rating",
+      {
+        title: "Rating",
         url: "/admin/rating",
         icon: Icons.Calendar,
         items: [],

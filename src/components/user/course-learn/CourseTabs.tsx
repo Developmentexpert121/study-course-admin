@@ -1,6 +1,7 @@
 // components/course-learn/CourseTabs.tsx
 import React from "react";
 import OverviewTab from "./OverviewTab";
+import ReviewsTab from "./ReviewTab";
 
 interface CourseTabsProps {
   activeTab: string;
@@ -11,15 +12,14 @@ interface CourseTabsContentProps {
   activeTab: string;
   course: any;
   courseProgress: any | null;
-  selectedLesson: { chapter: any; lesson: any } | null; // Add this
 }
 
 const tabs = [
   "Overview",
-  "Notes",
-  "Announcements",
+  // "Notes",
+  // "Announcements",
   "Reviews",
-  "Learning tools",
+  // "Learning tools",
 ];
 
 const CourseTabs: React.FC<CourseTabsProps> & {
@@ -31,10 +31,10 @@ const CourseTabs: React.FC<CourseTabsProps> & {
         <button
           key={tab}
           onClick={() => setActiveTab(tab)}
-          className={`border-b-2 px-3 py-2 text-sm font-medium ${
+          className={`border-b-2 px-3 py-2 text-sm font-medium transition-colors duration-200 ${
             activeTab === tab
-              ? "border-blue-500 text-blue-500"
-              : "border-transparent text-gray-500 hover:border-blue-500 hover:text-blue-500"
+              ? "border-blue-500 text-blue-500 dark:text-blue-400"
+              : "border-transparent text-gray-500 hover:border-blue-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400"
           }`}
         >
           {tab}
@@ -55,10 +55,15 @@ const CourseTabsContent: React.FC<CourseTabsContentProps> = ({
       case "Overview":
         return <OverviewTab course={course} courseProgress={courseProgress} />;
 
+      case "Reviews":
+        return <ReviewsTab course={course} />;
+
       case "Notes":
         return (
-          <div>
-            <h2 className="mb-2 text-xl font-semibold">My Notes</h2>
+          <div className="p-6">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
+              My Notes
+            </h2>
             <p className="text-gray-700 dark:text-gray-300">
               You can add your personal notes here for quick revision later.
             </p>
@@ -67,28 +72,22 @@ const CourseTabsContent: React.FC<CourseTabsContentProps> = ({
 
       case "Announcements":
         return (
-          <div>
-            <h2 className="mb-2 text-xl font-semibold">Announcements</h2>
+          <div className="p-6">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
+              Announcements
+            </h2>
             <p className="text-gray-700 dark:text-gray-300">
               Stay tuned for the latest updates and news about the course!
             </p>
           </div>
         );
 
-      case "Reviews":
-        return (
-          <div>
-            <h2 className="mb-2 text-xl font-semibold">Student Reviews</h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              ⭐⭐⭐⭐☆ – "Very detailed and easy to understand course!"
-            </p>
-          </div>
-        );
-
       case "Learning tools":
         return (
-          <div>
-            <h2 className="mb-2 text-xl font-semibold">Learning Tools</h2>
+          <div className="p-6">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
+              Learning Tools
+            </h2>
             <p className="text-gray-700 dark:text-gray-300">
               Access additional resources, exercises, and code snippets here.
             </p>
@@ -100,7 +99,7 @@ const CourseTabsContent: React.FC<CourseTabsContentProps> = ({
     }
   };
 
-  return <>{renderTabContent()}</>;
+  return <div className="min-h-[400px]">{renderTabContent()}</div>;
 };
 
 // Attach Content as a static property

@@ -758,9 +758,16 @@ const CourseCard = ({
             <Tag className="mr-1 h-3 w-3" />
             {course.category || "Uncategorized"}
           </span>
-          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            <span>{course.ratings || "0.0"}</span>
+          <div className="flex items-center gap-1">
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <span>
+              {course.ratings?.average_rating?.toFixed(1) ||
+                course.average_rating?.toFixed(1) ||
+                "0.0"}
+            </span>
+            <span className="text-xs text-gray-400">
+              ({course.ratings?.total_ratings || course.total_ratings || 0})
+            </span>
           </div>
         </div>
 
@@ -1011,7 +1018,14 @@ const CourseListItem = ({
               </div>
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span>{course.ratings || "0.0"}</span>
+                <span>
+                  {course.ratings?.average_rating?.toFixed(1) ||
+                    course.average_rating?.toFixed(1) ||
+                    "0.0"}
+                </span>
+                <span className="text-xs text-gray-400">
+                  ({course.ratings?.total_ratings || course.total_ratings || 0})
+                </span>
               </div>
               {course.duration && (
                 <div className="flex items-center gap-1">

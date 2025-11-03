@@ -1,4 +1,3 @@
-// app/access-denied/page.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -7,7 +6,7 @@ import { getDecryptedItem } from "@/utils/storageHelper";
 export default function AccessDenied() {
   const router = useRouter();
   const userRole: any = getDecryptedItem("role");
-
+console.log("role----:",userRole)
   const getRoleMessage = () => {
     switch (userRole?.toLowerCase()) {
       case "admin":
@@ -42,7 +41,7 @@ export default function AccessDenied() {
       case "user":
         return "/user/dashboard";
       default:
-        return "/home";
+        return "/";
     }
   };
 

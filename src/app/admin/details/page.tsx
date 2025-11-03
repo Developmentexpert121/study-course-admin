@@ -294,10 +294,10 @@ export default function Page() {
 
   const tabs = [
     "Overview",
-    "Notes",
-    "Announcements",
+    // "Notes",
+    // "Announcements",
     "Reviews",
-    "Learning tools",
+    // "Learning tools",
   ];
 
   return (
@@ -365,14 +365,14 @@ export default function Page() {
                 </p>
               </div>
             )}
-            {activeTab === "Notes" && (
+            {/* {activeTab === "Notes" && (
               <div>
                 <h2 className="mb-2 text-xl font-semibold">My Notes</h2>
                 <p className="text-gray-700 dark:text-gray-300">
                   You can add your personal notes here for quick revision later.
                 </p>
               </div>
-            )}
+            )} */}
             {activeTab === "Announcements" && (
               <div>
                 <h2 className="mb-2 text-xl font-semibold">Announcements</h2>
