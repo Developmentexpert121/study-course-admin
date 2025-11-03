@@ -183,7 +183,7 @@ export function UserInfo() {
 
                 setIsOpen(false);
                 toasterSuccess("Logout Successfully", 2000, "id");
-                window.location.href = "/home";
+                window.location.href = "/";
               } catch (error) {
                 console.error("Failed to track logout activity:", error);
 
@@ -195,7 +195,7 @@ export function UserInfo() {
                 removeEncryptedItem("role");
                 setIsOpen(false);
                 toasterSuccess("Logout Successfully", 2000, "id");
-                window.location.href = "/home";
+                window.location.href = "/";
               }
             }}
           >

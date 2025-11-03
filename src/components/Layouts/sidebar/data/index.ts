@@ -119,7 +119,7 @@ export const NAV_DATA = [
         type: "Super-Admin",
       },
        {
-        title: "rating",
+        title: "Rating",
         url: "/super-admin/rating",
         icon: Icons.Calendar,
         items: [],
@@ -127,7 +127,7 @@ export const NAV_DATA = [
       },
 
        {
-        title: "mails",
+        title: "Mails",
         url: "/super-admin/mails",
         icon: Icons.Calendar,
         items: [],
@@ -135,7 +135,7 @@ export const NAV_DATA = [
       },
 
        {
-        title: "rating",
+        title: "Rating",
         url: "/admin/rating",
         icon: Icons.Calendar,
         items: [],

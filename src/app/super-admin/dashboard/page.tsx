@@ -12,6 +12,8 @@ import {
   FileText,
   RefreshCw,
   Eye,
+  Mail,
+  Star,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -433,21 +435,21 @@ export default function DashboardStatsPage() {
               </span>
             </button>
             <button
-              onClick={() => router.push("/super-admin/courses")}
+              onClick={() => router.push("/super-admin/rating")}
               className="flex items-center justify-center rounded-lg bg-purple-50 p-4 transition-colors hover:bg-purple-100 dark:bg-purple-500/10 dark:hover:bg-purple-500/20"
             >
-              <FileText className="mr-2 h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <Star className="mr-2 h-5 w-5 text-orange-600 dark:text-orange-400" />
               <span className="font-medium text-purple-600 dark:text-purple-400">
-                Manage Content
+                Manage Rating
               </span>
             </button>
             <button
-              onClick={() => router.push("/super-admin/courses")}
+              onClick={() => router.push("/super-admin/mails")}
               className="flex items-center justify-center rounded-lg bg-orange-50 p-4 transition-colors hover:bg-orange-100 dark:bg-orange-500/10 dark:hover:bg-orange-500/20"
             >
-              <Eye className="mr-2 h-5 w-5 text-orange-600 dark:text-orange-400" />
+              <Mail className="mr-2 h-5 w-5 text-orange-600 dark:text-orange-400" />
               <span className="font-medium text-orange-600 dark:text-orange-400">
-                View Reports
+                Mails
               </span>
             </button>
           </div>

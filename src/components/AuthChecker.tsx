@@ -28,7 +28,7 @@ export default function AuthChecker({
       const token = getDecryptedItem("token");
 
       const isAuthPage = pathname?.startsWith("/auth") || false;
-      const isHomePage = pathname === "/" || pathname === "/home";
+      const isHomePage = pathname === "/" || pathname === "/";
       const isPublicPage = isHomePage;
       const isAccessDeniedPage = pathname === "access-denied";
       if (isPublicPage || isAccessDeniedPage) {
@@ -43,7 +43,7 @@ export default function AuthChecker({
           const response = await api.get("user/me");
           if (response.success) {
             const userRole = response.data.user.role;
-            console.log("User already logged in, redirecting to dashboard");
+            console.log("User already logged in, redirecting to dashboard" ,userRole);
 
             if (userRole === "super-admin") {
               router.replace("/super-admin/dashboard");
@@ -52,7 +52,7 @@ export default function AuthChecker({
             } else if (userRole === "user") {
               router.replace("/user/dashboard");
             } else {
-              router.replace("/home");
+              router.replace("/");
             }
             return;
           }

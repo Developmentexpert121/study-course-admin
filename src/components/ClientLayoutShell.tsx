@@ -17,12 +17,13 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
   const [token, setToken] = useState<any>();
   const [role, setRole] = useState<any>();
   const isAuthPage = pathname.startsWith("/auth");
-  const isHomePage = pathname === "/" || pathname === "/home";
+  const isHomePage = pathname === "/" || pathname === "/";
   const isPublicPage = isHomePage;
 
   useEffect(() => {
     const t = getDecryptedItem("token");
     const r = getDecryptedItem("role");
+    console.log("role of user ",r)
     setToken(t);
     setRole(r);
   }, [pathname]);
@@ -36,7 +37,7 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
   const isAuthenticated = !isAuthPage && (isAdmin || isUser || isSuperAdmin);
 
   const showUserDashboard =
-    isUser && (pathname === "/" || pathname === "/user-dashboard");
+    isUser && (pathname === "/" || pathname === "/user/dashboard");
 
   // Determine if user is logged in (has token and is on a non-auth page)
   const isLoggedIn = !!token && !isAuthPage;

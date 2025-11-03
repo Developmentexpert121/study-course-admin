@@ -621,6 +621,7 @@ export default function UserCourseDashboard({ className }: any) {
         </div>
       )}
     </div>
+
   );
 }
 
