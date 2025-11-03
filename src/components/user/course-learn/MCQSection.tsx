@@ -92,7 +92,7 @@ const MCQSection: React.FC<any> = ({
                         `MCQ failed. You scored ${displayResults?.score}% but need ${displayResults?.passing_threshold}% to pass.`}
                     </p>
                     <p className="mt-1 text-xs text-orange-700 dark:text-orange-400">
-                      {displayResults?.correct_answers || 0} out of{" "}
+                      {displayResults?.correct_answer_text || 0} out of{" "}
                       {displayResults?.total_questions || chapter.mcqs.length}{" "}
                       questions correct
                     </p>
@@ -122,7 +122,7 @@ const MCQSection: React.FC<any> = ({
                     {displayResults?.score && (
                       <p className="mt-1 text-xs text-green-700 dark:text-green-400">
                         Score: {displayResults.score}% •{" "}
-                        {displayResults.correct_answers}/
+                        {displayResults.correct_answer_text}/
                         {displayResults.total_questions} correct answers
                       </p>
                     )}

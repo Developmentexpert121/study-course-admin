@@ -233,9 +233,9 @@ export default function Mcq({ className }: any) {
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                       <div
                         className="max-w-[200px] cursor-help"
-                        title={item.answer}
+                        title={item.correct_answer_text}
                       >
-                        {truncateText(item.answer, 40)}
+                        {truncateText(item.correct_answer_text, 40)}
                       </div>
                     </td>
 

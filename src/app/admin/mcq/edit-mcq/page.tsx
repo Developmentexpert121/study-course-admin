@@ -70,7 +70,8 @@ const EditMcq = () => {
         console.log("MCQ Data:", mcqData); // Debug log
 
         // ✅ FIXED: Handle both answer and correct_answer fields
-        const correctAnswer = mcqData.correct_answer ?? mcqData.answer;
+        const correctAnswer =
+          mcqData.correct_answer_text ?? mcqData.correct_answer_text;
 
         // Set form data from API response
         setFormData({
