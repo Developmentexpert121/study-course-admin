@@ -31,7 +31,7 @@ import { getDecryptedItem, truncateText } from "@/utils/storageHelper";
 import { useApiClient } from "@/lib/api";
 import { useDebounce } from "@/utils/debounce";
 import { CourseMaintenanceMessage } from "./user/courses/CourseMaintenanceMessage";
-import { useWishlist } from "@/hooks/useWishlist"; // Import the wishlist hook
+import { useWishlist } from "@/hooks/useWishlist";
 
 export default function UserCourseDashboard({ className }: any) {
   const router = useRouter();
@@ -40,7 +40,7 @@ export default function UserCourseDashboard({ className }: any) {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [courses, setCourses] = useState<any[]>([]);
-  const [enrolledCourses, setEnrolledCourses] = useState("");
+  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]); // Fixed: should be array, not string
   const [categories, setCategories] = useState<string[]>([]);
   const [role, setRole] = useState<any>();
   const [page, setPage] = useState(1);
@@ -142,9 +142,25 @@ export default function UserCourseDashboard({ className }: any) {
         setCourses(filteredCourses);
         setTotalPages(res.data?.data?.totalPages || 1);
         setTotalCourses(res.data?.data?.total || 0);
-        setEnrolledCourses(
-          coursesData?.course_readiness?.completion_percentage,
-        );
+
+        // Fixed: Extract enrolled courses properly
+        const userEnrollments = filteredCourses
+          .filter((course: any) =>
+            course.enrolled_users?.some(
+              (enrollment: any) =>
+                enrollment.user_id === parseInt(loggedInuserId),
+            ),
+          )
+          .map((course: any) => ({
+            courseId: course.id,
+            progress:
+              course.enrolled_users?.find(
+                (enrollment: any) =>
+                  enrollment.user_id === parseInt(loggedInuserId),
+              )?.progress || 0,
+          }));
+        setEnrolledCourses(userEnrollments);
+
         // Extract unique categories from courses
         const uniqueCategories = [
           ...new Set(
@@ -194,6 +210,7 @@ export default function UserCourseDashboard({ className }: any) {
     });
   };
 
+  // Fixed: Get course progress function
   const getCourseProgress = (courseId: number) => {
     const enrolledCourse: any = enrolledCourses.find(
       (course: any) => course.courseId === courseId,
@@ -661,7 +678,7 @@ const CourseCard = ({
           ? "cursor-pointer hover:shadow-lg"
           : "cursor-default"
       }`}
-      onClick={() => !isEnrolled && isCourseAvailable && onClick(course)}
+      onClick={() => !isEnrolled && isCourseAvailable && onClick()}
     >
       {/* Course Image */}
       <div className="relative h-48 w-full overflow-hidden">
@@ -819,15 +836,15 @@ const CourseCard = ({
           <div className="mb-3 grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <BookOpen className="h-3 w-3" />
-              <span>{course.totalChapters} chapters</span>
+              <span>{course.totalChapters || 0} chapters</span>
             </div>
             <div className="flex items-center gap-1">
               <Play className="h-3 w-3" />
-              <span>{course.totalLessons} lessons</span>
+              <span>{course.totalLessons || 0} lessons</span>
             </div>
             <div className="flex items-center gap-1">
               <FileQuestion className="h-3 w-3" />
-              <span>{course.totalMCQs} MCQs</span>
+              <span>{course.totalMCQs || 0} MCQs</span>
             </div>
             <div className="flex items-center gap-1">
               <Users className="h-3 w-3" />
@@ -842,14 +859,14 @@ const CourseCard = ({
             // Already Enrolled Button
             <div className="flex w-full items-center justify-between">
               <button
-                onClick={() => onClick(course)}
+                onClick={onClick}
                 className="flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800"
               >
                 <CheckCircle className="h-4 w-4" />
                 Already Enrolled
               </button>
               <button
-                onClick={() => onClick(course)}
+                onClick={onClick}
                 className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
               >
                 <Play className="h-4 w-4" />
@@ -859,6 +876,7 @@ const CourseCard = ({
           ) : (
             // Regular View Details Button for non-enrolled users
             <button
+              onClick={onClick}
               disabled={!isCourseAvailable}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 isCourseAvailable
@@ -929,7 +947,7 @@ const CourseListItem = ({
           ? "cursor-pointer hover:shadow-lg"
           : "cursor-default"
       }`}
-      onClick={() => !isEnrolled && onClick(course)}
+      onClick={() => !isEnrolled && onClick()}
     >
       {/* Course Image */}
       <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
@@ -1061,14 +1079,14 @@ const CourseListItem = ({
             {isEnrolled ? (
               <>
                 <button
-                  onClick={() => onClick(course)}
+                  onClick={onClick}
                   className="flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800"
                 >
                   <CheckCircle className="h-4 w-4" />
                   Already Enrolled
                 </button>
                 <button
-                  onClick={() => onClick(course)}
+                  onClick={onClick}
                   className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
                 >
                   <Play className="h-4 w-4" />
@@ -1077,6 +1095,7 @@ const CourseListItem = ({
               </>
             ) : (
               <button
+                onClick={onClick}
                 disabled={!isActive || !hasChapters}
                 className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   isActive && hasChapters
