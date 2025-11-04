@@ -65,7 +65,7 @@ export default function Chapters({ className }: any) {
     try {
       const res = await api.get(`chapter/${chapterId}`);
       if (res.success) {
-        router.push(`/user-panel/chapters/${chapterId}`);
+        router.push(`/user/chapters/${chapterId}`);
       } else {
         console.error("Failed to fetch chapter:", res);
       }

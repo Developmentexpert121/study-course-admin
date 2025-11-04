@@ -60,10 +60,6 @@ export default function EnrolledCourses({ className }: any) {
     setRole(getDecryptedItem("role"));
   }, [search, page]);
 
-  const handleCourseClick = (courseId: number) => {
-    router.push(`/user-panel/courses/${courseId}/chapter`);
-  };
-
   const unenrollFromCourse = async (courseId: number) => {
     try {
       const userId = getDecryptedItem("userId");
@@ -202,7 +198,7 @@ export default function EnrolledCourses({ className }: any) {
                     {/* Action Buttons */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <button
-                        onClick={() => handleCourseClick(course.id)}
+                        // onClick={() => handleCourseClick(course.id)}
                         className={`flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-all duration-200 ${
                           isCompleted
                             ? "bg-green-600 hover:bg-green-700"
@@ -222,11 +218,7 @@ export default function EnrolledCourses({ className }: any) {
 
                       {isCompleted ? (
                         <button
-                          onClick={() =>
-                            router.push(
-                              `/user-panel/courses_result/${enrollment.user_id}?course_id=${course.id}`,
-                            )
-                          }
+                          onClick={() => router.push(`/user/certificates`)}
                           className="flex items-center justify-center rounded-lg bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-2 text-white transition-all duration-200 hover:from-yellow-600 hover:to-yellow-700"
                         >
                           <Award className="mr-2 h-4 w-4" /> Certificate

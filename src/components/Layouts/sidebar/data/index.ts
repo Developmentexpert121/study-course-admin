@@ -13,28 +13,28 @@ export const NAV_DATA = [
       },
       {
         title: "My Courses",
-        url: "/user-panel/courses",
+        url: "/user/courses",
         icon: Icons.BookOpen,
         items: [],
         type: "user",
       },
       // {
       //   title: "Learning Path",
-      //   url: "/user-panel/learning-path",
+      //   url: "/user/learning-path",
       //   icon: Icons.Target,
       //   items: [],
       //   type: "user",
       // },
       {
         title: "Wishlist",
-        url: "/user-panel/wishlist",
+        url: "/user/wishlist",
         icon: Icons.Heart,
         items: [],
         type: "user",
       },
       {
         title: "Certificates",
-        url: "/user-panel/certificates",
+        url: "/user/certificates",
         icon: Icons.Award,
         items: [],
         type: "user",
@@ -142,7 +142,7 @@ export const NAV_DATA = [
         type: "admin",
       },
 
-     
+
 
     ],
   },

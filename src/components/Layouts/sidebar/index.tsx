@@ -16,12 +16,9 @@ import { trackLogoutActivity } from "../../../store/slices/adminslice/adminlogou
 
 import { toasterSuccess } from "@/components/core/Toaster";
 import { AppDispatch } from "../../../store/index";
-import { useDispatch, } from "react-redux";
+import { useDispatch } from "react-redux";
 import { LogOut } from "lucide-react";
 import { ThemeToggleSwitch } from "../../../../src/components/Layouts/header/theme-toggle/index";
-
-
-
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -30,18 +27,20 @@ export function Sidebar() {
   const dispatch = useDispatch<AppDispatch>();
   const email = getDecryptedItem("email");
   const [userImage, setUserImage] = useState("/images/user2.png");
+  const [loading, setLoading] = useState(true);
+  const [profileImageLoading, setProfileImageLoading] = useState(true);
   const USER: any = {
     name: name,
     email: email,
     img: "/images/user2.png",
   };
 
-
   useEffect(() => {
     const userId = getDecryptedItem("userId");
 
     const fetchProfileImage = async () => {
       try {
+        setProfileImageLoading(true);
         const res = await api.get(`upload/${userId}`);
         if (res?.data?.success) {
           const { profileImage } = res.data.data;
@@ -49,17 +48,24 @@ export function Sidebar() {
         }
       } catch (err) {
         console.error("Failed to fetch profile image:", err);
+      } finally {
+        setProfileImageLoading(false);
+        setLoading(false);
       }
     };
 
-    if (userId) fetchProfileImage();
+    if (userId) {
+      fetchProfileImage();
+    } else {
+      setLoading(false);
+      setProfileImageLoading(false);
+    }
 
     const handleImageUpdate = (event: CustomEvent) => {
-      // Update image directly from event if available
       if (event.detail?.profileImageUrl) {
         setUserImage(event.detail.profileImageUrl);
+        setProfileImageLoading(false);
       } else {
-        // Fallback to API call if no URL in event
         fetchProfileImage();
       }
     };
@@ -84,7 +90,10 @@ export function Sidebar() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
@@ -92,8 +101,6 @@ export function Sidebar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-
 
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
@@ -205,73 +212,48 @@ export function Sidebar() {
 
           {/* Navigation */}
           <div className="custom-scrollbar mt-2 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
-            {filteredNavData.map((section: any, index: number) => (
-              <div key={index} className="mb-6">
-                <h2 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">
-                  {section.label}
-                </h2>
+            {loading ? (
+              // Navigation Skeleton
+              <div className="space-y-6">
+                {Array.from({ length: 3 }).map((_, sectionIndex) => (
+                  <div key={sectionIndex} className="mb-6">
+                    {/* Section Title Skeleton */}
+                    <div className="mb-5 h-4 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
 
-                <nav role="navigation" aria-label={section.label}>
-                  <ul className="fvdg space-y-2">
-                    {section.items.map((item: any, index: number) => (
-                      <li key={index}>
-                        {item.items && item.items.length > 0 ? (
-                          <div>
-                            <MenuItem
-                              isActive={item.items.some(
-                                ({ url }: { url: string }) => url === pathname,
-                              )}
-                              onClick={() => toggleExpanded(item.title)}
-                            >
-                              <item.icon
-                                className="size-6 shrink-0"
-                                aria-hidden="true"
-                              />
-
-                              <span>{item.title}</span>
-
-                              <ChevronUp
-                                className={cn(
-                                  "ml-auto rotate-180 transition-transform duration-200",
-                                  expandedItems.includes(item.title) &&
-                                  "rotate-0",
-                                )}
-                                aria-hidden="true"
-                              />
-                            </MenuItem>
-
-                            {expandedItems.includes(item.title) && (
-                              <ul
-                                className="ml-9 mr-0 space-y-1.5 pb-[15px] pr-0 pt-2"
-                                role="menu"
-                              >
-                                {item.items.map((subItem: any, index: number) => (
-                                  <li key={index} role="none">
-                                    <MenuItem
-                                      as="link"
-                                      href={subItem.url}
-                                      isActive={pathname === subItem.url}
-                                    >
-                                      <span>{subItem.title}</span>
-                                    </MenuItem>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
+                    {/* Menu Items Skeleton */}
+                    <ul className="space-y-2">
+                      {Array.from({ length: 4 }).map((_, itemIndex) => (
+                        <li key={itemIndex}>
+                          <div className="flex items-center gap-3 px-3 py-3">
+                            <div className="h-6 w-6 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+                            <div className="h-4 flex-1 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
                           </div>
-                        ) : (
-                          (() => {
-                            const href =
-                              item.url ||
-                              "/" +
-                              item.title.toLowerCase().split(" ").join("-");
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Actual Navigation Content
+              filteredNavData.map((section: any, index: number) => (
+                <div key={index} className="mb-6">
+                  <h2 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">
+                    {section.label}
+                  </h2>
 
-                            return (
+                  <nav role="navigation" aria-label={section.label}>
+                    <ul className="fvdg space-y-2">
+                      {section.items.map((item: any, index: number) => (
+                        <li key={index}>
+                          {item.items && item.items.length > 0 ? (
+                            <div>
                               <MenuItem
-                                className="flex items-center gap-3 py-3"
-                                as="link"
-                                href={href}
-                                isActive={pathname === href}
+                                isActive={item.items.some(
+                                  ({ url }: { url: string }) =>
+                                    url === pathname,
+                                )}
+                                onClick={() => toggleExpanded(item.title)}
                               >
                                 <item.icon
                                   className="size-6 shrink-0"
@@ -279,124 +261,222 @@ export function Sidebar() {
                                 />
 
                                 <span>{item.title}</span>
+
+                                <ChevronUp
+                                  className={cn(
+                                    "ml-auto rotate-180 transition-transform duration-200",
+                                    expandedItems.includes(item.title) &&
+                                      "rotate-0",
+                                  )}
+                                  aria-hidden="true"
+                                />
                               </MenuItem>
-                            );
-                          })()
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
-              </div>
-            ))}
+
+                              {expandedItems.includes(item.title) && (
+                                <ul
+                                  className="ml-9 mr-0 space-y-1.5 pb-[15px] pr-0 pt-2"
+                                  role="menu"
+                                >
+                                  {item.items.map(
+                                    (subItem: any, index: number) => (
+                                      <li key={index} role="none">
+                                        <MenuItem
+                                          as="link"
+                                          href={subItem.url}
+                                          isActive={pathname === subItem.url}
+                                        >
+                                          <span>{subItem.title}</span>
+                                        </MenuItem>
+                                      </li>
+                                    ),
+                                  )}
+                                </ul>
+                              )}
+                            </div>
+                          ) : (
+                            (() => {
+                              const href =
+                                item.url ||
+                                "/" +
+                                  item.title.toLowerCase().split(" ").join("-");
+
+                              return (
+                                <MenuItem
+                                  className="flex items-center gap-3 py-3"
+                                  as="link"
+                                  href={href}
+                                  isActive={pathname === href}
+                                >
+                                  <item.icon
+                                    className="size-6 shrink-0"
+                                    aria-hidden="true"
+                                  />
+
+                                  <span>{item.title}</span>
+                                </MenuItem>
+                              );
+                            })()
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                </div>
+              ))
+            )}
           </div>
 
+          {/* User Profile Section */}
           <div className="relative" ref={dropdownRef}>
-            <figure
-              className="flex cursor-pointer items-center gap-2.5 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <Image
-                src={userImage}
-                className="size-12 overflow-hidden rounded-full"
-                alt={`Avatar for ${USER.name}`}
-                role="presentation"
-                width={200}
-                height={200}
-              />
-
-              <figcaption className="space-y-1 text-base font-medium">
-                <div className="mb-2 leading-none text-dark dark:text-white">
-                  {USER.name}
+            {loading ? (
+              // User Profile Skeleton
+              <div className="flex items-center gap-2.5 px-5 py-3.5">
+                <div className="size-12 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="h-3 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
                 </div>
-                <div className="leading-none text-gray-6">{USER.email}</div>
-              </figcaption>
-            </figure>
-
-            {/* Dropdown Menu */}
-            {isDropdownOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-dark">
-                <ul className="py-1">
-                   <li className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition-colors"><ThemeToggleSwitch/></li>
-              
-                  <li>
-                    <Link
-                      href="/view-profile"
-                      className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition-colors"
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        isMobile && toggleSidebar();
-                      }}
-                    >
-                      <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      View Profile
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href={getHomeRoute()}
-                      className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition-colors"
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        isMobile && toggleSidebar();
-                      }}
-                    >
-                      <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                      </svg>
-                      Home
-                    </Link>
-                  </li>
-                  <li>
-                    <button
-                      className="flex w-full items-center gap-3 px-5 py-3 text-sm font-medium text-dark hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition-colors"
-                      onClick={async () => {
-                        try {
-                          const adminId = parseInt(getDecryptedItem("userId") || "0");
-                          if (adminId) {
-                            await dispatch(trackLogoutActivity(adminId)).unwrap();
-                          }
-                          removeEncryptedItem("token");
-                          removeEncryptedItem("refreshToken");
-                          removeEncryptedItem("userId");
-                          removeEncryptedItem("name");
-                          removeEncryptedItem("email");
-                          removeEncryptedItem("role");
-
-
-                          setIsOpen(false);
-                          toasterSuccess("Logout Successfully", 2000, "id");
-                          window.location.href = "/";
-                        } catch (error) {
-                          console.error("Failed to track logout activity:", error);
-
-                          removeEncryptedItem("token");
-                          removeEncryptedItem("refreshToken");
-                          removeEncryptedItem("userId");
-                          removeEncryptedItem("name");
-                          removeEncryptedItem("email");
-                          removeEncryptedItem("role");
-                          setIsOpen(false);
-                          toasterSuccess("Logout Successfully", 2000, "id");
-                          window.location.href = "/";
-                        }
-                      }}
-                    >
-                      <LogOut size={18} className="text-gray-700" />
-                      <span className="text-base font-medium">Log out</span>
-                    </button>
-                  </li>
-
-                 
-                </ul>
               </div>
+            ) : (
+              // Actual User Profile Content
+              <>
+                <figure
+                  className="flex cursor-pointer items-center gap-2.5 rounded-lg px-5 py-3.5 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  <div className="relative">
+                    {profileImageLoading ? (
+                      <div className="size-12 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    ) : (
+                      <Image
+                        src={userImage}
+                        className="size-12 overflow-hidden rounded-full"
+                        alt={`Avatar for ${USER.name}`}
+                        role="presentation"
+                        width={200}
+                        height={200}
+                        onLoad={() => setProfileImageLoading(false)}
+                        onError={() => setProfileImageLoading(false)}
+                      />
+                    )}
+                  </div>
+
+                  <figcaption className="space-y-1 text-base font-medium">
+                    <div className="mb-2 leading-none text-dark dark:text-white">
+                      {USER.name}
+                    </div>
+                    <div className="leading-none text-gray-6">{USER.email}</div>
+                  </figcaption>
+                </figure>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute bottom-full left-0 right-0 mb-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-dark">
+                    <ul className="py-1">
+                      <li className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800">
+                        <ThemeToggleSwitch />
+                      </li>
+
+                      <li>
+                        <Link
+                          href="/view-profile"
+                          className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800"
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            isMobile && toggleSidebar();
+                          }}
+                        >
+                          <svg
+                            className="size-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                          </svg>
+                          View Profile
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href={getHomeRoute()}
+                          className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800"
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            isMobile && toggleSidebar();
+                          }}
+                        >
+                          <svg
+                            className="size-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                            />
+                          </svg>
+                          Home
+                        </Link>
+                      </li>
+                      <li>
+                        <button
+                          className="flex w-full items-center gap-3 px-5 py-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800"
+                          onClick={async () => {
+                            try {
+                              const adminId = parseInt(
+                                getDecryptedItem("userId") || "0",
+                              );
+                              if (adminId) {
+                                await dispatch(
+                                  trackLogoutActivity(adminId),
+                                ).unwrap();
+                              }
+                              removeEncryptedItem("token");
+                              removeEncryptedItem("refreshToken");
+                              removeEncryptedItem("userId");
+                              removeEncryptedItem("name");
+                              removeEncryptedItem("email");
+                              removeEncryptedItem("role");
+
+                              setIsOpen(false);
+                              toasterSuccess("Logout Successfully", 2000, "id");
+                              window.location.href = "/";
+                            } catch (error) {
+                              console.error(
+                                "Failed to track logout activity:",
+                                error,
+                              );
+
+                              removeEncryptedItem("token");
+                              removeEncryptedItem("refreshToken");
+                              removeEncryptedItem("userId");
+                              removeEncryptedItem("name");
+                              removeEncryptedItem("email");
+                              removeEncryptedItem("role");
+                              setIsOpen(false);
+                              toasterSuccess("Logout Successfully", 2000, "id");
+                              window.location.href = "/";
+                            }
+                          }}
+                        >
+                          <LogOut size={18} className="text-gray-700" />
+                          <span className="text-base font-medium">Log out</span>
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </>
             )}
-
-
-
-
           </div>
         </div>
       </aside>

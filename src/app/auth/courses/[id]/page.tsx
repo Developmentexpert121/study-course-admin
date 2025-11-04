@@ -34,7 +34,7 @@ export default function CourseDetailsPage() {
   const params = useParams();
   const courseId = params.id;
   const userId: any = getDecryptedItem("userId");
-   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   // Fetch enrollment status
   useEffect(() => {
     const fetchEnrollmentStatus = async () => {
@@ -155,7 +155,7 @@ export default function CourseDetailsPage() {
   if (!course) {
     return <ErrorState onBack={() => router.back()} />;
   }
- const name: any = getDecryptedItem("name");
+  const name: any = getDecryptedItem("name");
   const courseData = course;
   const statistics = courseData.statistics || {};
   const userData = courseData.user_data || {};
@@ -166,8 +166,7 @@ export default function CourseDetailsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-     
-          <header className="sticky top-0 z-50 border-b bg-white shadow-sm">
+      <header className="sticky top-0 z-50 border-b bg-white shadow-sm">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo */}
           <div className="text-2xl font-bold tracking-tight text-blue-600">
@@ -179,7 +178,7 @@ export default function CourseDetailsPage() {
             <a href="/" className="transition hover:text-blue-600">
               Home
             </a>
-            <a href="/#courses" className=" text-blue-600">
+            <a href="/#courses" className="text-blue-600">
               Courses
             </a>
             <a href="/#about" className="transition hover:text-blue-600">
@@ -188,24 +187,35 @@ export default function CourseDetailsPage() {
           </nav>
 
           {/* Login / Sign Up */}
-         {name ? 
-          
-          (<div>            <h1 className="font-medium text-gray-700 hover:text-blue-600">{name}</h1>  <button className="hover:bg-#d3cece rounded-full bg-[#02517b] px-5 py-2 text-white transition hover:bg-[#d3cece] hover:text-black" onClick={()=> router.push(`/user/dashboard`)}>dashboard</button></div>
-          ):(
-          <div className="hidden items-center gap-4 md:flex">
-            <button
-              className="font-medium text-gray-700 hover:text-blue-600"
-              onClick={() => router.push("/auth/login")}
-            >
-              Login
-            </button>
-            <button
-              onClick={() => router.push("/auth/register")}
-              className="hover:bg-#d3cece rounded-full bg-[#02517b] px-5 py-2 text-white transition hover:bg-[#d3cece] hover:text-black"
-            >
-              Sign Up
-            </button>
-          </div>) }
+          {name ? (
+            <div>
+              {" "}
+              <h1 className="font-medium text-gray-700 hover:text-blue-600">
+                {name}
+              </h1>{" "}
+              <button
+                className="hover:bg-#d3cece rounded-full bg-[#02517b] px-5 py-2 text-white transition hover:bg-[#d3cece] hover:text-black"
+                onClick={() => router.push(`/user/dashboard`)}
+              >
+                dashboard
+              </button>
+            </div>
+          ) : (
+            <div className="hidden items-center gap-4 md:flex">
+              <button
+                className="font-medium text-gray-700 hover:text-blue-600"
+                onClick={() => router.push("/auth/login")}
+              >
+                Login
+              </button>
+              <button
+                onClick={() => router.push("/auth/register")}
+                className="hover:bg-#d3cece rounded-full bg-[#02517b] px-5 py-2 text-white transition hover:bg-[#d3cece] hover:text-black"
+              >
+                Sign Up
+              </button>
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -298,7 +308,7 @@ export default function CourseDetailsPage() {
             enrollmentStatus={enrollmentStatus}
             onEnroll={handleEnroll}
             onContinueLearning={() =>
-              router.push(`/user-panel/courses/learn?id=${courseId}`)
+              router.push(`/user/courses/learn?id=${courseId}`)
             }
             onViewProgress={() => setActiveTab("progress")}
             courseId={courseId}

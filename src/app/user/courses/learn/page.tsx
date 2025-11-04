@@ -1,4 +1,3 @@
-// app/user-panel/courses/learn/page.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";

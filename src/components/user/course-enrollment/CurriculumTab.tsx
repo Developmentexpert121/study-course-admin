@@ -210,7 +210,7 @@ export default function CurriculumTab({
                           <button
                             onClick={() =>
                               router.push(
-                                `/user-panel/courses/learn/${courseId}?chapter=${chapter.id}`,
+                                `/user/courses/learn/${courseId}?chapter=${chapter.id}`,
                               )
                             }
                             className="flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400"
@@ -298,7 +298,7 @@ export default function CurriculumTab({
                         <button
                           onClick={() =>
                             router.push(
-                              `/user-panel/courses/learn/${courseId}?chapter=${chapter.id}`,
+                              `/user/courses/learn/${courseId}?chapter=${chapter.id}`,
                             )
                           }
                           className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"

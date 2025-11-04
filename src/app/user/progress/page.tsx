@@ -14,7 +14,7 @@ export default function Page() {
         const userId = getDecryptedItem("userId");
 
         if (userId) {
-          router.push(`/user-panel/${userId}`);
+          router.push(`/user/${userId}`);
         } else {
           setStatus("no-user");
           setTimeout(() => router.push("/login"), 2000);

@@ -89,7 +89,7 @@ export default function CourseHeader({
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <User className="h-4 w-4" />
-              <span>By {courseData.creator}</span>
+              <span>By {courseData.creator.username}</span>
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />

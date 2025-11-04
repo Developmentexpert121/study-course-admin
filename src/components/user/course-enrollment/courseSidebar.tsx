@@ -178,7 +178,7 @@ export default function CourseSidebar({
             <div className="space-y-2">
               <button
                 onClick={() =>
-                  (window.location.href = `/user-panel/courses/learn/${courseId}`)
+                  (window.location.href = `/user/courses/learn?id=${courseId}`)
                 }
                 className="flex w-full items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               >
@@ -208,11 +208,11 @@ export default function CourseSidebar({
         </h3>
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 font-bold text-white">
-            {courseData.creator?.charAt(0) || "I"}
+            {courseData.creator?.username?.charAt(0) || "I"}
           </div>
           <div>
             <div className="font-medium text-gray-900 dark:text-white">
-              {courseData.creator}
+              {courseData.creator.username}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Course Instructor

@@ -125,7 +125,7 @@ export default function CourseEnrollmentPage() {
 
   const handleContinueLearning = () => {
     if (course) {
-      router.push(`/user-panel/courses/${course.id}/chapter`);
+      router.push(`/user/courses/${course.id}/chapter`);
     }
   };
 
@@ -526,7 +526,7 @@ export default function CourseEnrollmentPage() {
                               onClick={() => {
                                 if (course.is_enrolled) {
                                   router.push(
-                                    `/user-panel/courses/${course.id}/lessons/${lesson.id}`,
+                                    `/user/courses/${course.id}/lessons/${lesson.id}`,
                                   );
                                 }
                               }}

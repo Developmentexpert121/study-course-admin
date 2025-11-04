@@ -92,19 +92,17 @@ export default function ChapterDetail() {
               "This is the last chapter. You have completed all chapters.",
               3000,
             );
-            router.push(
-              `/user-panel/courses_result/${userId}?course_id=${courseId}`,
-            );
+            router.push(`/user/courses_result/${userId}?course_id=${courseId}`);
           }
           const nextchapterNavigation = res.data?.data?.data.next_chapter.id;
-          router.push(`/user-panel/chapters/${nextchapterNavigation}`);
+          router.push(`/user/chapters/${nextchapterNavigation}`);
         } else {
           if (!res.data?.data?.data.has_previous) {
             toasterSuccess("this is first chapter", 3000);
           }
           const prevchapterNavigation =
             res.data?.data?.data.previous_chapter.id;
-          router.push(`/user-panel/chapters/${prevchapterNavigation}`);
+          router.push(`/user/chapters/${prevchapterNavigation}`);
         }
       } else {
         console.error("Failed to fetch navigation:", res.error?.message);
@@ -1474,7 +1472,7 @@ export default function ChapterDetail() {
         <div className="mb-8">
           <button
             onClick={() =>
-              router.push(`/user-panel/courses/${chapter.course_id}/chapter`)
+              router.push(`/user/courses/${chapter.course_id}/chapter`)
             }
             className="mb-8 flex items-center text-blue-600 hover:text-blue-800"
           >

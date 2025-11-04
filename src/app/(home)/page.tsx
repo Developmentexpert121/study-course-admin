@@ -53,7 +53,9 @@ const Home = () => {
 
   const [email, setEmail] = useState("");
   const success = useAppSelector(selectEmailSuccess);
-
+  console.log("Raw ratings from Redux:", ratings);
+  console.log("Ratings data:", ratings?.data);
+  console.log("Ratings array:", ratings?.data?.ratings);
   useEffect(() => {
     dispatch(fetchActiveCourses());
   }, [dispatch]);
@@ -104,7 +106,7 @@ const Home = () => {
 
       <CompanyAboutSection />
       <CertificateSection />
-      <Testimonial ratings={ratings} />
+      <Testimonial ratings={ratings?.ratings || []} />
 
       <Footer
         email={email}

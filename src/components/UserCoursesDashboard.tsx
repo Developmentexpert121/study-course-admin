@@ -21,8 +21,6 @@ import {
   Lock,
   CheckCircle,
   FileQuestion,
-  FileText,
-  Wrench,
   Heart,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -54,6 +52,7 @@ export default function UserCourseDashboard({ className }: any) {
     learningTime: 0,
     currentStreak: 0,
   });
+
   const api = useApiClient();
   const loggedInuserId: any = getDecryptedItem("userId");
 
@@ -133,12 +132,12 @@ export default function UserCourseDashboard({ className }: any) {
 
       if (res.success) {
         const coursesData = res.data?.data?.courses || [];
-
         // Filter out draft courses and only show active/inactive
         const filteredCourses = coursesData.filter(
           (course: any) => course.status !== "draft",
         );
         setCourses(filteredCourses);
+
         setTotalPages(res.data?.data?.totalPages || 1);
         setTotalCourses(res.data?.data?.total || 0);
 
@@ -173,15 +172,15 @@ export default function UserCourseDashboard({ className }: any) {
       return;
     }
 
-    // Check if course is complete (has chapters, lessons, and MCQs)
-    if (!course.is_course_complete) {
+    // Check if course is complete using strict boolean check
+    if (course.is_course_complete !== true) {
       // Show modal or toast message for incomplete courses
       alert("This course is being prepared. Content will be available soon!");
       return;
     }
 
     // For active and complete courses, go to enrollment page
-    router.push(`/user-panel/courses/CourseEnrollment/${course.id}`);
+    router.push(`/user/courses/CourseEnrollment/${course.id}`);
   };
 
   const formatDate = (dateString: string) => {
@@ -278,26 +277,6 @@ export default function UserCourseDashboard({ className }: any) {
     },
   ];
 
-  if (loading) {
-    return (
-      <div
-        className={cn(
-          "rounded-[10px] bg-white p-6 shadow-1 dark:bg-gray-dark",
-          className,
-        )}
-      >
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
-            <p className="mt-3 text-gray-600 dark:text-gray-400">
-              Loading courses...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       className={cn(
@@ -318,7 +297,7 @@ export default function UserCourseDashboard({ className }: any) {
           </div>
 
           {/* Show inactive courses count */}
-          {inactiveCourses.length > 0 && (
+          {!loading && inactiveCourses.length > 0 && (
             <div className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400">
               <AlertCircle className="h-4 w-4" />
               <span>{inactiveCourses.length} course(s) coming soon</span>
@@ -327,7 +306,7 @@ export default function UserCourseDashboard({ className }: any) {
         </div>
 
         {/* User Stats Section */}
-        {isUser && userStats.totalEnrolled > 0 && (
+        {!loading && isUser && userStats.totalEnrolled > 0 && (
           <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
             {userStatsData.map((stat, index) => (
               <div
@@ -381,7 +360,9 @@ export default function UserCourseDashboard({ className }: any) {
           </div>
 
           {/* Category Filter */}
-          {categories.length > 0 && (
+          {loading ? (
+            <div className="h-11 w-32 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+          ) : categories.length > 0 ? (
             <select
               value={categoryFilter}
               onChange={(e) => {
@@ -397,59 +378,70 @@ export default function UserCourseDashboard({ className }: any) {
                 </option>
               ))}
             </select>
-          )}
+          ) : null}
 
           {/* Sort By */}
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value);
-              setPage(1);
-            }}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="popular">Most Popular</option>
-          </select>
+          {loading ? (
+            <div className="h-11 w-32 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+          ) : (
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="popular">Most Popular</option>
+            </select>
+          )}
         </div>
 
         {/* View Mode Toggle */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`rounded-lg p-2 ${
-              viewMode === "grid"
-                ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            }`}
-          >
-            <div className="grid h-4 w-4 grid-cols-2 gap-0.5">
-              <div className="rounded-sm bg-current"></div>
-              <div className="rounded-sm bg-current"></div>
-              <div className="rounded-sm bg-current"></div>
-              <div className="rounded-sm bg-current"></div>
-            </div>
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`rounded-lg p-2 ${
-              viewMode === "list"
-                ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            }`}
-          >
-            <div className="flex h-4 w-4 flex-col gap-0.5">
-              <div className="h-1 rounded-sm bg-current"></div>
-              <div className="h-1 rounded-sm bg-current"></div>
-              <div className="h-1 rounded-sm bg-current"></div>
-            </div>
-          </button>
-        </div>
+        {loading ? (
+          <div className="flex items-center gap-2">
+            <div className="h-10 w-10 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-10 w-10 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`rounded-lg p-2 ${
+                viewMode === "grid"
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                  : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              }`}
+            >
+              <div className="grid h-4 w-4 grid-cols-2 gap-0.5">
+                <div className="rounded-sm bg-current"></div>
+                <div className="rounded-sm bg-current"></div>
+                <div className="rounded-sm bg-current"></div>
+                <div className="rounded-sm bg-current"></div>
+              </div>
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`rounded-lg p-2 ${
+                viewMode === "list"
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                  : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              }`}
+            >
+              <div className="flex h-4 w-4 flex-col gap-0.5">
+                <div className="h-1 rounded-sm bg-current"></div>
+                <div className="h-1 rounded-sm bg-current"></div>
+                <div className="h-1 rounded-sm bg-current"></div>
+              </div>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Search Results Info */}
-      {search && (
+      {!loading && search && (
         <div className="mb-4 flex items-center justify-between">
           <div className="text-sm text-gray-600 dark:text-gray-400">
             Search results for:{" "}
@@ -467,150 +459,268 @@ export default function UserCourseDashboard({ className }: any) {
         </div>
       )}
 
-      {/* Active Courses Section */}
-      {activeCourses.length > 0 && (
-        <div className="mb-8">
-          <h3 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
-            Available Courses ({activeCourses.length})
-          </h3>
-
-          {viewMode === "grid" ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {activeCourses.map((course: any) => (
-                <CourseCard
-                  key={course.id}
-                  course={course}
-                  isEnrolled={isEnrolled(course)}
-                  progress={getCourseProgress(course)}
-                  onClick={() => handleCourseClick(course)}
-                  onWishlistToggle={(e: React.MouseEvent) =>
-                    handleWishlistToggle(course, e)
-                  }
-                  isInWishlist={isInWishlist(course.id)}
-                  wishlistLoading={wishlistLoading}
-                  formatDate={formatDate}
-                  truncateText={truncateText}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {activeCourses.map((course: any) => (
-                <CourseListItem
-                  key={course.id}
-                  course={course}
-                  isEnrolled={isEnrolled(course)}
-                  progress={getCourseProgress(course)}
-                  onClick={() => handleCourseClick(course)}
-                  onWishlistToggle={(e: React.MouseEvent) =>
-                    handleWishlistToggle(course, e)
-                  }
-                  isInWishlist={isInWishlist(course.id)}
-                  wishlistLoading={wishlistLoading}
-                  formatDate={formatDate}
-                  truncateText={truncateText}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Coming Soon Section (Inactive Courses) */}
-      {inactiveCourses.length > 0 && (
-        <div className="mb-8">
-          <h3 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
-            <Loader2 className="h-5 w-5 text-orange-500" />
-            Coming Soon ({inactiveCourses.length})
-          </h3>
-          <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-            These courses are being prepared and will be available soon
-          </p>
-
-          {viewMode === "grid" ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {inactiveCourses.map((course: any) => (
-                <CourseCard
-                  key={course.id}
-                  course={course}
-                  isEnrolled={isEnrolled(course)}
-                  progress={getCourseProgress(course)}
-                  onClick={() => handleCourseClick(course)}
-                  onWishlistToggle={(e: React.MouseEvent) =>
-                    handleWishlistToggle(course, e)
-                  }
-                  isInWishlist={isInWishlist(course.id)}
-                  wishlistLoading={wishlistLoading}
-                  formatDate={formatDate}
-                  truncateText={truncateText}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {inactiveCourses.map((course: any) => (
-                <CourseListItem
-                  key={course.id}
-                  course={course}
-                  isEnrolled={isEnrolled(course)}
-                  progress={getCourseProgress(course)}
-                  onClick={() => handleCourseClick(course)}
-                  onWishlistToggle={(e: React.MouseEvent) =>
-                    handleWishlistToggle(course, e)
-                  }
-                  isInWishlist={isInWishlist(course.id)}
-                  wishlistLoading={wishlistLoading}
-                  formatDate={formatDate}
-                  truncateText={truncateText}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Empty State */}
-      {courses.length === 0 && <EmptyState search={search} />}
-
-      {/* Pagination */}
-      {courses.length > 0 && (
-        <div className="mt-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            Showing {activeCourses.length} active courses
-            {inactiveCourses.length > 0 &&
-              ` and ${inactiveCourses.length} coming soon`}
-            {search && ` for "${search}"`}
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              disabled={page === 1}
-              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              className="flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
-            >
-              Previous
-            </button>
-            <div className="flex items-center gap-1">
-              {generatePaginationButtons()}
-            </div>
-            <button
-              disabled={page === totalPages}
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              className="flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
-            >
-              Next
-            </button>
+      {/* Loading Skeleton */}
+      {loading ? (
+        <div className="space-y-8">
+          {/* Active Courses Skeleton */}
+          <div>
+            <div className="mb-4 h-7 w-48 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+            {viewMode === "grid" ? (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <CourseCardSkeleton key={index} />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <CourseListItemSkeleton key={index} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
+      ) : (
+        <>
+          {/* Active Courses Section */}
+          {activeCourses.length > 0 && (
+            <div className="mb-8">
+              <h3 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+                Available Courses ({activeCourses.length})
+              </h3>
+
+              {viewMode === "grid" ? (
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {activeCourses.map((course: any) => (
+                    <CourseCard
+                      key={course.id}
+                      course={course}
+                      isEnrolled={isEnrolled(course)}
+                      progress={getCourseProgress(course)}
+                      onClick={() => handleCourseClick(course)}
+                      onWishlistToggle={(e: React.MouseEvent) =>
+                        handleWishlistToggle(course, e)
+                      }
+                      isInWishlist={isInWishlist(course.id)}
+                      wishlistLoading={wishlistLoading}
+                      formatDate={formatDate}
+                      truncateText={truncateText}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {activeCourses.map((course: any) => (
+                    <CourseListItem
+                      key={course.id}
+                      course={course}
+                      isEnrolled={isEnrolled(course)}
+                      progress={getCourseProgress(course)}
+                      onClick={() => handleCourseClick(course)}
+                      onWishlistToggle={(e: React.MouseEvent) =>
+                        handleWishlistToggle(course, e)
+                      }
+                      isInWishlist={isInWishlist(course.id)}
+                      wishlistLoading={wishlistLoading}
+                      formatDate={formatDate}
+                      truncateText={truncateText}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Coming Soon Section (Inactive Courses) */}
+          {inactiveCourses.length > 0 && (
+            <div className="mb-8">
+              <h3 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
+                <Loader2 className="h-5 w-5 text-orange-500" />
+                Coming Soon ({inactiveCourses.length})
+              </h3>
+              <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                These courses are being prepared and will be available soon
+              </p>
+
+              {viewMode === "grid" ? (
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {inactiveCourses.map((course: any) => (
+                    <CourseCard
+                      key={course.id}
+                      course={course}
+                      isEnrolled={isEnrolled(course)}
+                      progress={getCourseProgress(course)}
+                      onClick={() => handleCourseClick(course)}
+                      onWishlistToggle={(e: React.MouseEvent) =>
+                        handleWishlistToggle(course, e)
+                      }
+                      isInWishlist={isInWishlist(course.id)}
+                      wishlistLoading={wishlistLoading}
+                      formatDate={formatDate}
+                      truncateText={truncateText}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {inactiveCourses.map((course: any) => (
+                    <CourseListItem
+                      key={course.id}
+                      course={course}
+                      isEnrolled={isEnrolled(course)}
+                      progress={getCourseProgress(course)}
+                      onClick={() => handleCourseClick(course)}
+                      onWishlistToggle={(e: React.MouseEvent) =>
+                        handleWishlistToggle(course, e)
+                      }
+                      isInWishlist={isInWishlist(course.id)}
+                      wishlistLoading={wishlistLoading}
+                      formatDate={formatDate}
+                      truncateText={truncateText}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {courses.length === 0 && <EmptyState search={search} />}
+
+          {/* Pagination */}
+          {courses.length > 0 && (
+            <div className="mt-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Showing {activeCourses.length} active courses
+                {inactiveCourses.length > 0 &&
+                  ` and ${inactiveCourses.length} coming soon`}
+                {search && ` for "${search}"`}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={page === 1}
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                  className="flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+                >
+                  Previous
+                </button>
+                <div className="flex items-center gap-1">
+                  {generatePaginationButtons()}
+                </div>
+                <button
+                  disabled={page === totalPages}
+                  onClick={() =>
+                    setPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  className="flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
 
+// Course Card Skeleton Component
+const CourseCardSkeleton = () => (
+  <div className="animate-pulse overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    {/* Image Skeleton */}
+    <div className="h-48 w-full bg-gray-200 dark:bg-gray-700"></div>
+
+    {/* Content Skeleton */}
+    <div className="p-5">
+      <div className="mb-2 flex items-center justify-between">
+        <div className="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+        <div className="h-6 w-16 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+
+      <div className="mb-2 h-6 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
+      <div className="mb-4 h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
+      <div className="mb-4 h-4 w-2/3 rounded bg-gray-200 dark:bg-gray-700"></div>
+
+      <div className="mb-4 space-y-2">
+        <div className="h-4 w-1/2 rounded bg-gray-200 dark:bg-gray-700"></div>
+        <div className="h-4 w-2/3 rounded bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+
+      <div className="mb-3 grid grid-cols-2 gap-2">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-3 rounded bg-gray-200 dark:bg-gray-700"
+          ></div>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="h-10 w-32 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+        <div className="h-8 w-12 rounded bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+    </div>
+  </div>
+);
+
+// Course List Item Skeleton Component
+const CourseListItemSkeleton = () => (
+  <div className="animate-pulse rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="flex items-start gap-4">
+      {/* Image Skeleton */}
+      <div className="h-24 w-24 flex-shrink-0 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+
+      {/* Content Skeleton */}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="mb-2 flex items-center gap-3">
+              <div className="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+              <div className="h-6 w-24 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+              <div className="h-6 w-16 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            </div>
+
+            <div className="mb-1 h-6 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
+            <div className="mb-3 h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
+
+            <div className="mb-2 flex flex-wrap items-center gap-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700"
+                ></div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700"></div>
+              <div className="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="h-10 w-32 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-10 w-40 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+          </div>
+        </div>
+
+        <div className="mt-3">
+          <div className="mb-1 flex justify-between">
+            <div className="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-4 w-8 rounded bg-gray-200 dark:bg-gray-700"></div>
+          </div>
+          <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 // Enhanced Course Card Component for Users
 const CourseCard = ({
   course,
   isEnrolled,
-  progress,
   onClick,
   onWishlistToggle,
   isInWishlist,
@@ -620,26 +730,41 @@ const CourseCard = ({
 }: any) => {
   const isActive = course.status === "active";
   const isInactive = course.status === "inactive";
-  const isCourseComplete = course.is_course_complete;
+  const isCourseComplete = course.is_course_complete === true;
 
-  // Determine course status
-  const getCourseStatus = () => {
+  const progress = course.course_readiness?.completion_percentage || 0;
+
+  const getCourseStatus = (course: any) => {
+    const isActive = course.status === "active";
+    const isInactive = course.status === "inactive";
+    const isCourseComplete = course.is_course_complete === true;
+
+    // ✅ Check if current user is enrolled
+    const currentUserId = course.userId;
+    const isEnrolledUser = course.enrolled_users?.some(
+      (u: any) => u.user_id === currentUserId,
+    );
+
     if (isInactive) {
       return { status: "inactive", label: "Coming Soon", color: "gray" };
     }
 
-    if (!isCourseComplete) {
-      return {
-        status: "under_development",
-        label: "Under Development",
-        color: "orange",
-      };
+    if (isActive) {
+      if (isCourseComplete) {
+        return { status: "ready", label: "Ready", color: "green" };
+      } else {
+        let label = "Under Development";
+        if (isEnrolledUser && progress > 0) {
+          label = `Preparing (${progress}%)`;
+        }
+        return { status: "under_development", label, color: "orange" };
+      }
     }
 
-    return { status: "ready", label: "Ready", color: "green" };
+    return { status: "unknown", label: "Unknown", color: "gray" };
   };
 
-  const courseStatus = getCourseStatus();
+  const courseStatus = getCourseStatus(course);
   const isCourseAvailable = isActive && isCourseComplete;
 
   return (
@@ -690,7 +815,7 @@ const CourseCard = ({
           >
             {courseStatus.status === "inactive" && <Lock className="h-3 w-3" />}
             {courseStatus.status === "under_development" && (
-              <Wrench className="h-3 w-3" />
+              <Loader2 className="h-3 w-3" />
             )}
             {courseStatus.status === "ready" && (
               <CheckCircle className="h-3 w-3" />
@@ -831,13 +956,10 @@ const CourseCard = ({
           {isEnrolled ? (
             // Already Enrolled Button
             <div className="flex w-full items-center justify-between">
-              <button
-                onClick={onClick}
-                className="flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800"
-              >
+              <span className="flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-900 dark:text-green-200">
                 <CheckCircle className="h-4 w-4" />
                 Already Enrolled
-              </button>
+              </span>
               <button
                 onClick={onClick}
                 className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
@@ -849,7 +971,7 @@ const CourseCard = ({
           ) : (
             // Regular View Details Button for non-enrolled users
             <button
-              onClick={onClick}
+              onClick={() => isCourseAvailable && onClick()}
               disabled={!isCourseAvailable}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 isCourseAvailable
@@ -864,7 +986,7 @@ const CourseCard = ({
                 </>
               ) : !isCourseComplete ? (
                 <>
-                  <Wrench className="h-4 w-4" />
+                  <Loader2 className="h-4 w-4" />
                   Under Development
                 </>
               ) : (
@@ -896,7 +1018,6 @@ const CourseCard = ({
 const CourseListItem = ({
   course,
   isEnrolled,
-  progress,
   onClick,
   onWishlistToggle,
   isInWishlist,
@@ -906,7 +1027,39 @@ const CourseListItem = ({
 }: any) => {
   const isActive = course.status === "active";
   const isInactive = course.status === "inactive";
-  const isCourseComplete = course.is_course_complete;
+  const isCourseComplete = course.is_course_complete === true;
+  const progress = course.course_readiness?.completion_percentage || 0;
+
+  const getCourseStatus = (course: any) => {
+    const isActive = course.status === "active";
+    const isInactive = course.status === "inactive";
+    const isCourseComplete = course.is_course_complete === true;
+
+    // ✅ Check if current user is enrolled
+    const currentUserId = course.userId;
+    const isEnrolledUser = course.enrolled_users?.some(
+      (u: any) => u.user_id === currentUserId,
+    );
+
+    if (isInactive) {
+      return { status: "inactive", label: "Coming Soon", color: "gray" };
+    }
+
+    if (isActive) {
+      if (isCourseComplete) {
+        return { status: "ready", label: "Ready", color: "green" };
+      } else {
+        let label = "Under Development";
+        if (isEnrolledUser && progress > 0) {
+          label = `Preparing (${progress}%)`;
+        }
+        return { status: "under_development", label, color: "orange" };
+      }
+    }
+
+    return { status: "unknown", label: "Unknown", color: "gray" };
+  };
+  const courseStatus = getCourseStatus(course);
 
   return (
     <div
@@ -1053,13 +1206,10 @@ const CourseListItem = ({
           <div className="flex flex-col items-end gap-2">
             {isEnrolled ? (
               <>
-                <button
-                  onClick={onClick}
-                  className="flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800"
-                >
+                <span className="flex items-center gap-2 rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-900 dark:text-green-200">
                   <CheckCircle className="h-4 w-4" />
                   Already Enrolled
-                </button>
+                </span>
                 <button
                   onClick={onClick}
                   className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
@@ -1105,7 +1255,7 @@ const CourseListItem = ({
             <div className="mb-1 flex justify-between text-sm">
               <span className="text-gray-600 dark:text-gray-400">Progress</span>
               <span className="font-medium text-gray-900 dark:text-white">
-                {progress}%`
+                {progress}%
               </span>
             </div>
             <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">

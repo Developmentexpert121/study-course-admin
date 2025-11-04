@@ -45,7 +45,7 @@ export function ContinueLearning() {
             Start learning by enrolling in a new course!
           </p>
           <Link
-            href="/user-panel/courses"
+            href="/user/courses"
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
           >
             Browse Courses
@@ -120,14 +120,14 @@ export function ContinueLearning() {
                   <div className="flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
                     <div className="flex gap-3">
                       <Link
-                        href={`/user-panel/courses/${course.id}/learn`}
+                        href={`/user/courses/${course.id}/learn`}
                         className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700"
                       >
                         <Play className="h-4 w-4" />
                         Continue
                       </Link>
                       <Link
-                        href={`/user-panel/courses/${course.id}`}
+                        href={`/user/courses/${course.id}`}
                         className="rounded-lg border border-gray-300 px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                       >
                         Course Details

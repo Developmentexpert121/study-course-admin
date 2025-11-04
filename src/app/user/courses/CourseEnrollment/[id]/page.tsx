@@ -206,7 +206,7 @@ export default function CourseDetailsPage() {
             enrollmentStatus={enrollmentStatus}
             onEnroll={handleEnroll}
             onContinueLearning={() =>
-              router.push(`/user-panel/courses/learn?id=${courseId}`)
+              router.push(`/user/courses/learn?id=${courseId}`)
             }
             onViewProgress={() => setActiveTab("progress")}
             courseId={courseId}
