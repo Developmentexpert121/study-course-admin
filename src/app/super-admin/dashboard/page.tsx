@@ -518,7 +518,7 @@ import { version } from "os";
 // export default function DashboardStatsPage() {
 //   const dispatch = useAppDispatch();
 //   const router = useRouter();
-  
+
 //   // Redux selectors
 //   const stats = useAppSelector(selectDashboardStats);
 //   const loading = useAppSelector(selectDashboardStatsLoading);
@@ -724,7 +724,7 @@ import { version } from "os";
 //               <div className="absolute top-0 right-0 h-32 w-32 opacity-10">
 //                 <div className={`h-full w-full rounded-full bg-gradient-to-br ${card.gradient} blur-2xl`}></div>
 //               </div>
-              
+
 //               <div className="relative">
 //                 <div className="flex items-start justify-between">
 //                   <div className="flex-1">
@@ -857,7 +857,7 @@ import { version } from "os";
 
 
 
-        
+
 
 //         </div>
 
@@ -1054,6 +1054,7 @@ import {
   clearError,
 } from "@/store/slices/adminslice/dashboardStatsSlice";
 import { useRouter } from "next/navigation";
+
 import {
   PieChart,
   Pie,
@@ -1075,7 +1076,7 @@ import {
 export default function DashboardStatsPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  
+
   // Redux selectors
   const stats = useAppSelector(selectDashboardStats);
   const loading = useAppSelector(selectDashboardStatsLoading);
@@ -1175,7 +1176,7 @@ export default function DashboardStatsPage() {
     },
     {
       name: "Avg Per Course",
-      value: stats?.data?.summary?.totalCourses 
+      value: stats?.data?.summary?.totalCourses
         ? Math.round((stats?.data?.summary?.totalEnrollments || 0) / stats?.data?.summary?.totalCourses)
         : 0,
       fill: "#8b5cf6",
@@ -1183,7 +1184,7 @@ export default function DashboardStatsPage() {
   ];
 
   // Calculate growth percentages (you can modify these based on your historical data)
-  const calculateTrend = (current, previous = 0) => {
+  const calculateTrend = (current: any, previous = 0) => {
     if (!previous) return "+0%";
     const growth = ((current - previous) / previous) * 100;
     return growth > 0 ? `+${growth.toFixed(1)}%` : `${growth.toFixed(1)}%`;
@@ -1244,7 +1245,7 @@ export default function DashboardStatsPage() {
                 Comprehensive statistics and insights about your platform
               </p>
             </div>
-            <button 
+            <button
               onClick={handleRefresh}
               disabled={loading}
               className="mt-4 inline-flex items-center rounded-xl bg-white/20 backdrop-blur-sm px-6 py-3 text-white shadow-lg transition-all hover:bg-white/30 hover:scale-105 disabled:opacity-50 sm:mt-0"
@@ -1302,7 +1303,7 @@ export default function DashboardStatsPage() {
               <div className="absolute top-0 right-0 h-32 w-32 opacity-10">
                 <div className={`h-full w-full rounded-full bg-gradient-to-br ${card.gradient} blur-2xl`}></div>
               </div>
-              
+
               <div className="relative">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -1346,9 +1347,13 @@ export default function DashboardStatsPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name}: ${(percent * 100).toFixed(0)}%`
+                  // label={({ name, percent }) =>
+                  //   `${name}: ${(percent * 100).toFixed(0)}%`
+                  // }
+                  label={({ name, percent }: { name?: string; percent?: number }) =>
+                    `${name}: ${((percent || 0) * 100).toFixed(0)}%`
                   }
+
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
@@ -1443,9 +1448,15 @@ export default function DashboardStatsPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, value, percent }) =>
-                    `${name}: ${value} (${(percent * 100).toFixed(0)}%)`
+                  // label={({ name, value, percent }) =>
+                  //   `${name}: ${value} (${(percent * 100).toFixed(0)}%)`
+                  // }
+
+
+                  label={({ name, value, percent }: { name?: string; value?: any; percent?: number }) =>
+                    `${name}: ${value} (${((percent || 0) * 100).toFixed(0)}%)`
                   }
+
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
@@ -1454,7 +1465,7 @@ export default function DashboardStatsPage() {
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   contentStyle={{
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     border: '1px solid #e5e7eb',

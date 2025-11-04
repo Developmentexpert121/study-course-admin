@@ -495,9 +495,9 @@ export default function RatingsManagementPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredRatings.map((rating) => (
+                  filteredRatings.map((rating : any , index : number) => (
                     <tr
-                      key={rating.id}
+                      key={index}
                       className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/30"
                     >
                       <td className="whitespace-nowrap px-6 py-4">
