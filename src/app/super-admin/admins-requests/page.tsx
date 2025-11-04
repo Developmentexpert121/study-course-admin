@@ -15,6 +15,9 @@ import {
   ChevronRight,
   Eye,
   Info,
+  Search,
+  Filter,
+  X as CloseIcon,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -30,8 +33,18 @@ import {
   selectActionLoading,
   selectVerifiedCount,
   selectRejectedCount,
+  selectVerifiedAdmins,
+  selectTotalAdmins,
+  selectSearchQuery,
+  selectFilters,
+  setSearchQuery,
+  setStatusFilter,
+  setEmailFilter,
+  setNameFilter,
+  clearFilters,
 } from "@/store/slices/adminslice/adminSlice";
 import { useRouter } from "next/navigation";
+import { join } from "path";
 
 export default function AdminUsersPage() {
   const dispatch = useAppDispatch();
@@ -47,16 +60,70 @@ export default function AdminUsersPage() {
   const actionLoading = useAppSelector(selectActionLoading);
   const verifiedCount = useAppSelector(selectVerifiedCount);
   const rejectedCount = useAppSelector(selectRejectedCount);
+  const totaluser = useAppSelector(selectTotalAdmins);
+  const totalactive = useAppSelector(selectVerifiedAdmins);
+  
+  // Search and filter selectors
+  const searchQuery = useAppSelector(selectSearchQuery);
+  const filters = useAppSelector(selectFilters);
 
-  // Fetch admins on component mount
+  // Local state for search input
+  const [localSearch, setLocalSearch] = useState(searchQuery);
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Fetch admins on component mount and when search/filters change
   useEffect(() => {
-    dispatch(fetchAdmins(1));
-  }, [dispatch]);
+    dispatch(fetchAdmins({ 
+      page: 1, 
+      search: searchQuery,
+      status: filters.status,
+      email: filters.email,
+      name: filters.name
+    }));
+  }, [dispatch, searchQuery, filters]);
 
   // Handle page change
   const handlePageChange = (page: number) => {
-    dispatch(fetchAdmins(page));
+    dispatch(fetchAdmins({ 
+      page, 
+      search: searchQuery,
+      status: filters.status,
+      email: filters.email,
+      name: filters.name
+    }));
   };
+
+  // Handle search with debounce
+  const handleSearch = (value: string) => {
+    setLocalSearch(value);
+    // Debounce the search dispatch
+    const timeoutId = setTimeout(() => {
+      dispatch(setSearchQuery(value));
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  };
+
+  // Handle filter changes
+  const handleStatusFilter = (status: string) => {
+    dispatch(setStatusFilter(status));
+  };
+
+  const handleEmailFilter = (email: string) => {
+    dispatch(setEmailFilter(email));
+  };
+
+  const handleNameFilter = (name: string) => {
+    dispatch(setNameFilter(name));
+  };
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    dispatch(clearFilters());
+    setLocalSearch("");
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters = searchQuery || filters.status || filters.email || filters.name;
 
   // Handle approve action
   const handleApprove = async (adminId: string) => {
@@ -71,7 +138,13 @@ export default function AdminUsersPage() {
     try {
       const result = await dispatch(approveAdmin(adminId)).unwrap();
       alert(`✅ ${result.message}`);
-      dispatch(fetchAdmins(currentPage));
+      dispatch(fetchAdmins({ 
+        page: currentPage, 
+        search: searchQuery,
+        status: filters.status,
+        email: filters.email,
+        name: filters.name
+      }));
     } catch (err: any) {
       alert(`❌ ${err}`);
     }
@@ -86,7 +159,13 @@ export default function AdminUsersPage() {
     try {
       const result = await dispatch(rejectAdmin(adminId)).unwrap();
       alert(`✅ ${result.message}`);
-      dispatch(fetchAdmins(currentPage));
+      dispatch(fetchAdmins({ 
+        page: currentPage, 
+        search: searchQuery,
+        status: filters.status,
+        email: filters.email,
+        name: filters.name
+      }));
     } catch (err: any) {
       if (err === "Session expired. Please login again.") {
         alert("❌ Session expired. Please login again.");
@@ -111,13 +190,11 @@ export default function AdminUsersPage() {
       year: "numeric",
       month: "short",
       day: "numeric",
-      // hour: '2-digit',
-      // minute: '2-digit'
     });
   };
 
   // Loading state
-  if (loading) {
+  if (loading && admins.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6">
         <div className="text-center">
@@ -131,7 +208,7 @@ export default function AdminUsersPage() {
   }
 
   // Error state
-  if (error) {
+  if (error && admins.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6">
         <div className="w-full max-w-md">
@@ -142,7 +219,7 @@ export default function AdminUsersPage() {
             </h3>
             <p className="mb-4 text-red-700 dark:text-red-300">{error}</p>
             <button
-              onClick={() => dispatch(fetchAdmins(currentPage))}
+              onClick={() => dispatch(fetchAdmins({ page: currentPage }))}
               className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
@@ -169,13 +246,134 @@ export default function AdminUsersPage() {
             </p>
           </div>
           <button
-            onClick={() => dispatch(fetchAdmins(currentPage))}
+            onClick={() => dispatch(fetchAdmins({ page: currentPage }))}
             className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] hover:bg-blue-700 dark:bg-[#43bf79]"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </button>
         </div>
+
+        {/* Search and Filter Section */}
+        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-md dark:border-gray-700 dark:bg-gray-800/50">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by username or email..."
+                value={localSearch}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            {/* Filter Toggle */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                Filters
+                {hasActiveFilters && (
+                  <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    Active
+                  </span>
+                )}
+              </button>
+
+              {hasActiveFilters && (
+                <button
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                >
+                  <CloseIcon className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Filter Options */}
+          {showFilters && (
+            <div className="mt-4 grid grid-cols-1 gap-4 border-t border-gray-200 pt-4 dark:border-gray-700 md:grid-cols-3">
+              {/* Status Filter */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
+                  Status
+                </label>
+                <select
+                  value={filters.status}
+                  onChange={(e) => handleStatusFilter(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+
+              {/* Name Filter */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  placeholder="Filter by username..."
+                  value={filters.name}
+                  onChange={(e) => handleNameFilter(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              {/* Email Filter */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
+                  Email
+                </label>
+                <input
+                  type="text"
+                  placeholder="Filter by email..."
+                  value={filters.email}
+                  onChange={(e) => handleEmailFilter(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Active Filters Display */}
+          {hasActiveFilters && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {searchQuery && (
+                <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  Search: "{searchQuery}"
+                </span>
+              )}
+              {filters.status && (
+                <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
+                  Status: {filters.status}
+                </span>
+              )}
+              {filters.name && (
+                <span className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                  Username: {filters.name}
+                </span>
+              )}
+              {filters.email && (
+                <span className="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                  Email: {filters.email}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Rest of your component remains the same... */}
+        {/* Stats Cards, Table, Pagination, etc. */}
 
         {/* Stats Cards */}
         <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -187,7 +385,7 @@ export default function AdminUsersPage() {
                   Total Admins
                 </p>
                 <p className="mt-1 text-3xl font-bold text-[#02517b] dark:text-[#43bf79]">
-                  {totalCount}
+                  {totaluser}
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#02517b]/10 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
@@ -204,7 +402,7 @@ export default function AdminUsersPage() {
                   Verified
                 </p>
                 <p className="mt-1 text-3xl font-bold text-green-600 dark:text-[#43bf79]">
-                  {verifiedCount}
+                  {totalactive}
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
@@ -221,7 +419,7 @@ export default function AdminUsersPage() {
                   Rejected
                 </p>
                 <p className="mt-1 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                  {rejectedCount}
+                  {totaluser - totalactive}
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 transition-transform duration-300 group-hover:scale-110 dark:bg-yellow-500/20">
@@ -260,11 +458,19 @@ export default function AdminUsersPage() {
                     <td colSpan={5} className="px-6 py-12 text-center">
                       <User className="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600" />
                       <p className="font-medium text-gray-500 dark:text-white">
-                        No admin users found
+                        {hasActiveFilters ? "No admins match your filters" : "No admin users found"}
                       </p>
                       <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
-                        Admin accounts will appear here once created
+                        {hasActiveFilters ? "Try adjusting your search or filters" : "Admin accounts will appear here once created"}
                       </p>
+                      {hasActiveFilters && (
+                        <button
+                          onClick={handleClearFilters}
+                          className="mt-3 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
+                        >
+                          Clear Filters
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ) : (
@@ -323,7 +529,6 @@ export default function AdminUsersPage() {
                                         <p className="mb-1 font-semibold">
                                           Rejected Admin
                                         </p>
-                                        {/* <p className="text-gray-300">This admin application has been rejected and cannot access admin features.</p> */}
                                       </div>
                                     </div>
                                     <div className="absolute left-4 top-full h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
@@ -344,7 +549,6 @@ export default function AdminUsersPage() {
                                         <p className="mb-1 font-semibold">
                                           Pending Approval
                                         </p>
-                                        {/* <p className="text-gray-300">This admin is waiting for approval. Use the action buttons to approve or reject.</p> */}
                                       </div>
                                     </div>
                                     <div className="absolute left-4 top-full h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
@@ -365,7 +569,6 @@ export default function AdminUsersPage() {
                                         <p className="mb-1 font-semibold">
                                           Approved Admin
                                         </p>
-                                        {/* <p className="text-gray-300">This admin has been approved and has full access. Click "View Details" to see more information.</p> */}
                                       </div>
                                     </div>
                                     <div className="absolute left-4 top-full h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
@@ -477,6 +680,11 @@ export default function AdminUsersPage() {
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {totalPages}
                 </span>
+                {hasActiveFilters && (
+                  <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                    (Filtered results)
+                  </span>
+                )}
               </div>
 
               {/* Pagination Controls */}
@@ -549,9 +757,6 @@ export default function AdminUsersPage() {
             </div>
           </div>
         )}
-
-        {/* Footer Summary */}
-    
       </div>
     </div>
   );

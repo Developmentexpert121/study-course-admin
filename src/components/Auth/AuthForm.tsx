@@ -208,7 +208,17 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           setEncryptedItem("role", role);
         }
 
-        window.location.href = "/";
+      if (role === "admin") {
+      router.push("/admin/dashboard");
+    } else if (role === "Super-Admin") {
+      router.push("/super-admin/dashboard");
+    }
+    else if (role === "user") {
+      router.push("/user/dashboard");
+    }
+     else {
+      router.push("");
+  }
       }
     } else {
       const messageMap: Record<string, string> = {

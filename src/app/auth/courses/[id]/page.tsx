@@ -190,8 +190,7 @@ export default function CourseDetailsPage() {
           {/* Login / Sign Up */}
          {name ? 
           
-          (
-<div>            <h1>{name}</h1>  <button onClick={()=> router.push(`/user/dashboard`)}>dashboard</button></div>
+          (<div>            <h1 className="font-medium text-gray-700 hover:text-blue-600">{name}</h1>  <button className="hover:bg-#d3cece rounded-full bg-[#02517b] px-5 py-2 text-white transition hover:bg-[#d3cece] hover:text-black" onClick={()=> router.push(`/user/dashboard`)}>dashboard</button></div>
           ):(
           <div className="hidden items-center gap-4 md:flex">
             <button

@@ -4,15 +4,97 @@ import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NAV_DATA } from "./data";
 import { ArrowLeftIcon, ChevronUp } from "./icons";
 import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
-import { getDecryptedItem } from "@/utils/storageHelper";
+import { getDecryptedItem, removeEncryptedItem } from "@/utils/storageHelper";
+import Image from "next/image";
+import { useApiClient } from "@/lib/api";
+import { trackLogoutActivity } from "../../../store/slices/adminslice/adminlogout";
+
+import { toasterSuccess } from "@/components/core/Toaster";
+import { AppDispatch } from "../../../store/index";
+import { useDispatch, } from "react-redux";
+import { LogOut } from "lucide-react";
+import { ThemeToggleSwitch } from "../../../../src/components/Layouts/header/theme-toggle/index";
+
+
+
 
 export function Sidebar() {
   const pathname = usePathname();
+  const api = useApiClient();
+  const name = getDecryptedItem("name");
+  const dispatch = useDispatch<AppDispatch>();
+  const email = getDecryptedItem("email");
+  const [userImage, setUserImage] = useState("/images/user2.png");
+  const USER: any = {
+    name: name,
+    email: email,
+    img: "/images/user2.png",
+  };
+
+
+  useEffect(() => {
+    const userId = getDecryptedItem("userId");
+
+    const fetchProfileImage = async () => {
+      try {
+        const res = await api.get(`upload/${userId}`);
+        if (res?.data?.success) {
+          const { profileImage } = res.data.data;
+          setUserImage(profileImage || "/images/user2.png");
+        }
+      } catch (err) {
+        console.error("Failed to fetch profile image:", err);
+      }
+    };
+
+    if (userId) fetchProfileImage();
+
+    const handleImageUpdate = (event: CustomEvent) => {
+      // Update image directly from event if available
+      if (event.detail?.profileImageUrl) {
+        setUserImage(event.detail.profileImageUrl);
+      } else {
+        // Fallback to API call if no URL in event
+        fetchProfileImage();
+      }
+    };
+
+    window.addEventListener(
+      "profile-image-updated",
+      handleImageUpdate as EventListener,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "profile-image-updated",
+        handleImageUpdate as EventListener,
+      );
+    };
+  }, []);
+
+  // Add this inside your Sidebar component, before the return statement
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
+
   const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [role, setRole] = useState<string | undefined>();
@@ -46,9 +128,9 @@ export function Sidebar() {
   const isSuperAdmin = role === "Super-Admin";
 
   const getFilteredNavData = () => {
-    return NAV_DATA.map((section : any) => ({
+    return NAV_DATA.map((section: any) => ({
       ...section,
-      items: section.items.filter((item : any) => {
+      items: section.items.filter((item: any) => {
         if (item.type === "both") {
           return true;
         }
@@ -67,15 +149,15 @@ export function Sidebar() {
 
         return false;
       }),
-    })).filter((section : any) => section.items.length > 0);
+    })).filter((section: any) => section.items.length > 0);
   };
 
   const filteredNavData = getFilteredNavData();
 
   const getHomeRoute = () => {
-    if (isSuperAdmin) return "/super-admin/dashboard";
+    if (isSuperAdmin) return "/";
     if (isAdmin) return "/";
-    if (isUser) return "/user-dashboard";
+    if (isUser) return "/";
     return "/";
   };
 
@@ -100,7 +182,7 @@ export function Sidebar() {
         aria-hidden={!isOpen}
         inert={!isOpen}
       >
-        <div className="flex h-full flex-col py-10 pl-[25px] pr-[7px]">
+        <div className="flex h-full flex-col py-5 pl-[25px] pr-[7px]">
           <div className="relative pr-4.5">
             <Link
               href={getHomeRoute()}
@@ -123,7 +205,7 @@ export function Sidebar() {
 
           {/* Navigation */}
           <div className="custom-scrollbar mt-2 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
-            {filteredNavData.map((section : any , index: number) => (
+            {filteredNavData.map((section: any, index: number) => (
               <div key={index} className="mb-6">
                 <h2 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">
                   {section.label}
@@ -131,13 +213,13 @@ export function Sidebar() {
 
                 <nav role="navigation" aria-label={section.label}>
                   <ul className="fvdg space-y-2">
-                    {section.items.map((item : any , index :number) => (
+                    {section.items.map((item: any, index: number) => (
                       <li key={index}>
                         {item.items && item.items.length > 0 ? (
                           <div>
                             <MenuItem
                               isActive={item.items.some(
-                               ({ url }: { url: string }) => url === pathname,
+                                ({ url }: { url: string }) => url === pathname,
                               )}
                               onClick={() => toggleExpanded(item.title)}
                             >
@@ -152,7 +234,7 @@ export function Sidebar() {
                                 className={cn(
                                   "ml-auto rotate-180 transition-transform duration-200",
                                   expandedItems.includes(item.title) &&
-                                    "rotate-0",
+                                  "rotate-0",
                                 )}
                                 aria-hidden="true"
                               />
@@ -163,7 +245,7 @@ export function Sidebar() {
                                 className="ml-9 mr-0 space-y-1.5 pb-[15px] pr-0 pt-2"
                                 role="menu"
                               >
-                                {item.items.map((subItem :any , index: number) => (
+                                {item.items.map((subItem: any, index: number) => (
                                   <li key={index} role="none">
                                     <MenuItem
                                       as="link"
@@ -182,7 +264,7 @@ export function Sidebar() {
                             const href =
                               item.url ||
                               "/" +
-                                item.title.toLowerCase().split(" ").join("-");
+                              item.title.toLowerCase().split(" ").join("-");
 
                             return (
                               <MenuItem
@@ -207,6 +289,114 @@ export function Sidebar() {
                 </nav>
               </div>
             ))}
+          </div>
+
+          <div className="relative" ref={dropdownRef}>
+            <figure
+              className="flex cursor-pointer items-center gap-2.5 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <Image
+                src={userImage}
+                className="size-12 overflow-hidden rounded-full"
+                alt={`Avatar for ${USER.name}`}
+                role="presentation"
+                width={200}
+                height={200}
+              />
+
+              <figcaption className="space-y-1 text-base font-medium">
+                <div className="mb-2 leading-none text-dark dark:text-white">
+                  {USER.name}
+                </div>
+                <div className="leading-none text-gray-6">{USER.email}</div>
+              </figcaption>
+            </figure>
+
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-dark">
+                <ul className="py-1">
+                   <li className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition-colors"><ThemeToggleSwitch/></li>
+              
+                  <li>
+                    <Link
+                      href="/view-profile"
+                      className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition-colors"
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        isMobile && toggleSidebar();
+                      }}
+                    >
+                      <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      View Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={getHomeRoute()}
+                      className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition-colors"
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        isMobile && toggleSidebar();
+                      }}
+                    >
+                      <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                      Home
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      className="flex w-full items-center gap-3 px-5 py-3 text-sm font-medium text-dark hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition-colors"
+                      onClick={async () => {
+                        try {
+                          const adminId = parseInt(getDecryptedItem("userId") || "0");
+                          if (adminId) {
+                            await dispatch(trackLogoutActivity(adminId)).unwrap();
+                          }
+                          removeEncryptedItem("token");
+                          removeEncryptedItem("refreshToken");
+                          removeEncryptedItem("userId");
+                          removeEncryptedItem("name");
+                          removeEncryptedItem("email");
+                          removeEncryptedItem("role");
+
+
+                          setIsOpen(false);
+                          toasterSuccess("Logout Successfully", 2000, "id");
+                          window.location.href = "/";
+                        } catch (error) {
+                          console.error("Failed to track logout activity:", error);
+
+                          removeEncryptedItem("token");
+                          removeEncryptedItem("refreshToken");
+                          removeEncryptedItem("userId");
+                          removeEncryptedItem("name");
+                          removeEncryptedItem("email");
+                          removeEncryptedItem("role");
+                          setIsOpen(false);
+                          toasterSuccess("Logout Successfully", 2000, "id");
+                          window.location.href = "/";
+                        }
+                      }}
+                    >
+                      <LogOut size={18} className="text-gray-700" />
+                      <span className="text-base font-medium">Log out</span>
+                    </button>
+                  </li>
+
+                 
+                </ul>
+              </div>
+            )}
+
+
+
+
           </div>
         </div>
       </aside>

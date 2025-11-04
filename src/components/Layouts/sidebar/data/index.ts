@@ -91,14 +91,14 @@ export const NAV_DATA = [
         type: "Super-Admin",
       },
 
-      // Common items for all users
-      {
-        title: "Profile",
-        url: "/view-profile",
-        icon: Icons.User,
-        items: [],
-        type: "both",
-      },
+      // // Common items for all users
+      // {
+      //   title: "Profile",
+      //   url: "/view-profile",
+      //   icon: Icons.User,
+      //   items: [],
+      //   type: "both",
+      // },
 
 
 
@@ -112,22 +112,22 @@ export const NAV_DATA = [
       },
 
       {
-        title: "Courses Log",
+        title: "Activity Logs",
         url: "/super-admin/courses-creation",
         icon: Icons.Calendar,
         items: [],
         type: "Super-Admin",
       },
-      {
-        title: "Rating",
-        url: "/super-admin/rating",
-        icon: Icons.Calendar,
-        items: [],
-        type: "Super-Admin",
-      },
+      // {
+      //   title: "Rating",
+      //   url: "/super-admin/rating",
+      //   icon: Icons.Calendar,
+      //   items: [],
+      //   type: "Super-Admin",
+      // },
 
       {
-        title: "Mails",
+        title: "Newsletter",
         url: "/super-admin/mails",
         icon: Icons.Calendar,
         items: [],
@@ -141,6 +141,8 @@ export const NAV_DATA = [
         items: [],
         type: "admin",
       },
+
+     
 
     ],
   },

@@ -17,11 +17,13 @@ import { RootState, AppDispatch } from "../../../../store";
 import { useDispatch, useSelector } from "react-redux";
 import { getDecryptedItem, removeEncryptedItem ,updateEncryptedItem } from "@/utils/storageHelper";
 import { useApiClient } from "@/lib/api";
+import { useRouter } from "next/navigation";
+
 
 export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
   const name = getDecryptedItem("name");
-
+  const router = useRouter();
   
   const email = getDecryptedItem("email");
   const [userImage, setUserImage] = useState("/images/user2.png");
@@ -149,6 +151,17 @@ export function UserInfo() {
             <span className="mr-auto text-base font-medium">View profile</span>
           </Link>
 
+            <Link
+            // href={"/profile"}
+             href={"/"}
+            onClick={()=>router.push(`/`)}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[9px] hover:bg-gray-2 hover:text-dark dark:hover:bg-dark-3 dark:hover:text-white"
+          >
+            <UserIcon />
+
+            <span className="mr-auto text-base font-medium">Home</span>
+          </Link>
+
           {/* <Link
             href={"/pages/settings"}
             
@@ -180,6 +193,7 @@ export function UserInfo() {
                 removeEncryptedItem("name");
                 removeEncryptedItem("email");
                 removeEncryptedItem("role");
+               
 
                 setIsOpen(false);
                 toasterSuccess("Logout Successfully", 2000, "id");
