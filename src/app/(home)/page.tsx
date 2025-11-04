@@ -43,7 +43,7 @@ import { getDecryptedItem } from "@/utils/storageHelper";
 const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-    const name: any = getDecryptedItem("name");
+  const name: any = getDecryptedItem("name");
 
   const [menuOpen, setMenuOpen] = useState(false);
   const courses = useSelector(selectAllCourses);
@@ -94,10 +94,8 @@ const Home = () => {
     dispatch(getAllRatings());
   }, [dispatch]);
 
-
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50">
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b bg-white shadow-sm">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
@@ -120,25 +118,30 @@ const Home = () => {
           </nav>
 
           {/* Login / Sign Up */}
-          {name ? 
-          
-          (
-<div>            <h1>{name}</h1>  <button onClick={()=> router.push(`/user/dashboard`)}>dashboard</button></div>
-          ):(
-          <div className="hidden items-center gap-4 md:flex">
-            <button
-              className="font-medium text-gray-700 hover:text-blue-600"
-              onClick={() => router.push("/auth/login")}
-            >
-              Login
-            </button>
-            <button
-              onClick={() => router.push("/auth/register")}
-              className="hover:bg-#d3cece rounded-full bg-[#02517b] px-5 py-2 text-white transition hover:bg-[#d3cece] hover:text-black"
-            >
-              Sign Up
-            </button>
-          </div>) }
+          {name ? (
+            <div>
+              {" "}
+              <h1>{name}</h1>{" "}
+              <button onClick={() => router.push(`/user/dashboard`)}>
+                dashboard
+              </button>
+            </div>
+          ) : (
+            <div className="hidden items-center gap-4 md:flex">
+              <button
+                className="font-medium text-gray-700 hover:text-blue-600"
+                onClick={() => router.push("/auth/login")}
+              >
+                Login
+              </button>
+              <button
+                onClick={() => router.push("/auth/register")}
+                className="hover:bg-#d3cece rounded-full bg-[#02517b] px-5 py-2 text-white transition hover:bg-[#d3cece] hover:text-black"
+              >
+                Sign Up
+              </button>
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -241,7 +244,7 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="bg-gray-50">
         {/* --- about us --- */}
         <section className="bg-white py-16 md:py-24">
           <div className="container mx-auto flex flex-col items-center gap-10 px-6 md:flex-row md:px-12">
@@ -410,10 +413,13 @@ const Home = () => {
                         <p className="text-sm font-medium text-yellow-500">
                           {/* Rating: {course.rating} ★ */}
                         </p>
-                        <button 
-                        // onClick={()=> router.push(`/auth/courses`)}
-                        onClick={()=> router.push(`/auth/courses/${course.id}`)}
-                        className="relative mt-4 w-full overflow-hidden rounded-full bg-gradient-to-r from-[#012d48] via-[#02517b] to-[#0388c7] px-6 py-3 font-semibold text-white shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-[0_0_20px_rgba(2,81,123,0.6)]">
+                        <button
+                          // onClick={()=> router.push(`/auth/courses`)}
+                          onClick={() =>
+                            router.push(`/auth/courses/${course.id}`)
+                          }
+                          className="relative mt-4 w-full overflow-hidden rounded-full bg-gradient-to-r from-[#012d48] via-[#02517b] to-[#0388c7] px-6 py-3 font-semibold text-white shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-[0_0_20px_rgba(2,81,123,0.6)]"
+                        >
                           <span className="relative z-10">View Now</span>
                           <span className="absolute inset-0 bg-gradient-to-r from-[#0388c7] to-[#02517b] opacity-0 transition-opacity duration-500 hover:opacity-100"></span>
                         </button>
@@ -436,10 +442,10 @@ const Home = () => {
               About <span className="text-[#02517b]">DevexHub</span>
             </h2>
             <p className="mb-6 text-gray-500">
-              At DevexHub, our mission is to empower learners to unlock their full
-              potential through accessible, high-quality, and industry-relevant
-              education. We believe that learning should be practical, engaging, and
-              tailored to modern career needs.
+              At DevexHub, our mission is to empower learners to unlock their
+              full potential through accessible, high-quality, and
+              industry-relevant education. We believe that learning should be
+              practical, engaging, and tailored to modern career needs.
             </p>
             <p className="mb-6 text-gray-500">
               With a strong community of passionate mentors, DevexHub focuses on
@@ -447,7 +453,7 @@ const Home = () => {
               technologies to gaining confidence in real-world projects.
             </p>
 
-            <ul className="space-y-3 mb-8">
+            <ul className="mb-8 space-y-3">
               <li className="flex items-center font-medium text-gray-700">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -457,7 +463,11 @@ const Home = () => {
                   stroke="#fbbf24"
                   className="mr-2 h-5 w-5"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 1000+ Students Trained
               </li>
@@ -470,7 +480,11 @@ const Home = () => {
                   stroke="#fbbf24"
                   className="mr-2 h-5 w-5"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 Real-World Project Based Learning
               </li>
@@ -483,7 +497,11 @@ const Home = () => {
                   stroke="#fbbf24"
                   className="mr-2 h-5 w-5"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 Dedicated Mentor Support
               </li>
@@ -496,7 +514,11 @@ const Home = () => {
                   stroke="#fbbf24"
                   className="mr-2 h-5 w-5"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 Job & Internship Assistance
               </li>
@@ -505,7 +527,7 @@ const Home = () => {
             {/* About Us Button */}
             <button
               className="rounded-full bg-[#02517b] px-6 py-3 font-semibold text-white shadow-md transition-all hover:bg-[#0369a1] hover:shadow-lg"
-              onClick={() =>router.push(`auth/about`)}
+              onClick={() => router.push(`auth/about`)}
             >
               About Us
             </button>
@@ -514,7 +536,7 @@ const Home = () => {
           {/* Right Image Section */}
           <div className="relative flex w-full justify-center md:w-1/2">
             <img
-              src="/images/about-img.png"
+              src="/images/about.jpg"
               alt="About DevexHub"
               className="w-full rounded-2xl object-cover shadow-lg md:w-[90%]"
             />
@@ -538,15 +560,13 @@ const Home = () => {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-800">5+ Years</p>
+                <p className="text-sm font-semibold text-gray-800">7+ Years</p>
                 <p className="text-xs text-gray-500">Experience in Training</p>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-
 
       {/* --- Courses Slider end --- */}
       <section
@@ -588,11 +608,12 @@ const Home = () => {
 
         {/* Hero content */}
         <div className="relative z-10 mx-auto max-w-2xl px-4 text-center">
-          <h1 className="l mb-6 text-3xl font-extrabold leading-[1.2] text-gray-900">
+          <h1 className="mb-4 text-center text-2xl font-extrabold leading-tight text-gray-900 sm:text-3xl md:text-4xl lg:text-5xl">
             Earn a Professional{" "}
             <span className="text-[#02517b]">Certificate</span> and Advance Your
             Skills
           </h1>
+
           <a
             onClick={() => router.push("/auth/register")}
             className="inline-block rounded-lg bg-[#02517b] px-6 py-3 font-medium text-white transition hover:bg-[#5687a1bf]"
@@ -746,8 +767,9 @@ function Testimonial({ ratings }: { ratings: any[] }) {
         {[...Array(5)].map((_, index) => (
           <span
             key={index}
-            className={`text-lg ${index < score ? "text-yellow-400" : "text-gray-300"
-              }`}
+            className={`text-lg ${
+              index < score ? "text-yellow-400" : "text-gray-300"
+            }`}
           >
             ★
           </span>
@@ -761,89 +783,89 @@ function Testimonial({ ratings }: { ratings: any[] }) {
       {" "}
       {ratings.filter((ratings) => ratings.status === "showtoeveryone").length >
         0 && (
-          <section className="bg-white py-20">
-            <div className="container mx-auto px-6">
-              {/* Section Title */}
-              <div className="mb-16 text-center">
-                <h2 className="text-3xl font-extrabold leading-tight text-gray-900 md:text-4xl">
-                  Our{" "}
-                  <span className="font-extrabold text-[#02517b]">Satisfied</span>{" "}
-                  Clients
-                </h2>
-              </div>
+        <section className="bg-white py-20">
+          <div className="container mx-auto px-6">
+            {/* Section Title */}
+            <div className="mb-16 text-center">
+              <h2 className="text-3xl font-extrabold leading-tight text-gray-900 md:text-4xl">
+                Our{" "}
+                <span className="font-extrabold text-[#02517b]">Satisfied</span>{" "}
+                Clients
+              </h2>
+            </div>
 
-              {/* Display Ratings if available */}
-              {ratings && ratings.length > 0 ? (
-                <div className="mb-12">
-                  <h3 className="mb-6 text-center text-2xl font-bold text-gray-800">
-                    Course Ratings & Reviews
-                  </h3>
-                  <Swiper
-                    modules={[Pagination]}
-                    slidesPerView={1}
-                    spaceBetween={30}
-                    loop={true}
-                    pagination={{ clickable: true }}
-                    breakpoints={{
-                      640: { slidesPerView: 1 },
-                      768: { slidesPerView: 2 },
-                      1024: { slidesPerView: 3 },
-                    }}
-                  >
-                    {ratings
-                      .filter((ratings) => ratings.status === "showtoeveryone")
-                      .map((rating, index) => (
-                        <SwiperSlide key={rating.id || index}>
-                          <div className="rounded-lg bg-gradient-to-br from-blue-50 to-white p-6 shadow-md transition hover:shadow-xl">
-                            <div className="mb-4 flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#02517b] font-bold text-white">
-                                  {rating.user_id}
-                                </div>
-                                <div>
-                                  <p className="text-sm font-semibold text-gray-800">
-                                    {rating.user.username}
-                                  </p>
-                                  <p className="text-xs text-gray-500">
-                                    {rating.course.title}
-                                  </p>
-                                </div>
+            {/* Display Ratings if available */}
+            {ratings && ratings.length > 0 ? (
+              <div className="mb-12">
+                <h3 className="mb-6 text-center text-2xl font-bold text-gray-800">
+                  Course Ratings & Reviews
+                </h3>
+                <Swiper
+                  modules={[Pagination]}
+                  slidesPerView={1}
+                  spaceBetween={30}
+                  loop={true}
+                  pagination={{ clickable: true }}
+                  breakpoints={{
+                    640: { slidesPerView: 1 },
+                    768: { slidesPerView: 2 },
+                    1024: { slidesPerView: 3 },
+                  }}
+                >
+                  {ratings
+                    .filter((ratings) => ratings.status === "showtoeveryone")
+                    .map((rating, index) => (
+                      <SwiperSlide key={rating.id || index}>
+                        <div className="rounded-lg bg-gradient-to-br from-blue-50 to-white p-6 shadow-md transition hover:shadow-xl">
+                          <div className="mb-4 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#02517b] font-bold text-white">
+                                {rating.user_id}
                               </div>
-                              {renderStars(rating.score)}
+                              <div>
+                                <p className="text-sm font-semibold text-gray-800">
+                                  {rating.user.username}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {rating.course.title}
+                                </p>
+                              </div>
                             </div>
+                            {renderStars(rating.score)}
+                          </div>
 
-                            <div className="mb-3">
-                              <p className="text-sm italic text-gray-600">
-                                {rating.review ||
-                                  "Great course! Highly recommended."}
-                              </p>
-                            </div>
+                          <div className="mb-3">
+                            <p className="text-sm italic text-gray-600">
+                              {rating.review ||
+                                "Great course! Highly recommended."}
+                            </p>
+                          </div>
 
-                            <div className="flex items-center justify-between text-xs text-gray-400">
-                              <span className="rounded-full bg-green-100 px-2 py-1 text-green-700">
-                                {rating.status}
-                              </span>
-                              <span>
-                                {rating.created_at
-                                  ? new Date(
+                          <div className="flex items-center justify-between text-xs text-gray-400">
+                            <span className="rounded-full bg-green-100 px-2 py-1 text-green-700">
+                              {rating.status}
+                            </span>
+                            <span>
+                              {rating.created_at
+                                ? new Date(
                                     rating.created_at,
                                   ).toLocaleDateString()
-                                  : "Recently"}
-                              </span>
-                            </div>
+                                : "Recently"}
+                            </span>
                           </div>
-                        </SwiperSlide>
-                      ))}
-                  </Swiper>
-                </div>
-              ) : (
-                <div className="mb-12 text-center">
-                  <p className="text-gray-500">Loading ratings...</p>
-                </div>
-              )}
-            </div>
-          </section>
-        )}
+                        </div>
+                      </SwiperSlide>
+                    ))}
+                </Swiper>
+              </div>
+            ) : (
+              <div className="mb-12 text-center">
+                <p className="text-gray-500">Loading ratings...</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

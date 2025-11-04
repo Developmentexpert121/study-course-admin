@@ -228,7 +228,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
       const apiErrorCode = response?.error?.code || "";
       const errorMessage =
-        messageMap[apiErrorCode] || "Your account is suspended. Please contact your teacher.";
+        messageMap[apiErrorCode] ||
+        "Your account is suspended. Please contact your teacher.";
 
       toasterError(errorMessage, 5000, "id");
     }
@@ -249,27 +250,29 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
   const RoleTabs = () => (
     <div className="mb-4">
-      <label className="mb-3 block text-sm text-gray-700 dark:text-gray-300">
+      <label className="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
         Account Type
       </label>
       <div className="flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
         <button
           type="button"
           onClick={() => handleRoleChange("user")}
-          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${formData.role === "user"
+          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
+            formData.role === "user"
               ? "bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"
               : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-            }`}
+          }`}
         >
           👤 User Account
         </button>
         <button
           type="button"
           onClick={() => handleRoleChange("admin")}
-          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${formData.role === "admin"
+          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
+            formData.role === "admin"
               ? "bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"
               : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-            }`}
+          }`}
         >
           ⚙️ Admin Account
         </button>
@@ -370,7 +373,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-white px-4 dark:from-gray-900 dark:to-gray-950">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#02517b] to-[#637c89de] px-4 dark:from-gray-900 dark:to-gray-950">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-900">
         <h2 className="mb-6 text-center text-3xl font-extrabold text-gray-800 dark:text-white">
           {renderTitle()}
@@ -381,7 +384,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
           {type === "register" && (
             <div>
-              <label className="mb-1 block text-sm text-gray-700 dark:text-gray-300">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Full Name
               </label>
               <input
@@ -397,7 +400,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
           {type === "reset-password" && (
             <div>
-              <label className="mb-1 block text-sm text-gray-700 dark:text-gray-300">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Email
               </label>
               <input
@@ -413,88 +416,89 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           {(type === "login" ||
             type === "register" ||
             type === "forgot-password") && (
-              <div>
-                <label className="mb-1 block text-sm text-gray-700 dark:text-gray-300">
-                  Email Address
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                  required
-                />
-              </div>
-            )}
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email Address
+              </label>
+              <input
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                onChange={handleChange}
+                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                required
+              />
+            </div>
+          )}
 
           {(type === "login" ||
             type === "register" ||
             type === "reset-password") && (
-              <div>
-                <label className="mb-1 block text-sm text-gray-700 dark:text-gray-300">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    name={type === "reset-password" ? "newPassword" : "password"}
-                    type="password"
-                    placeholder="Enter your password"
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
-                    onClick={(e) => {
-                      const button = e.currentTarget;
-                      const input = button.previousElementSibling as HTMLInputElement;
-                      if (input && input.type === "password") {
-                        input.type = "text";
-                        button.innerHTML = `
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  name={type === "reset-password" ? "newPassword" : "password"}
+                  type="password"
+                  placeholder="Enter your password"
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
+                  onClick={(e) => {
+                    const button = e.currentTarget;
+                    const input =
+                      button.previousElementSibling as HTMLInputElement;
+                    if (input && input.type === "password") {
+                      input.type = "text";
+                      button.innerHTML = `
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
             </svg>
           `;
-                      } else {
-                        input.type = "password";
-                        button.innerHTML = `
+                    } else {
+                      input.type = "password";
+                      button.innerHTML = `
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
           `;
-                      }
-                    }}
+                    }
+                  }}
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <svg
-                      className="h-5 w-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                </button>
               </div>
-            )}
+            </div>
+          )}
 
           {(type === "register" || type === "reset-password") && (
             <div>
-              <label className="mb-1 block text-sm text-gray-700 dark:text-gray-300">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Confirm Password
               </label>
               <div className="relative">
@@ -511,7 +515,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                   className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
                   onClick={(e) => {
                     const button = e.currentTarget;
-                    const input = button.previousElementSibling as HTMLInputElement;
+                    const input =
+                      button.previousElementSibling as HTMLInputElement;
                     if (input && input.type === "password") {
                       input.type = "text";
                       button.innerHTML = `
@@ -556,9 +561,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition duration-300 hover:bg-blue-700"
+            className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#02517b] via-[#0482b8] to-[#02517b] py-3 font-semibold text-white shadow-[0_0_25px_rgba(2,81,123,0.6)] transition-all duration-500 hover:scale-105 focus:outline-none"
           >
-            {renderTitle()}
+            <span className="relative z-10">{renderTitle()}</span>
+
+            {/* Animated gradient overlay */}
+            <span className="animate-gradientFlow absolute inset-0 bg-[linear-gradient(270deg,#02517b,#0482b8,#02a7d0,#02517b)] bg-[length:400%_400%] opacity-80"></span>
+
+            {/* Glowing border animation */}
+            <span className="animate-softGlow absolute inset-0 rounded-xl border border-[#02a7d0]/40"></span>
           </button>
         </form>
 
@@ -586,7 +597,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
               Already have an account?{" "}
               <Link
                 href="/auth/login"
-                className="text-blue-600 hover:underline"
+                className="font-medium text-[#095075] hover:underline"
               >
                 Login
               </Link>

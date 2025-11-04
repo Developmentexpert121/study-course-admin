@@ -11,46 +11,59 @@ import {
   Eye,
   Info,
   EyeOff,
-  Trash2,
   Check,
   X,
-  Filter,
+  BarChart3,
+  ArrowLeft,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/store";
-import {
-  getAllRatings,
-  getRatingsByCourseId,
-  getRatingById,
-  selectRatings,
-  selectRatingLoading,
-  selectRatingError,
-  selectCurrentRating,
-  selectLastFetched,
-  selectVisibleRatings,
-  selectHiddenRatings,
-  selectAverageRating,
-} from "@/store/slices/adminslice/ratinguser";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useApiClient } from "@/lib/api";
+import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 
-import {
-  hideRatingBySuperAdmin,
-  unhideRatingBySuperAdmin,
-} from "@/store/slices/adminslice/ratinghideshow";
-
-import {
-  softDeleteRating,
-  addRating,
-} from "@/store/slices/adminslice/ratingsoftdelete"
-
-
-import { useRouter } from "next/navigation";
-
-
-
-
+interface Rating {
+  id: number;
+  user_id: number;
+  course_id: number;
+  score: number;
+  review: string;
+  status: "showtoeveryone" | "hidebyadmin" | "hidebysuperadmin";
+  isactive: boolean;
+  createdAt: string;
+  user: {
+    id: number;
+    username: string;
+    email: string;
+    profileImage?: string;
+  };
+  course: {
+    id: number;
+    title: string;
+  };
+}
 
 export default function RatingsManagementPage() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const api = useApiClient();
+
+  const courseId = searchParams.get("course_id");
+  const courseTitle = searchParams.get("course_title");
+
+  const [ratings, setRatings] = useState<Rating[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<number | null>(null);
+
+  // Filters
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [scoreFilter, setScoreFilter] = useState("all");
+
+  // Stats
+  const [stats, setStats] = useState({
+    totalRatings: 0,
+    averageRating: 0,
+    visibleRatings: 0,
+    hiddenRatings: 0,
+  });
 
   const formatDate = (dateString: string) => {
     return new Intl.DateTimeFormat("en-GB", {
@@ -63,133 +76,217 @@ export default function RatingsManagementPage() {
     }).format(new Date(dateString));
   };
 
-  // Redux selectors - get data from store
-  const ratings = useAppSelector(selectRatings);
-  const loading = useAppSelector(selectRatingLoading);
-  const error = useAppSelector(selectRatingError);
-  const currentRating = useAppSelector(selectCurrentRating);
-  const lastFetched = useAppSelector(selectLastFetched);
-  const visibleRatings = useAppSelector(selectVisibleRatings);
-  const hiddenRatings = useAppSelector(selectHiddenRatings);
-  const averageRating = useAppSelector(selectAverageRating);
+  // In your RatingsManagementPage component
+  const fetchRatings = async () => {
+    try {
+      setLoading(true);
 
-  // Local state for filters and action loading
-  const [courseFilter, setCourseFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [scoreFilter, setScoreFilter] = useState("all");
-  const [actionLoading, setActionLoading] = useState<number | null>(null);
+      // Use the new API endpoint for course-specific ratings
+      let url = "rating";
 
-  // Fetch ratings on component mount
-  useEffect(() => {
-    dispatch(getAllRatings());
-  }, [dispatch]);
+      if (courseId) {
+        url = `rating/course/${courseId}`;
+      }
 
+      const res = await api.get(url);
 
+      if (res.success) {
+        // The new API returns both ratings and statistics
+        const ratingsData = res.data?.data?.ratings || [];
+        const statistics = res.data?.data?.statistics || {};
 
-  const handleSoftDeleteRating = async (ratingId: number) => {
-  setActionLoading(ratingId);
-  try {
-    await dispatch(softDeleteRating(ratingId)).unwrap();
-    // Refresh the ratings list after successful deactivation
-    await dispatch(getAllRatings());
-    alert('Rating deactivated successfully');
-  } catch (error) {
-    console.error("Failed to deactivate rating:", error);
-    alert('Failed to deactivate rating. Please try again.');
-  } finally {
-    setActionLoading(null);
-  }
-};
-
-
-const handleAddRating = async (ratingId: number) => {
-  setActionLoading(ratingId);
-  try {
-    await dispatch(addRating(ratingId)).unwrap();
-    // Refresh the ratings list after successful activation
-    await dispatch(getAllRatings());
-    alert('Rating activated successfully');
-  } catch (error) {
-    console.error("Failed to activate rating:", error);
-    alert('Failed to activate rating. Please try again.');
-  } finally {
-    setActionLoading(null);
-  }
-};
-
-  // Handle refresh
-  const handleRefresh = () => {
-    if (courseFilter) {
-      dispatch(getRatingsByCourseId(courseFilter));
-    } else {
-      dispatch(getAllRatings());
+        setRatings(ratingsData);
+        setStats({
+          totalRatings: statistics.total_ratings || 0,
+          averageRating: statistics.average_rating || 0,
+          visibleRatings: statistics.visible_ratings || 0,
+          hiddenRatings: statistics.hidden_ratings || 0,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch ratings:", error);
+      toasterError("Failed to fetch ratings", 2000, "id");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Handle course filter change
-  const handleCourseFilter = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (courseFilter.trim()) {
-      dispatch(getRatingsByCourseId(courseFilter));
-    } else {
-      dispatch(getAllRatings());
+  // Calculate statistics
+  const calculateStats = (ratingsData: Rating[]) => {
+    const total = ratingsData.length;
+    const average =
+      total > 0
+        ? ratingsData.reduce((sum, rating) => sum + rating.score, 0) / total
+        : 0;
+    const visible = ratingsData.filter(
+      (r) => r.status === "showtoeveryone",
+    ).length;
+    const hidden = ratingsData.filter(
+      (r) => r.status !== "showtoeveryone",
+    ).length;
+
+    setStats({
+      totalRatings: total,
+      averageRating: average,
+      visibleRatings: visible,
+      hiddenRatings: hidden,
+    });
+  };
+
+  useEffect(() => {
+    fetchRatings();
+  }, [courseId]);
+
+  // Filter ratings based on filters
+  const filteredRatings = ratings.filter((rating) => {
+    const statusMatch =
+      statusFilter === "all" || rating.status === statusFilter;
+    const scoreMatch =
+      scoreFilter === "all" || rating.score.toString() === scoreFilter;
+    return statusMatch && scoreMatch;
+  });
+
+  // Replace your current handleHideRating and handleUnhideRating functions with these:
+
+  // Handle hide review (only hides the review text, keeps rating visible)
+  const handleHideReview = async (ratingId: number) => {
+    setActionLoading(ratingId);
+    try {
+      const res = await api.patch(`rating/${ratingId}/hide-review`);
+
+      if (res.success) {
+        toasterSuccess("Review hidden successfully", 2000, "id");
+        fetchRatings(); // Refresh the list
+      } else {
+        toasterError(res.error?.message || "Failed to hide review", 2000, "id");
+      }
+    } catch (error) {
+      console.error("Failed to hide review:", error);
+      toasterError("Failed to hide review. Please try again.", 2000, "id");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Handle unhide review
+  const handleUnhideReview = async (ratingId: number) => {
+    setActionLoading(ratingId);
+    try {
+      const res = await api.patch(`rating/${ratingId}/unhide-review`);
+
+      if (res.success) {
+        toasterSuccess("Review shown successfully", 2000, "id");
+        fetchRatings(); // Refresh the list
+      } else {
+        toasterError(res.error?.message || "Failed to show review", 2000, "id");
+      }
+    } catch (error) {
+      console.error("Failed to unhide review:", error);
+      toasterError("Failed to show review. Please try again.", 2000, "id");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Keep your existing functions for hiding/unhiding entire ratings if needed
+  const handleHideRating = async (ratingId: number) => {
+    setActionLoading(ratingId);
+    try {
+      const res = await api.patch(`rating/${ratingId}/hide`);
+
+      if (res.success) {
+        toasterSuccess("Rating hidden successfully", 2000, "id");
+        fetchRatings();
+      } else {
+        toasterError(res.error?.message || "Failed to hide rating", 2000, "id");
+      }
+    } catch (error) {
+      console.error("Failed to hide rating:", error);
+      toasterError("Failed to hide rating. Please try again.", 2000, "id");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleUnhideRating = async (ratingId: number) => {
+    setActionLoading(ratingId);
+    try {
+      const res = await api.patch(`rating/${ratingId}/unhide`);
+
+      if (res.success) {
+        toasterSuccess("Rating shown successfully", 2000, "id");
+        fetchRatings();
+      } else {
+        toasterError(res.error?.message || "Failed to show rating", 2000, "id");
+      }
+    } catch (error) {
+      console.error("Failed to unhide rating:", error);
+      toasterError("Failed to show rating. Please try again.", 2000, "id");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+  // Handle soft delete (deactivate)
+  const handleDeleteRating = async (ratingId: number) => {
+    setActionLoading(ratingId);
+    try {
+      const res = await api.delete(`rating/${ratingId}`);
+
+      if (res.success) {
+        toasterSuccess("Rating Delete successfully", 2000, "id");
+        fetchRatings();
+      } else {
+        toasterError(
+          res.error?.message || "Failed to deactivate rating",
+          2000,
+          "id",
+        );
+      }
+    } catch (error) {
+      console.error("Failed to deactivate rating:", error);
+      toasterError("Failed to deactivate rating. Please try again.", 200, "id");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Handle activate rating
+  const handleAddRating = async (ratingId: number) => {
+    setActionLoading(ratingId);
+    try {
+      const res = await api.patch(`ratings/${ratingId}/add`);
+
+      if (res.success) {
+        toasterSuccess("Rating activated successfully", 2000, "id");
+        fetchRatings();
+      } else {
+        toasterError(
+          res.error?.message || "Failed to activate rating",
+          2000,
+          "id",
+        );
+      }
+    } catch (error) {
+      console.error("Failed to activate rating:", error);
+      toasterError("Failed to activate rating. Please try again.", 2000, "id");
+    } finally {
+      setActionLoading(null);
     }
   };
 
   // Handle clear filters
   const handleClearFilters = () => {
-    setCourseFilter("");
     setStatusFilter("all");
     setScoreFilter("all");
-    dispatch(getAllRatings());
   };
 
-  // Handle hide rating
-  const handleHideRating = async (ratingId: number) => {
-    setActionLoading(ratingId);
-    try {
-      await dispatch(hideRatingBySuperAdmin(ratingId)).unwrap();
-      // Refresh the ratings list after successful hide
-      await dispatch(getAllRatings());
-      // Optional: Add success notification
-      alert('Rating hidden successfully');
-    } catch (error) {
-      console.error("Failed to hide rating:", error);
-      // Optional: Add error notification
-      alert('Failed to hide rating. Please try again.');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  // Handle unhide rating
-  const handleUnhideRating = async (ratingId: number) => {
-    setActionLoading(ratingId);
-    try {
-      await dispatch(unhideRatingBySuperAdmin(ratingId)).unwrap();
-      // Refresh the ratings list after successful unhide
-      await dispatch(getAllRatings());
-      // Optional: Add success notification
-      alert('Rating shown successfully');
-    } catch (error) {
-      console.error("Failed to unhide rating:", error);
-      // Optional: Add error notification
-      alert('Failed to show rating. Please try again.');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  // Filter ratings based on local filters
-  const filteredRatings = ratings.filter((rating : any) => {
-    const statusMatch = statusFilter === "all" || rating.status === statusFilter;
-    const scoreMatch = scoreFilter === "all" || rating.score.toString() === scoreFilter;
-    return statusMatch && scoreMatch;
-  });
-
-  // Calculate stats using selectors
-  const totalRatings = filteredRatings.length;
-  const formattedAverageRating = averageRating.toFixed(1);
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-6">
@@ -197,26 +294,44 @@ const handleAddRating = async (ratingId: number) => {
         {/* Header */}
         <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
           <div>
+            {courseTitle && (
+              <button
+                onClick={() => router.push("/admin/courses")}
+                className="mb-2 inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
+              >
+                <ArrowLeft className="mr-1 h-4 w-4" />
+                Back to Courses
+              </button>
+            )}
             <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
               <Star className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />
-              Ratings Management
+              {courseTitle ? `${courseTitle} - Ratings` : "Ratings Management"}
             </h1>
             <p className="mt-2 text-gray-600 dark:text-white">
-              View and manage all course ratings and reviews
+              {courseTitle
+                ? `View and manage ratings for ${courseTitle}`
+                : "View and manage all course ratings and reviews"}
             </p>
-            {lastFetched && (
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Last updated: {new Date(lastFetched).toLocaleString()}
-              </p>
-            )}
           </div>
-          <button
-            onClick={handleRefresh}
-            className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] hover:bg-blue-700 dark:bg-[#43bf79]"
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
-          </button>
+          <div className="flex gap-2">
+            {/* View All Ratings button when filtered by course */}
+            {courseTitle && (
+              <button
+                onClick={() => router.push("/super-admin/ratings")}
+                className="inline-flex items-center rounded-lg bg-gray-600 px-4 py-2 text-white shadow-sm transition-colors hover:bg-gray-700"
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                View All Ratings
+              </button>
+            )}
+            <button
+              onClick={fetchRatings}
+              className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] dark:bg-[#43bf79]"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -229,7 +344,7 @@ const handleAddRating = async (ratingId: number) => {
                   Total Ratings
                 </p>
                 <p className="mt-1 text-3xl font-bold text-[#02517b] dark:text-[#43bf79]">
-                  {ratings.length}
+                  {stats.totalRatings}
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#02517b]/10 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
@@ -246,7 +361,7 @@ const handleAddRating = async (ratingId: number) => {
                   Average Rating
                 </p>
                 <p className="mt-1 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                  {formattedAverageRating}
+                  {stats.averageRating.toFixed(1)}
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 transition-transform duration-300 group-hover:scale-110 dark:bg-yellow-500/20">
@@ -263,7 +378,7 @@ const handleAddRating = async (ratingId: number) => {
                   Visible
                 </p>
                 <p className="mt-1 text-3xl font-bold text-green-600 dark:text-[#43bf79]">
-                  {visibleRatings.length}
+                  {stats.visibleRatings}
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
@@ -280,7 +395,7 @@ const handleAddRating = async (ratingId: number) => {
                   Hidden
                 </p>
                 <p className="mt-1 text-3xl font-bold text-gray-600 dark:text-gray-400">
-                  {hiddenRatings.length}
+                  {stats.hiddenRatings}
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 transition-transform duration-300 group-hover:scale-110 dark:bg-gray-500/20">
@@ -293,8 +408,6 @@ const handleAddRating = async (ratingId: number) => {
         {/* Filters */}
         <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-6">
-
-
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Status
@@ -382,7 +495,7 @@ const handleAddRating = async (ratingId: number) => {
                     </td>
                   </tr>
                 ) : (
-                  filteredRatings.map((rating : any) => (
+                  filteredRatings.map((rating) => (
                     <tr
                       key={rating.id}
                       className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/30"
@@ -424,10 +537,11 @@ const handleAddRating = async (ratingId: number) => {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`h-4 w-4 ${i < rating.score
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "fill-gray-200 text-gray-200 dark:fill-gray-600 dark:text-gray-600"
-                                }`}
+                              className={`h-4 w-4 ${
+                                i < rating.score
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "fill-gray-200 text-gray-200 dark:fill-gray-600 dark:text-gray-600"
+                              }`}
                             />
                           ))}
                           <span className="ml-2 text-sm font-semibold text-gray-900 dark:text-white">
@@ -439,7 +553,9 @@ const handleAddRating = async (ratingId: number) => {
                         <div className="max-w-xs">
                           <p className="text-sm text-gray-900 dark:text-gray-300">
                             {rating.review ? (
-                              <span className="line-clamp-2">{rating.review}</span>
+                              <span className="line-clamp-2">
+                                {rating.review}
+                              </span>
                             ) : (
                               <span className="italic text-gray-500 dark:text-gray-400">
                                 No review
@@ -488,55 +604,89 @@ const handleAddRating = async (ratingId: number) => {
                           <span>{formatDate(rating.createdAt)}</span>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4  flex items-center gap-2  h-full ">
-                        {rating.status === 'showtoeveryone' ? (
+                      <td className="flex h-full items-center gap-2 whitespace-nowrap px-6 py-4">
+                        {/* Review Visibility Controls */}
+                        {rating.review &&
+                        rating.review_visibility === "visible" ? (
+                          <button
+                            onClick={() => handleHideReview(rating.id)}
+                            disabled={actionLoading === rating.id}
+                            className="inline-flex items-center rounded-lg bg-orange-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <EyeOff className="mr-1 h-3.5 w-3.5" />
+                            {actionLoading === rating.id
+                              ? "Hiding..."
+                              : "Hide Review"}
+                          </button>
+                        ) : rating.review &&
+                          rating.review_visibility !== "visible" ? (
+                          <button
+                            onClick={() => handleUnhideReview(rating.id)}
+                            disabled={actionLoading === rating.id}
+                            className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <Eye className="mr-1 h-3.5 w-3.5" />
+                            {actionLoading === rating.id
+                              ? "Showing..."
+                              : "Show Review"}
+                          </button>
+                        ) : null}
+
+                        {/* Rating Visibility Controls */}
+                        {rating.status === "showtoeveryone" ? (
                           <button
                             onClick={() => handleHideRating(rating.id)}
                             disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <EyeOff className="mr-1 h-3.5 w-3.5" />
-                            {actionLoading === rating.id ? 'Hiding...' : 'Hide'}
+                            {actionLoading === rating.id
+                              ? "Hiding..."
+                              : "Hide Rating"}
                           </button>
                         ) : (
                           <button
                             onClick={() => handleUnhideRating(rating.id)}
                             disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <Eye className="mr-1 h-3.5 w-3.5" />
-                            {actionLoading === rating.id ? 'Showing...' : 'Show'}
+                            {actionLoading === rating.id
+                              ? "Showing..."
+                              : "Show Rating"}
                           </button>
                         )}
 
-
-
-
+                        {/* Active/Inactive Controls */}
                         {rating.isactive ? (
                           <button
-                            onClick={() => handleSoftDeleteRating(rating.id)}
+                            onClick={() => handleDeleteRating(rating.id)}
                             disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {actionLoading === rating.id ? (
-                              <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-1"></div>
+                              <div className="mr-1 h-3.5 w-3.5 animate-spin rounded-full border-b-2 border-white"></div>
                             ) : (
                               <X className="mr-1 h-3.5 w-3.5" />
                             )}
-                            {actionLoading === rating.id ? 'Deactivating...' : 'Deactivate'}
+                            {actionLoading === rating.id
+                              ? "Deactivating..."
+                              : "Deactivate"}
                           </button>
                         ) : (
                           <button
                             onClick={() => handleAddRating(rating.id)}
                             disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {actionLoading === rating.id ? (
-                              <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-1"></div>
+                              <div className="mr-1 h-3.5 w-3.5 animate-spin rounded-full border-b-2 border-white"></div>
                             ) : (
                               <Check className="mr-1 h-3.5 w-3.5" />
                             )}
-                            {actionLoading === rating.id ? 'Activating...' : 'Activate'}
+                            {actionLoading === rating.id
+                              ? "Activating..."
+                              : "Activate"}
                           </button>
                         )}
                       </td>

@@ -18,6 +18,7 @@ import {
   Eye,
   EyeOff,
   CheckCircle,
+  BarChart2,
 } from "lucide-react";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { useRouter } from "next/navigation";
@@ -127,7 +128,8 @@ export default function Courses({ className }: any) {
       case "active":
         return {
           label: "Active",
-          color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+          color:
+            "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
           icon: <CheckCircle className="h-3 w-3" />,
         };
       case "inactive":
@@ -139,13 +141,15 @@ export default function Courses({ className }: any) {
       case "draft":
         return {
           label: "Draft",
-          color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+          color:
+            "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
           icon: <FileText className="h-3 w-3" />,
         };
       default:
         return {
           label: "Unknown",
-          color: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+          color:
+            "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
           icon: <FileText className="h-3 w-3" />,
         };
     }
@@ -308,7 +312,7 @@ export default function Courses({ className }: any) {
                         {statusBadge.icon}
                         {statusBadge.label}
                       </span>
-                      
+
                       {/* Toggle Button */}
                       <button
                         onClick={(e) => {
@@ -324,7 +328,10 @@ export default function Courses({ className }: any) {
                   </TableCell>
 
                   {/* Creator */}
-                  <TableCell className="py-2">{course.creator_name.charAt(0).toUpperCase() + course.creator_name.slice(1).toLowerCase() }</TableCell>
+                  <TableCell className="py-2">
+                    {course.creator_name.charAt(0).toUpperCase() +
+                      course.creator_name.slice(1).toLowerCase()}
+                  </TableCell>
 
                   <TableCell className="py-2">
                     {course.image ? (
@@ -358,6 +365,19 @@ export default function Courses({ className }: any) {
                         title="Edit Course"
                       >
                         <Pencil size={18} />
+                      </button>
+
+                      <button
+                        className="text-purple-600 hover:text-purple-800"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(
+                            `/super-admin/rating?course_id=${course.id}&course_title=${encodeURIComponent(course.title)}`,
+                          );
+                        }}
+                        title="Manage Ratings"
+                      >
+                        <BarChart2 size={18} />
                       </button>
 
                       {/* Delete Button */}

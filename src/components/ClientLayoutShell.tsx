@@ -23,7 +23,7 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
   useEffect(() => {
     const t = getDecryptedItem("token");
     const r = getDecryptedItem("role");
-    console.log("role of user ",r)
+    console.log("role of user ", r);
     setToken(t);
     setRole(r);
   }, [pathname]);
@@ -50,11 +50,11 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
         {/* Only show sidebar for authenticated users on protected pages */}
         {isAuthenticated && !isPublicPage && <Sidebar />}
 
-        <div className="w-full bg-gray-2 dark:bg-[#020d1a] ">
+        <div className="w-full bg-gray-2 dark:bg-[#020d1a]">
           {/* Only show header for authenticated users on protected pages */}
           {isAuthenticated && !isPublicPage && <Header />}
 
-          <main className="isolate mx-auto w-full  overflow-hidden ">
+          <main className="bg-banner isolate mx-auto w-full">
             {showUserDashboard ? <UserCoursesDashboard /> : children}
           </main>
         </div>
