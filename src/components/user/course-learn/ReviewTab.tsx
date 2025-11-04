@@ -203,7 +203,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ course }) => {
     if (!confirm("Are you sure you want to delete your review?")) return;
 
     try {
-      const response = await api.patch(`rating/${reviewId}/soft-delete`);
+      const response = await api.delete(`rating/delete/${reviewId}`);
 
       if (response.success) {
         setReviews((prev) => prev.filter((review) => review.id !== reviewId));

@@ -52,7 +52,7 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
 
         <div className="w-full bg-gray-2 dark:bg-[#020d1a]">
           {/* Only show header for authenticated users on protected pages */}
-          {isAuthenticated && !isPublicPage && <Header />}
+          {/* {isAuthenticated && !isPublicPage && <Header />} */}
 
           <main className="bg-banner isolate mx-auto w-full">
             {showUserDashboard ? <UserCoursesDashboard /> : children}
