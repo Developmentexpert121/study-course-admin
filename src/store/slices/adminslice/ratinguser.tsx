@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { reduxApiClient } from '@/lib/redux-api';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { reduxApiClient } from "@/lib/redux-api";
 
 // Types
 export interface User {
@@ -15,7 +15,7 @@ export interface Rating {
   user_id: number;
   course_id: number;
   score: number;
-  status: 'hidebysuperadmin' | 'hidebyadmin' | 'showtoeveryone';
+  status: "hidebysuperadmin" | "hidebyadmin" | "showtoeveryone";
   review?: string;
   createdAt: string;
   updatedAt: string;
@@ -40,76 +40,84 @@ const initialState: RatingState = {
 
 // Async Thunks
 export const getAllRatings = createAsyncThunk(
-  'ratings/getAllRatings',
+  "ratings/getAllRatings",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await reduxApiClient.get('rating/allrating');
-      
+      const response = await reduxApiClient.get("rating/public/home-ratings");
+
       if (!response.success) {
-        return rejectWithValue(response.error?.message || 'Failed to fetch ratings');
+        return rejectWithValue(
+          response.error?.message || "Failed to fetch ratings",
+        );
       }
-      
+
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch ratings');
+      return rejectWithValue(error.message || "Failed to fetch ratings");
     }
-  }
+  },
 );
 
 export const getRatingById = createAsyncThunk(
-  'ratings/getRatingById',
+  "ratings/getRatingById",
   async (id: string, { rejectWithValue }) => {
     try {
       const response = await reduxApiClient.get(`ratings/${id}`);
-      
+
       if (!response.success) {
-        return rejectWithValue(response.error?.message || 'Failed to fetch rating');
+        return rejectWithValue(
+          response.error?.message || "Failed to fetch rating",
+        );
       }
-      
+
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch rating');
+      return rejectWithValue(error.message || "Failed to fetch rating");
     }
-  }
+  },
 );
 
 export const getRatingsByCourseId = createAsyncThunk(
-  'ratings/getRatingsByCourseId',
+  "ratings/getRatingsByCourseId",
   async (courseId: string, { rejectWithValue }) => {
     try {
       const response = await reduxApiClient.get(`ratings/course/${courseId}`);
-      
+
       if (!response.success) {
-        return rejectWithValue(response.error?.message || 'Failed to fetch course ratings');
+        return rejectWithValue(
+          response.error?.message || "Failed to fetch course ratings",
+        );
       }
-      
+
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch course ratings');
+      return rejectWithValue(error.message || "Failed to fetch course ratings");
     }
-  }
+  },
 );
 
 export const getRatingsByUserId = createAsyncThunk(
-  'ratings/getRatingsByUserId',
+  "ratings/getRatingsByUserId",
   async (userId: string, { rejectWithValue }) => {
     try {
       const response = await reduxApiClient.get(`ratings/user/${userId}`);
-      
+
       if (!response.success) {
-        return rejectWithValue(response.error?.message || 'Failed to fetch user ratings');
+        return rejectWithValue(
+          response.error?.message || "Failed to fetch user ratings",
+        );
       }
-      
+
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch user ratings');
+      return rejectWithValue(error.message || "Failed to fetch user ratings");
     }
-  }
+  },
 );
 
 // Create Rating Slice
 const ratingSlice = createSlice({
-  name: 'ratings',
+  name: "ratings",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -160,12 +168,15 @@ const ratingSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(getRatingsByCourseId.fulfilled, (state, action: PayloadAction<any>) => {
-        state.loading = false;
-        state.ratings = action.payload.data || action.payload;
-        state.error = null;
-        state.lastFetched = new Date().toISOString();
-      })
+      .addCase(
+        getRatingsByCourseId.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.loading = false;
+          state.ratings = action.payload.data || action.payload;
+          state.error = null;
+          state.lastFetched = new Date().toISOString();
+        },
+      )
       .addCase(getRatingsByCourseId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
@@ -176,12 +187,15 @@ const ratingSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(getRatingsByUserId.fulfilled, (state, action: PayloadAction<any>) => {
-        state.loading = false;
-        state.ratings = action.payload.data || action.payload;
-        state.error = null;
-        state.lastFetched = new Date().toISOString();
-      })
+      .addCase(
+        getRatingsByUserId.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.loading = false;
+          state.ratings = action.payload.data || action.payload;
+          state.error = null;
+          state.lastFetched = new Date().toISOString();
+        },
+      )
       .addCase(getRatingsByUserId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
@@ -190,19 +204,22 @@ const ratingSlice = createSlice({
   },
 });
 
-
-
 // Additional useful selectors
-export const selectVisibleRatings = (state: any) => 
-  state.ratings.ratings.filter((rating: Rating) => rating.status === 'showtoeveryone');
+export const selectVisibleRatings = (state: any) =>
+  state.ratings.ratings.filter(
+    (rating: Rating) => rating.status === "showtoeveryone",
+  );
 
-export const selectHiddenRatings = (state: any) => 
-  state.ratings.ratings.filter((rating: Rating) => 
-    rating.status === 'hidebyadmin' || rating.status === 'hidebysuperadmin'
+export const selectHiddenRatings = (state: any) =>
+  state.ratings.ratings.filter(
+    (rating: Rating) =>
+      rating.status === "hidebyadmin" || rating.status === "hidebysuperadmin",
   );
 
 export const selectRatingsByCourse = (courseId: number) => (state: any) =>
-  state.ratings.ratings.filter((rating: Rating) => rating.course_id === courseId);
+  state.ratings.ratings.filter(
+    (rating: Rating) => rating.course_id === courseId,
+  );
 
 export const selectRatingsByUser = (userId: number) => (state: any) =>
   state.ratings.ratings.filter((rating: Rating) => rating.user_id === userId);
@@ -210,11 +227,14 @@ export const selectRatingsByUser = (userId: number) => (state: any) =>
 export const selectAverageRating = (state: any) => {
   const ratings = state.ratings.ratings;
   if (ratings.length === 0) return 0;
-  return ratings.reduce((sum: number, rating: Rating) => sum + rating.score, 0) / ratings.length;
+  return (
+    ratings.reduce((sum: number, rating: Rating) => sum + rating.score, 0) /
+    ratings.length
+  );
 };
 
-export const { clearError, clearCurrentRating, clearRatings } = ratingSlice.actions;
-
+export const { clearError, clearCurrentRating, clearRatings } =
+  ratingSlice.actions;
 
 // Selectors
 export const selectRatings = (state: any) => state.ratings.ratings;

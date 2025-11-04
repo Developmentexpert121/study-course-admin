@@ -12,6 +12,7 @@ interface CourseTabsContentProps {
   activeTab: string;
   course: any;
   courseProgress: any | null;
+  selectedLesson: { chapter: any; lesson: any } | null; // Add this line
 }
 
 const tabs = [
@@ -49,11 +50,18 @@ const CourseTabsContent: React.FC<CourseTabsContentProps> = ({
   activeTab,
   course,
   courseProgress,
+  selectedLesson, // Add this prop
 }) => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Overview":
-        return <OverviewTab course={course} courseProgress={courseProgress} />;
+        return (
+          <OverviewTab
+            course={course}
+            courseProgress={courseProgress}
+            // selectedLesson={selectedLesson}
+          />
+        );
 
       case "Reviews":
         return <ReviewsTab course={course} />;
@@ -95,7 +103,13 @@ const CourseTabsContent: React.FC<CourseTabsContentProps> = ({
         );
 
       default:
-        return <OverviewTab course={course} courseProgress={courseProgress} />;
+        return (
+          <OverviewTab
+            course={course}
+            courseProgress={courseProgress}
+            // selectedLesson={selectedLesson}
+          />
+        );
     }
   };
 
