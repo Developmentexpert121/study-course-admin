@@ -1,519 +1,389 @@
 "use client";
 
-import { ArrowLeft, Calendar, Trophy, Target, TrendingUp, BookOpen, CheckCircle, XCircle, Clock } from "lucide-react";
+import React, { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { reduxApiClient } from '@/lib/redux-api';
-import { cn } from "@/lib/utils";
+import {
+  ArrowLeft,
+  BookOpen,
+  CheckCircle,
+  Lock,
+  Unlock,
+  RefreshCw,
+  XCircle,
+  GraduationCap,
+  FileText,
+} from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { fetchCoursesWithProgress, clearCourses } from "@/store/slices/adminslice/userprogress";
 
-interface UserData {
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-    verified: boolean;
-    created_at: string;
-  };
-  total_enrolled_courses: number;
-  enrolled_courses: CourseData[];
-  overall_progress: {
-    total_chapters: number;
-    total_passed_chapters: number;
-    overall_percentage: number;
-  };
-  mcq_statistics: {
-    total_mcq_attempts: number;
-    total_passed_mcqs: number;
-    total_failed_mcqs: number;
-    pass_rate: number;
-  };
-  all_passed_mcqs: McqAttempt[];
-  course_summary: {
-    completed_courses: number;
-    in_progress_courses: number;
-    not_started_courses: number;
-  };
-  message: string;
-}
-
-interface CourseData {
-  course_id: number;
-  course_title: string;
-  course_image: string;
-  course_description: string;
-  enrollment_date: string;
-  total_chapters: number;
-  total_passed_chapters: number;
-  total_mcqs_in_course: number;
-  completion_percentage: number;
-  progress_status: string;
-  passed_chapters: PassedChapter[];
-  all_mcq_attempts: McqAttempt[];
-  total_mcq_attempts: number;
-  passed_mcq_attempts: number;
-  failed_mcq_attempts: number;
-}
-
-interface PassedChapter {
-  chapter_id: number;
-  chapter_title: string;
-  chapter_order: number;
-  course_id: number;
-  course_title: string;
-  passed_at: string;
-  score: number;
-  total_questions: number;
-  percentage: number;
-  submission_id: number;
-}
-
-interface McqAttempt {
-  mcq_submission_id: number;
-  course_id: number;
-  course_title: string;
-  chapter_id: number;
-  chapter_title: string;
-  chapter_order: number;
-  score: number;
-  total_questions: number;
-  percentage: number;
-  passed: boolean;
-  submitted_at: string;
-  status: string;
-}
-
-export default function UserCompleteDetailsPage({ className }: any) {
+export default function UserDetailsPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("id");
-  const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  const [data, setData] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'mcqs'>('overview');
+  const { courses, loading, error } = useAppSelector((state) => state.courses);
 
   useEffect(() => {
-    if (!userId) return;
-    
-    async function fetchDetails() {
-      try {
-        const res = await reduxApiClient.get(`mcq/complete-details/${userId}`);
-        setData(res.data.data);
-      } catch (err) {
-        console.error("Error fetching user details", err);
-      } finally {
-        setLoading(false);
-      }
+    if (userId) {
+      dispatch(fetchCoursesWithProgress(parseInt(userId, 10)));
     }
-    
-    fetchDetails();
-  }, [userId]);
 
-  if (loading) {
+    // Cleanup on unmount
+    return () => {
+      dispatch(clearCourses());
+    };
+  }, [userId, dispatch]);
+
+  const handleRefresh = () => {
+    if (userId) {
+      dispatch(fetchCoursesWithProgress(parseInt(userId, 10)));
+    }
+  };
+
+  const calculateCourseProgress = (chapters: any[]) => {
+    const totalChapters = chapters.length;
+    const unlockedChapters = chapters.filter((ch) => !ch.locked).length;
+    return totalChapters > 0 ? Math.round((unlockedChapters / totalChapters) * 100) : 0;
+  };
+
+  const getCourseStats = () => {
+    const totalCourses = courses.length;
+    const enrolledCourses = courses.filter((course) =>
+      course.chapters.some((ch) => !ch.locked)
+    ).length;
+    const totalChapters = courses.reduce((sum, course) => sum + course.chapters.length, 0);
+    const unlockedChapters = courses.reduce(
+      (sum, course) => sum + course.chapters.filter((ch) => !ch.locked).length,
+      0
+    );
+
+    return { totalCourses, enrolledCourses, totalChapters, unlockedChapters };
+  };
+
+  const stats = getCourseStats();
+
+  // Strip HTML tags for display
+  const stripHtml = (html: string) => {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
+  // Loading state
+  if (loading && courses.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex min-h-screen items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-b-4 border-[#02517b] dark:border-[#43bf79]"></div>
+          <p className="font-medium text-gray-600 dark:text-gray-300">
+            Loading user details...
+          </p>
+        </div>
       </div>
     );
   }
 
-  if (!data) {
+  // Error state
+  if (error) {
     return (
-      <div className="text-center mt-8">
-        <p className="text-gray-600 dark:text-gray-400">No user found.</p>
+      <div className="flex min-h-screen items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
+        <div className="w-full max-w-md">
+          <div className="rounded-lg border-2 border-red-200 bg-red-50 p-6 text-center dark:border-red-500/50 dark:bg-red-900/20">
+            <XCircle className="mx-auto mb-3 h-12 w-12 text-red-500" />
+            <h3 className="mb-2 text-lg font-semibold text-red-800 dark:text-red-400">
+              Error Loading User Details
+            </h3>
+            <p className="mb-4 text-red-700 dark:text-red-300">{error}</p>
+            <button
+              onClick={handleRefresh}
+              className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Try Again
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
-
-  const { user, enrolled_courses, overall_progress, mcq_statistics, course_summary, all_passed_mcqs } = data;
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400';
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400';
-      case 'not_started':
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
-      default:
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
-    }
-  };
 
   return (
-    <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8", className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-          >
-            <ArrowLeft size={20} />
-            Back
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">User Complete Details</h1>
-        </div>
-      </div>
-
-      {/* User Profile Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              {user.username}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">{user.email}</p>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-500">Role:</span>
-                <span className="text-sm font-semibold text-gray-900 dark:text-white uppercase">
-                  {user.role}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-500">Status:</span>
-                <span className={cn(
-                  "px-2 py-1 rounded-full text-xs font-semibold",
-                  user.verified 
-                    ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                    : "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-                )}>
-                  {user.verified ? "Verified" : "Unverified"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar size={16} className="text-gray-400" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Joined {formatDate(user.created_at)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">Enrolled Courses</p>
-              <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                {data.total_enrolled_courses}
-              </p>
-            </div>
-            <BookOpen className="text-blue-500" size={24} />
-          </div>
-        </div>
-
-        <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-600 dark:text-green-400 text-sm font-medium">Passed MCQs</p>
-              <p className="text-2xl font-bold text-green-700 dark:text-green-300">
-                {mcq_statistics.total_passed_mcqs}
-              </p>
-            </div>
-            <Trophy className="text-green-500" size={24} />
-          </div>
-        </div>
-
-        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-600 dark:text-purple-400 text-sm font-medium">Overall Progress</p>
-              <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                {overall_progress.overall_percentage}%
-              </p>
-            </div>
-            <Target className="text-purple-500" size={24} />
-          </div>
-        </div>
-
-        <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-orange-600 dark:text-orange-400 text-sm font-medium">Pass Rate</p>
-              <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">
-                {mcq_statistics.pass_rate}%
-              </p>
-            </div>
-            <TrendingUp className="text-orange-500" size={24} />
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="mb-6">
-        <nav className="flex space-x-8">
-          {[
-            { id: 'overview', label: 'Overview' },
-            { id: 'courses', label: 'Courses' },
-            { id: 'mcqs', label: 'MCQ History' }
-          ].map((tab) => (
+    <div className="min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-4">
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={cn(
-                "py-2 px-1 border-b-2 font-medium text-sm transition-colors",
-                activeTab === tab.id
-                  ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                  : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              )}
+              onClick={() => router.back()}
+              className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
             >
-              {tab.label}
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
             </button>
-          ))}
-        </nav>
-      </div>
+            <div>
+              <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
+                <GraduationCap className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />
+                User Learning Progress
+              </h1>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                User ID: {userId}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] disabled:opacity-50 dark:bg-[#43bf79] dark:hover:bg-[#43bf7999]"
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </button>
+        </div>
 
-      {/* Tab Content */}
-      {activeTab === 'overview' && (
-        <div className="space-y-8">
-          {/* Progress Overview */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Progress Overview</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                  {overall_progress.total_passed_chapters}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Chapters Completed</div>
-                <div className="text-xs text-gray-500">of {overall_progress.total_chapters} total</div>
+        {/* Stats Cards */}
+        <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Total Courses */}
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Total Courses
+                </p>
+                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
+                  {stats.totalCourses}
+                </p>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                  {course_summary.completed_courses}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Courses Completed</div>
-                <div className="text-xs text-gray-500">of {data.total_enrolled_courses} enrolled</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                  {mcq_statistics.total_mcq_attempts}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Total MCQ Attempts</div>
-                <div className="text-xs text-gray-500">{mcq_statistics.total_passed_mcqs} passed</div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </div>
 
-          {/* Course Summary */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Course Summary</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {course_summary.completed_courses}
-                </div>
-                <div className="text-sm text-green-600 dark:text-green-400">Completed</div>
+          {/* Enrolled Courses */}
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Enrolled
+                </p>
+                <p className="mt-2 text-3xl font-bold text-[#02517b] dark:text-[#43bf79]">
+                  {stats.enrolledCourses}
+                </p>
               </div>
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {course_summary.in_progress_courses}
-                </div>
-                <div className="text-sm text-blue-600 dark:text-blue-400">In Progress</div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#02517b]/10 dark:bg-[#43bf79]/20">
+                <CheckCircle className="h-6 w-6 text-[#02517b] dark:text-[#43bf79]" />
               </div>
-              <div className="bg-gray-50 dark:bg-gray-900/20 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-                  {course_summary.not_started_courses}
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Not Started</div>
+            </div>
+          </div>
+
+          {/* Total Chapters */}
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Total Chapters
+                </p>
+                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
+                  {stats.totalChapters}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+                <FileText className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* Unlocked Chapters */}
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Unlocked
+                </p>
+                <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">
+                  {stats.unlockedChapters}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                <Unlock className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
             </div>
           </div>
         </div>
-      )}
 
-      {activeTab === 'courses' && (
+        {/* Courses List */}
         <div className="space-y-6">
-          {enrolled_courses.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">No enrolled courses found.</p>
-            </div>
-          ) : (
-            enrolled_courses.map((course) => (
-              <div key={course.course_id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                <div className="flex items-start gap-6">
-                  <img 
-                    src={course.course_image || '/api/placeholder/80/80'} 
-                    alt={course.course_title}
-                    className="w-20 h-20 rounded-lg object-cover"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="text-xl font-bold text-gray-900 dark:text-white">
-                          {course.course_title}
-                        </h4>
-                        <p className="text-gray-600 dark:text-gray-400 mt-1">
-                          {course.course_description}
-                        </p>
-                        <p className="text-sm text-gray-500 mt-2">
-                          Enrolled on {formatDate(course.enrollment_date)}
-                        </p>
-                      </div>
-                      <span className={cn(
-                        "px-3 py-1 rounded-full text-sm font-medium",
-                        getStatusColor(course.progress_status)
-                      )}>
-                        {course.progress_status.replace('_', ' ').toUpperCase()}
-                      </span>
-                    </div>
+          {courses.length > 0 ? (
+            courses.map((course) => {
+              const progress = calculateCourseProgress(course.chapters);
+              const isEnrolled = course.chapters.some((ch) => !ch.locked);
 
-                    {/* Progress Bar */}
-                    <div className="mt-4">
-                      <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        <span>{course.total_passed_chapters}/{course.total_chapters} chapters</span>
-                        <span>{course.completion_percentage}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${course.completion_percentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-                      <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {course.total_mcq_attempts}
-                        </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">MCQ Attempts</div>
-                      </div>
-                      <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                        <div className="text-lg font-semibold text-green-600 dark:text-green-400">
-                          {course.passed_mcq_attempts}
-                        </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Passed</div>
-                      </div>
-                      <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                        <div className="text-lg font-semibold text-red-600 dark:text-red-400">
-                          {course.failed_mcq_attempts}
-                        </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Failed</div>
-                      </div>
-                    </div>
-
-                    {/* Passed Chapters */}
-                    {course.passed_chapters.length > 0 && (
-                      <div className="mt-6">
-                        <h5 className="font-medium text-gray-900 dark:text-white mb-3">Passed Chapters</h5>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                          {course.passed_chapters.map((chapter) => (
-                            <div
-                              key={chapter.chapter_id}
-                              className="bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 px-3 py-2 rounded-lg text-sm"
-                            >
-                              <div className="font-medium">{chapter.chapter_title}</div>
-                              <div className="text-xs">
-                                Score: {chapter.score}/{chapter.total_questions} ({chapter.percentage}%)
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+              return (
+                <div
+                  key={course.id}
+                  className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg transition-all hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
+                >
+                  {/* Course Header with Image */}
+                  <div className="relative">
+                    {/* Course Image */}
+                    {course.image && (
+                      <div className="h-48 w-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+                        <img
+                          src={course.image}
+                          alt={course.title}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
                     )}
+                    
+                    {/* Overlay Info */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                      <div className="absolute bottom-0 left-0 right-0 p-6">
+                        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+                          <div className="flex-1">
+                            <div className="mb-2 flex flex-wrap items-center gap-2">
+                              <h3 className="text-2xl font-bold text-white">
+                                {course.title}
+                              </h3>
+                              {isEnrolled ? (
+                                <span className="rounded-full bg-green-500 px-3 py-1 text-xs font-semibold text-white">
+                                  Enrolled
+                                </span>
+                              ) : (
+                                <span className="rounded-full bg-gray-500 px-3 py-1 text-xs font-semibold text-white">
+                                  Not Enrolled
+                                </span>
+                              )}
+                            </div>
+                            <p className="mb-2 text-sm text-white/90 line-clamp-2">
+                              {stripHtml(course.description)}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 text-sm text-white/80">
+                              <span className="flex items-center">
+                                <BookOpen className="mr-1 h-4 w-4" />
+                                {course.chapters.length} Chapters
+                              </span>
+                              <span className="rounded-full bg-white/20 px-2 py-1 text-xs font-medium">
+                                {course.category}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Progress Circle */}
+                          <div className="flex flex-col items-center">
+                            <div className="relative h-20 w-20">
+                              <svg className="h-20 w-20 -rotate-90 transform">
+                                <circle
+                                  cx="40"
+                                  cy="40"
+                                  r="36"
+                                  stroke="currentColor"
+                                  strokeWidth="8"
+                                  fill="transparent"
+                                  className="text-white/30"
+                                />
+                                <circle
+                                  cx="40"
+                                  cy="40"
+                                  r="36"
+                                  stroke="currentColor"
+                                  strokeWidth="8"
+                                  fill="transparent"
+                                  strokeDasharray={`${2 * Math.PI * 36}`}
+                                  strokeDashoffset={`${2 * Math.PI * 36 * (1 - progress / 100)}`}
+                                  className="text-green-400 transition-all duration-500"
+                                />
+                              </svg>
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="text-lg font-bold text-white">{progress}%</span>
+                              </div>
+                            </div>
+                            <span className="mt-1 text-xs text-white/80">Progress</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Chapters List */}
+                  <div className="p-6">
+                    <div className="mb-4 flex items-center justify-between">
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Course Chapters
+                      </h4>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {course.chapters.filter(ch => !ch.locked).length} of {course.chapters.length} unlocked
+                      </span>
+                    </div>
+                    <div className="space-y-3">
+                      {course.chapters.map((chapter, index) => (
+                        <div
+                          key={chapter.id}
+                          className={`flex items-start justify-between rounded-lg border p-4 transition-all ${
+                            chapter.locked
+                              ? "border-gray-200 bg-gray-50 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900/50 dark:hover:bg-gray-900"
+                              : "border-green-200 bg-green-50 hover:bg-green-100 dark:border-green-800 dark:bg-green-900/20 dark:hover:bg-green-900/30"
+                          }`}
+                        >
+                          <div className="flex flex-1 items-start gap-4">
+                            <div
+                              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
+                                chapter.locked
+                                  ? "bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                                  : "bg-green-500 text-white"
+                              }`}
+                            >
+                              <span className="font-bold">{chapter.order}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h5
+                                className={`font-semibold ${
+                                  chapter.locked
+                                    ? "text-gray-700 dark:text-gray-300"
+                                    : "text-gray-900 dark:text-white"
+                                }`}
+                              >
+                                {chapter.title}
+                              </h5>
+                              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                                {chapter.content}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="ml-4 flex-shrink-0">
+                            {chapter.locked ? (
+                              <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                <Lock className="mr-1 h-3.5 w-3.5" />
+                                Locked
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                <Unlock className="mr-1 h-3.5 w-3.5" />
+                                Unlocked
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
+          ) : (
+            <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-lg dark:border-gray-700 dark:bg-gray-800">
+              <BookOpen className="mx-auto mb-4 h-16 w-16 text-gray-300 dark:text-gray-600" />
+              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+                No Courses Found
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                This user has no course data available.
+              </p>
+            </div>
           )}
         </div>
-      )}
-
-      {activeTab === 'mcqs' && (
-        <div className="space-y-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">MCQ Attempt History</h3>
-            {all_passed_mcqs.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 dark:text-gray-400">No MCQ attempts found.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Course & Chapter
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Score
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {all_passed_mcqs.map((attempt) => (
-                      <tr key={attempt.mcq_submission_id}>
-                        <td className="px-4 py-4">
-                          <div>
-                            <div className="font-medium text-gray-900 dark:text-white">
-                              {attempt.course_title}
-                            </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                              {attempt.chapter_title}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4">
-                          <div className="text-sm">
-                            <div className="font-medium text-gray-900 dark:text-white">
-                              {attempt.score}/{attempt.total_questions}
-                            </div>
-                            <div className="text-gray-500 dark:text-gray-400">
-                              {attempt.percentage}%
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4">
-                          <span className={cn(
-                            "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium",
-                            attempt.passed
-                              ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                              : "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-                          )}>
-                            {attempt.passed ? (
-                              <CheckCircle size={12} />
-                            ) : (
-                              <XCircle size={12} />
-                            )}
-                            {attempt.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">
-                          <div className="flex items-center gap-1">
-                            <Clock size={12} />
-                            {formatDate(attempt.submitted_at)}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

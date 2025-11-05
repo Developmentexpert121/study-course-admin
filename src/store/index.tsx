@@ -21,6 +21,8 @@ import bulkEmailReducer from "./slices/adminslice/emailsent";
 import ratingshowhide from "./slices/adminslice/ratinghideshow";
 import softdeleteratings from "./slices/adminslice/ratingsoftdelete";
 import admminratings from "./slices/adminslice/reviewhideadmin";
+import superadmininfos from "./slices/adminslice/courseEnrollmentsSlice";
+import  coursesReducer from "./slices/adminslice/userprogress";
 
 
 const placeholderSlice = createSlice({
@@ -51,6 +53,8 @@ export const makeStore = () => {
        ratingsuperadmin:ratingshowhide,
        ratingsoftdelete:softdeleteratings,
        ratingadmin:admminratings,
+       coursedetails:superadmininfos,
+        courses: coursesReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
