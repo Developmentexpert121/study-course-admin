@@ -23,7 +23,7 @@ import softdeleteratings from "./slices/adminslice/ratingsoftdelete";
 import admminratings from "./slices/adminslice/reviewhideadmin";
 import superadmininfos from "./slices/adminslice/courseEnrollmentsSlice";
 import  coursesReducer from "./slices/adminslice/userprogress";
-
+import instructorDashboardReducer from "./slices/adminslice/admindashboard";
 
 const placeholderSlice = createSlice({
   name: "placeholder",
@@ -55,6 +55,7 @@ export const makeStore = () => {
        ratingadmin:admminratings,
        coursedetails:superadmininfos,
         courses: coursesReducer,
+         instructorDashboard: instructorDashboardReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

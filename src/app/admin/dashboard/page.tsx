@@ -1,536 +1,547 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
-  Star,
+  Book,
   User,
-  Mail,
-  Calendar,
-  BookOpen,
+  Users,
+  BarChart3,
+  CheckCircle,
+  XCircle,
+  Clock,
+  FileText,
   RefreshCw,
   Eye,
-  Info,
-  EyeOff,
-  Check,
-  X,
-  BarChart3,
-  ArrowLeft,
+  Mail,
+  Star,
+  TrendingUp,
+  Activity,
+  DollarSign,
+  BookOpen,
+  Award,
+  Target,
 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useApiClient } from "@/lib/api";
-import { toasterError, toasterSuccess } from "@/components/core/Toaster";
+import { useAppDispatch, useAppSelector } from "@/store";
+import {
+  fetchInstructorDashboardStats,
+  selectDashboardStats,
+  selectDashboardLoading,
+  selectDashboardError,
+  clearError,
+} from "@/store/slices/adminslice/admindashboard";
+import { useRouter } from "next/navigation";
 
-interface Rating {
-  id: number;
-  user_id: number;
-  course_id: number;
-  score: number;
-  review: string;
-  status: "showtoeveryone" | "hidebyadmin" | "hidebysuperadmin";
-  isactive: boolean;
-  createdAt: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    profileImage?: string;
-  };
-  course: {
-    id: number;
-    title: string;
-  };
-}
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Area,
+  AreaChart,
+  ComposedChart,
+} from "recharts";
 
-export default function RatingsManagementPage() {
+export default function InstructorDashboardPage() {
+  const dispatch = useAppDispatch();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const api = useApiClient();
 
-  const courseId = searchParams.get("course_id");
-  const courseTitle = searchParams.get("course_title");
+  // Redux selectors
+  const stats = useAppSelector(selectDashboardStats);
+  const loading = useAppSelector(selectDashboardLoading);
+  const error = useAppSelector(selectDashboardError);
 
-  const [ratings, setRatings] = useState<Rating[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState<number | null>(null);
-
-  // Filters
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [scoreFilter, setScoreFilter] = useState("all");
-
-  // Stats
-  const [stats, setStats] = useState({
-    totalRatings: 0,
-    averageRating: 0,
-    visibleRatings: 0,
-    hiddenRatings: 0,
-  });
-
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    }).format(new Date(dateString));
-  };
-
-  // In your RatingsManagementPage component
-  const fetchRatings = async () => {
-    try {
-      setLoading(true);
-
-      // Use the new API endpoint for course-specific ratings
-      let url = "rating";
-
-      if (courseId) {
-        url = `rating/course/${courseId}`;
-      }
-
-      const res = await api.get(url);
-
-      if (res.success) {
-        console.log("res.sssss",res?.data?.data)
-        // The new API returns both ratings and statistics
-        const ratingsData = res.data?.data || [];
-        const statistics = res.data?.data?.statistics || {};
-
-        setRatings(ratingsData);
-        setStats({
-          totalRatings: statistics.total_ratings || 0,
-          averageRating: statistics.average_rating || 0,
-          visibleRatings: statistics.visible_ratings || 0,
-          hiddenRatings: statistics.hidden_ratings || 0,
-        });
-      }
-    } catch (error) {
-      console.error("Failed to fetch ratings:", error);
-      toasterError("Failed to fetch ratings", 2000, "id");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  console.log("Instructor Dashboard Stats Data:", stats);
 
   useEffect(() => {
-    fetchRatings();
-  }, [courseId]);
+    dispatch(fetchInstructorDashboardStats());
+  }, [dispatch]);
 
-  // Filter ratings based on filters and get latest five
-  const filteredRatings = ratings
-    .filter((rating) => {
-      const statusMatch =
-        statusFilter === "all" || rating.status === statusFilter;
-      const scoreMatch =
-        scoreFilter === "all" || rating.score.toString() === scoreFilter;
-      return statusMatch && scoreMatch;
-    })
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) // Sort by latest first
-    .slice(0, 5); // Get only the latest five ratings
-
-  // Handle hide review (only hides the review text, keeps rating visible)
-  const handleHideReview = async (ratingId: number) => {
-    setActionLoading(ratingId);
-    try {
-      const res = await api.patch(`rating/${ratingId}/hide-review`);
-
-      if (res.success) {
-        toasterSuccess("Review hidden successfully", 2000, "id");
-        fetchRatings(); // Refresh the list
-      } else {
-        toasterError(res.error?.message || "Failed to hide review", 2000, "id");
-      }
-    } catch (error) {
-      console.error("Failed to hide review:", error);
-      toasterError("Failed to hide review. Please try again.", 2000, "id");
-    } finally {
-      setActionLoading(null);
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        dispatch(clearError());
+      }, 5000);
+      return () => clearTimeout(timer);
     }
+  }, [error, dispatch]);
+
+  const handleRefresh = () => {
+    dispatch(fetchInstructorDashboardStats());
   };
 
-  // Handle unhide review
-  const handleUnhideReview = async (ratingId: number) => {
-    setActionLoading(ratingId);
-    try {
-      const res = await api.patch(`rating/${ratingId}/unhide-review`);
+  // Prepare chart data from API
+  const courseStatusData = [
+    {
+      name: "Active",
+      value: stats?.courses?.active || 0,
+      color: "#10b981",
+    },
+    {
+      name: "Inactive",
+      value: stats?.courses?.inactive || 0,
+      color: "#ef4444",
+    },
+    {
+      name: "Draft",
+      value: stats?.courses?.draft || 0,
+      color: "#3b82f6",
+    },
+  ];
 
-      if (res.success) {
-        toasterSuccess("Review shown successfully", 2000, "id");
-        fetchRatings(); // Refresh the list
-      } else {
-        toasterError(res.error?.message || "Failed to show review", 2000, "id");
-      }
-    } catch (error) {
-      console.error("Failed to unhide review:", error);
-      toasterError("Failed to show review. Please try again.", 2000, "id");
-    } finally {
-      setActionLoading(null);
+  const enrollmentStatusData = [
+    {
+      name: "Active",
+      value: stats?.enrollments?.active || 0,
+      fill: "#10b981",
+    },
+    {
+      name: "Completed",
+      value: stats?.enrollments?.completed || 0,
+      fill: "#3b82f6",
+    },
+    {
+      name: "Total",
+      value: stats?.enrollments?.total || 0,
+      fill: "#8b5cf6",
+    },
+  ];
+
+  const revenuePerformanceData = [
+    {
+      name: "Total Revenue",
+      value: parseFloat(stats?.performance?.totalRevenue || "0"),
+      fill: "#10b981",
+    },
+    {
+      name: "Avg Rating",
+      value: parseFloat(stats?.performance?.averageRating?.toString() || "0"),
+      fill: "#f59e0b",
+    },
+  ];
+
+  const studentMetricsData = [
+    {
+      name: "Total Students",
+      count: stats?.students?.total || 0,
+    },
+    {
+      name: "Avg Per Course",
+      count: parseFloat(stats?.students?.averagePerCourse?.toString() || "0"),
+    },
+  ];
+
+  const coursePerformanceData = [
+    {
+      name: "Courses",
+      total: stats?.courses?.total || 0,
+      active: stats?.courses?.active || 0,
+      draft: stats?.courses?.draft || 0,
+    },
+  ];
+
+  const enrollmentTrendData = [
+    {
+      name: "Enrollments",
+      total: stats?.enrollments?.total || 0,
+      active: stats?.enrollments?.active || 0,
+      completed: stats?.enrollments?.completed || 0,
+      completionRate: parseFloat(stats?.enrollments?.completionRate?.replace('%', '') || "0"),
+    },
+  ];
+
+  const certificateStatsData = [
+    {
+      name: "Certificates",
+      issued: stats?.certificates?.total || 0,
+      completionRate: parseFloat(stats?.enrollments?.completionRate?.replace('%', '') || "0"),
+    },
+  ];
+
+  // Calculate growth percentages
+  const calculateTrend = (current: any, previous = 0) => {
+    if (!previous) return "+0%";
+    const growth = ((current - previous) / previous) * 100;
+    return growth > 0 ? `+${growth.toFixed(1)}%` : `${growth.toFixed(1)}%`;
+  };
+
+  // Custom tooltip for charts
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          <p className="font-semibold text-gray-900 dark:text-white">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} style={{ color: entry.color }} className="text-sm">
+              {entry.name}: {entry.value}
+            </p>
+          ))}
+        </div>
+      );
     }
+    return null;
   };
 
-  // Keep your existing functions for hiding/unhiding entire ratings if needed
-  const handleHideRating = async (ratingId: number) => {
-    setActionLoading(ratingId);
-    try {
-      const res = await api.patch(`rating/${ratingId}/hide`);
-
-      if (res.success) {
-        toasterSuccess("Rating hidden successfully", 2000, "id");
-        fetchRatings();
-      } else {
-        toasterError(res.error?.message || "Failed to hide rating", 2000, "id");
-      }
-    } catch (error) {
-      console.error("Failed to hide rating:", error);
-      toasterError("Failed to hide rating. Please try again.", 2000, "id");
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const handleUnhideRating = async (ratingId: number) => {
-    setActionLoading(ratingId);
-    try {
-      const res = await api.patch(`rating/${ratingId}/unhide`);
-
-      if (res.success) {
-        toasterSuccess("Rating shown successfully", 2000, "id");
-        fetchRatings();
-      } else {
-        toasterError(res.error?.message || "Failed to show rating", 2000, "id");
-      }
-    } catch (error) {
-      console.error("Failed to unhide rating:", error);
-      toasterError("Failed to show rating. Please try again.", 2000, "id");
-    } finally {
-      setActionLoading(null);
-    }
-  };
-  // Handle soft delete (deactivate)
-  const handleDeleteRating = async (ratingId: number) => {
-    setActionLoading(ratingId);
-    try {
-      const res = await api.delete(`rating/${ratingId}`);
-
-      if (res.success) {
-        toasterSuccess("Rating Delete successfully", 2000, "id");
-        fetchRatings();
-      } else {
-        toasterError(
-          res.error?.message || "Failed to deactivate rating",
-          2000,
-          "id",
-        );
-      }
-    } catch (error) {
-      console.error("Failed to deactivate rating:", error);
-      toasterError("Failed to deactivate rating. Please try again.", 200, "id");
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  // Handle activate rating
-  const handleAddRating = async (ratingId: number) => {
-    setActionLoading(ratingId);
-    try {
-      const res = await api.patch(`ratings/${ratingId}/add`);
-
-      if (res.success) {
-        toasterSuccess("Rating activated successfully", 2000, "id");
-        fetchRatings();
-      } else {
-        toasterError(
-          res.error?.message || "Failed to activate rating",
-          2000,
-          "id",
-        );
-      }
-    } catch (error) {
-      console.error("Failed to activate rating:", error);
-      toasterError("Failed to activate rating. Please try again.", 2000, "id");
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  // Handle clear filters
-  const handleClearFilters = () => {
-    setStatusFilter("all");
-    setScoreFilter("all");
-  };
-
-  if (loading) {
+  // Loading state
+  if (loading && !stats) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+      <div className="flex min-h-screen items-center justify-center p-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-b-4 border-t-4 border-blue-600"></div>
+          <p className="font-medium text-gray-600 dark:text-gray-300">
+            Loading instructor dashboard statistics...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6 bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="w-full max-w-md">
+          <div className="rounded-2xl border-2 border-red-200 bg-white/80 backdrop-blur-sm p-8 text-center shadow-2xl dark:border-red-500/50 dark:bg-gray-800/80">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+              <BarChart3 className="h-8 w-8 text-red-500" />
+            </div>
+            <h3 className="mb-2 text-xl font-bold text-red-800 dark:text-red-400">
+              Error Loading Statistics
+            </h3>
+            <p className="mb-6 text-red-700 dark:text-red-300">{error}</p>
+            <button
+              onClick={handleRefresh}
+              className="inline-flex items-center rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-6 py-3 text-white shadow-lg transition-all hover:shadow-xl hover:scale-105"
+            >
+              <RefreshCw className="mr-2 h-5 w-5" />
+              Try Again
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="mx-auto max-w-7xl">
-        {/* Header */}
-    
-
-        {/* Stats Cards */}
-     
-
-        {/* Filters */}
-      
-
-        {/* Table */}
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-900/50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                    User Details
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                    Rating
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                    Review
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                    Date
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-transparent">
-                {filteredRatings.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
-                      <Star className="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600" />
-                      <p className="font-medium text-gray-500 dark:text-white">
-                        No ratings found
-                      </p>
-                      <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
-                        {ratings.length === 0
-                          ? "No ratings available yet"
-                          : "No ratings match your filters"}
-                      </p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredRatings.map((rating : any , index : number) => (
-                    <tr
-                      key={index}
-                      className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/30"
-                    >
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="flex items-center">
-                          <div className="h-12 w-12 flex-shrink-0">
-                            {rating.user?.profileImage ? (
-                              <img
-                                className="h-12 w-12 rounded-full border-2 border-gray-200 object-cover dark:border-gray-600"
-                                src={rating.user.profileImage}
-                                alt={rating.user.username}
-                              />
-                            ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-blue-300 bg-gradient-to-br from-blue-500 to-blue-700 dark:border-blue-400">
-                                <User className="h-6 w-6 text-white" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {rating.user?.username || "Unknown User"}
-                            </div>
-                            <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                              <Mail className="h-3 w-3" />
-                              <span className="truncate">
-                                {rating.user?.email || "No email"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="flex items-center text-sm text-gray-900 dark:text-gray-300">
-                          <BookOpen className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400 dark:text-white" />
-                          <span>{rating.course.title}</span>
-                        </div>
-                        <div className="mt-2 flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-4 w-4 ${
-                                i < rating.score
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "fill-gray-200 text-gray-200 dark:fill-gray-600 dark:text-gray-600"
-                              }`}
-                            />
-                          ))}
-                          <span className="ml-2 text-sm font-semibold text-gray-900 dark:text-white">
-                            {rating.score}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="max-w-xs">
-                          <p className="text-sm text-gray-900 dark:text-gray-300">
-                            {rating.review ? (
-                              <span className="line-clamp-2">
-                                {rating.review}
-                              </span>
-                            ) : (
-                              <span className="italic text-gray-500 dark:text-gray-400">
-                                No review
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        {(() => {
-                          switch (rating.status) {
-                            case "showtoeveryone":
-                              return (
-                                <span className="inline-flex items-center rounded-full border border-green-200 bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 dark:border-green-500/30 dark:bg-green-500/20 dark:text-green-400">
-                                  <Eye className="mr-1.5 h-4 w-4" />
-                                  Visible
-                                </span>
-                              );
-                            case "hidebyadmin":
-                              return (
-                                <span className="inline-flex items-center rounded-full border border-yellow-200 bg-yellow-100 px-3 py-1.5 text-xs font-semibold text-yellow-800 dark:border-yellow-500/30 dark:bg-yellow-500/20 dark:text-yellow-400">
-                                  <EyeOff className="mr-1.5 h-4 w-4" />
-                                  Hidden by Admin
-                                </span>
-                              );
-                            case "hidebysuperadmin":
-                              return (
-                                <span className="inline-flex items-center rounded-full border border-red-200 bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 dark:border-red-500/30 dark:bg-red-500/20 dark:text-red-400">
-                                  <EyeOff className="mr-1.5 h-4 w-4" />
-                                  Hidden by Super Admin
-                                </span>
-                              );
-                            default:
-                              return (
-                                <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-800 dark:border-gray-500/30 dark:bg-gray-500/20 dark:text-gray-400">
-                                  <Info className="mr-1.5 h-4 w-4" />
-                                  Unknown
-                                </span>
-                              );
-                          }
-                        })()}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-white">
-                        <div className="flex items-center">
-                          <Calendar className="mr-2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                          <span>{formatDate(rating.createdAt)}</span>
-                        </div>
-                      </td>
-                      <td className="flex h-full items-center gap-2 whitespace-nowrap px-6 py-4">
-                        {/* Review Visibility Controls */}
-                        {rating.review &&
-                        rating.review_visibility === "visible" ? (
-                          <button
-                            onClick={() => handleHideReview(rating.id)}
-                            disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-orange-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            <EyeOff className="mr-1 h-3.5 w-3.5" />
-                            {actionLoading === rating.id
-                              ? "Hiding..."
-                              : "Hide Review"}
-                          </button>
-                        ) : rating.review &&
-                          rating.review_visibility !== "visible" ? (
-                          <button
-                            onClick={() => handleUnhideReview(rating.id)}
-                            disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            <Eye className="mr-1 h-3.5 w-3.5" />
-                            {actionLoading === rating.id
-                              ? "Showing..."
-                              : "Show Review"}
-                          </button>
-                        ) : null}
-
-                        {/* Rating Visibility Controls */}
-                        {rating.status === "showtoeveryone" ? (
-                          <button
-                            onClick={() => handleHideRating(rating.id)}
-                            disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            <EyeOff className="mr-1 h-3.5 w-3.5" />
-                            {actionLoading === rating.id
-                              ? "Hiding..."
-                              : "Hide Rating"}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleUnhideRating(rating.id)}
-                            disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            <Eye className="mr-1 h-3.5 w-3.5" />
-                            {actionLoading === rating.id
-                              ? "Showing..."
-                              : "Show Rating"}
-                          </button>
-                        )}
-
-                        {/* Active/Inactive Controls */}
-                        {rating.isactive ? (
-                          <button
-                            onClick={() => handleDeleteRating(rating.id)}
-                            disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {actionLoading === rating.id ? (
-                              <div className="mr-1 h-3.5 w-3.5 animate-spin rounded-full border-b-2 border-white"></div>
-                            ) : (
-                              <X className="mr-1 h-3.5 w-3.5" />
-                            )}
-                            {actionLoading === rating.id
-                              ? "Deactivating..."
-                              : "Deactivate"}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleAddRating(rating.id)}
-                            disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {actionLoading === rating.id ? (
-                              <div className="mr-1 h-3.5 w-3.5 animate-spin rounded-full border-b-2 border-white"></div>
-                            ) : (
-                              <Check className="mr-1 h-3.5 w-3.5" />
-                            )}
-                            {actionLoading === rating.id
-                              ? "Activating..."
-                              : "Activate"}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+        {/* Header with Gradient */}
+        <div className="mb-8 rounded-2xl bg-gradient-to-r from-[#02517b] to-[#43bf79] p-8 shadow-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="flex items-center text-3xl font-bold text-white">
+                <BarChart3 className="mr-3 h-10 w-10" />
+                Instructor Dashboard
+              </h1>
+              <p className="mt-2 text-blue-100">
+                Comprehensive statistics and insights about your courses and students
+              </p>
+            </div>
+            <button
+              onClick={handleRefresh}
+              disabled={loading}
+              className="mt-4 inline-flex items-center rounded-xl bg-white/20 backdrop-blur-sm px-6 py-3 text-white shadow-lg transition-all hover:bg-white/30 hover:scale-105 disabled:opacity-50 sm:mt-0"
+            >
+              <RefreshCw className={`mr-2 h-5 w-5 ${loading ? "animate-spin" : ""}`} />
+              {loading ? "Refreshing..." : "Refresh Stats"}
+            </button>
           </div>
         </div>
 
-        {/* Footer Summary */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Showing latest {filteredRatings.length} of {ratings.length} total ratings
-          </p>
+        {/* Summary Statistics Grid */}
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              title: "Total Courses",
+              value: stats?.courses?.total || 0,
+              icon: <Book className="h-8 w-8" />,
+              gradient: "from-blue-500 to-blue-600",
+              iconBg: "bg-blue-500",
+              sub: `${stats?.courses?.active || 0} active`,
+              trend: calculateTrend(stats?.courses?.total),
+            },
+            {
+              title: "Total Students",
+              value: stats?.students?.total || 0,
+              icon: <Users className="h-8 w-8" />,
+              gradient: "from-green-500 to-green-600",
+              iconBg: "bg-green-500",
+              sub: `${stats?.students?.averagePerCourse || 0} avg/course`,
+              trend: calculateTrend(stats?.students?.total),
+            },
+            {
+              title: "Total Enrollments",
+              value: stats?.enrollments?.total || 0,
+              icon: <User className="h-8 w-8" />,
+              gradient: "from-purple-500 to-purple-600",
+              iconBg: "bg-purple-500",
+              sub: `${stats?.enrollments?.completed || 0} completed`,
+              trend: calculateTrend(stats?.enrollments?.total),
+            },
+            {
+              title: "Total Revenue",
+              value: `$${stats?.performance?.totalRevenue || "0"}`,
+              icon: <DollarSign className="h-8 w-8" />,
+              gradient: "from-orange-500 to-orange-600",
+              iconBg: "bg-orange-500",
+              sub: `Avg rating: ${stats?.performance?.averageRating || 0}`,
+              trend: calculateTrend(parseFloat(stats?.performance?.totalRevenue || "0")),
+            },
+          ].map((card, i) => (
+            <div
+              key={i}
+              className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-800"
+            >
+              <div className="absolute top-0 right-0 h-32 w-32 opacity-10">
+                <div className={`h-full w-full rounded-full bg-gradient-to-br ${card.gradient} blur-2xl`}></div>
+              </div>
+
+              <div className="relative">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      {card.title}
+                    </p>
+                    <p className="mt-2 text-4xl font-bold text-gray-900 dark:text-white">
+                      {card.value}
+                    </p>
+                    <div className="mt-3 flex items-center space-x-2">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {card.sub}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center text-green-600 dark:text-green-400">
+                      <TrendingUp className="h-4 w-4 mr-1" />
+                      <span className="text-xs font-semibold">{card.trend}</span>
+                    </div>
+                  </div>
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-xl ${card.iconBg} text-white shadow-lg transition-transform group-hover:scale-110`}>
+                    {card.icon}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Charts Section */}
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+          {/* Course Status Pie Chart */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+              <Book className="mr-2 h-5 w-5 text-blue-600" />
+              Course Status Distribution
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={courseStatusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }: { name?: string; percent?: number }) =>
+                    `${name}: ${((percent || 0) * 100).toFixed(0)}%`
+                  }
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {courseStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Enrollment Status Bar Chart */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+              <Users className="mr-2 h-5 w-5 text-green-600" />
+              Enrollment Status
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={enrollmentStatusData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="name" stroke="#6b7280" />
+                <YAxis stroke="#6b7280" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                  {enrollmentStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Revenue & Rating Composed Chart */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+              <DollarSign className="mr-2 h-5 w-5 text-orange-600" />
+              Revenue & Rating
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <ComposedChart data={revenuePerformanceData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="name" stroke="#6b7280" />
+                <YAxis stroke="#6b7280" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Bar dataKey="value" fill="#10b981" radius={[8, 8, 0, 0]} />
+                <Line type="monotone" dataKey="value" stroke="#f59e0b" strokeWidth={3} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Student Metrics Area Chart */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+              <TrendingUp className="mr-2 h-5 w-5 text-purple-600" />
+              Student Metrics
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={studentMetricsData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="name" stroke="#6b7280" />
+                <YAxis stroke="#6b7280" />
+                <Tooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#8b5cf6"
+                  fill="#8b5cf6"
+                  fillOpacity={0.6}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Course Performance Bar Chart */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+              <Activity className="mr-2 h-5 w-5 text-red-600" />
+              Course Performance
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={coursePerformanceData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="name" stroke="#6b7280" />
+                <YAxis stroke="#6b7280" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Bar dataKey="total" fill="#3b82f6" radius={[8, 8, 0, 0]} name="Total Courses" />
+                <Bar dataKey="active" fill="#10b981" radius={[8, 8, 0, 0]} name="Active Courses" />
+                <Bar dataKey="draft" fill="#f59e0b" radius={[8, 8, 0, 0]} name="Draft Courses" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Certificate Stats Pie Chart */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+              <Award className="mr-2 h-5 w-5 text-yellow-600" />
+              Certificate Statistics
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Certificates Issued', value: stats?.certificates?.total || 0, color: '#10b981' },
+                    { name: 'Completion Rate', value: parseFloat(stats?.enrollments?.completionRate?.replace('%', '') || "0"), color: '#3b82f6' },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }: { name?: string; percent?: number }) =>
+                    `${name}: ${((percent || 0) * 100).toFixed(0)}%`
+                  }
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  <Cell key="cell-0" fill="#10b981" />
+                  <Cell key="cell-1" fill="#3b82f6" />
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Additional Metrics Section */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* Completion Rate */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Completion Rate
+                </h3>
+                <p className="text-3xl font-bold text-green-600">
+                  {stats?.enrollments?.completionRate || "0%"}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Course completion success
+                </p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-500 text-white">
+                <Target className="h-8 w-8" />
+              </div>
+            </div>
+          </div>
+
+          {/* Average Chapters per Course */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Avg Chapters/Course
+                </h3>
+                <p className="text-3xl font-bold text-blue-600">
+                  {stats?.chapters?.averagePerCourse || 0}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Content distribution
+                </p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-500 text-white">
+                <BookOpen className="h-8 w-8" />
+              </div>
+            </div>
+          </div>
+
+          {/* Student Engagement */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Student Engagement
+                </h3>
+                <p className="text-3xl font-bold text-purple-600">
+                  {stats?.performance?.averageRating || 0}/5
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Average course rating
+                </p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-purple-500 text-white">
+                <Star className="h-8 w-8" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
