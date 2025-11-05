@@ -295,12 +295,7 @@ export default function UserProfilePage({ className }: any) {
                   </span>
                 </div>
                 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">User ID:</span>
-                  <span className="text-gray-900 dark:text-gray-100 font-mono text-sm bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">
-                    #{userData.id}
-                  </span>
-                </div>
+               
               </div>
             </div>
           </div>

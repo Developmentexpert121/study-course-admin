@@ -91,8 +91,9 @@ export default function RatingsManagementPage() {
       const res = await api.get(url);
 
       if (res.success) {
+        console.log("res.sssss",res?.data?.data)
         // The new API returns both ratings and statistics
-        const ratingsData = res.data?.data?.ratings || [];
+        const ratingsData = res.data?.data || [];
         const statistics = res.data?.data?.statistics || {};
 
         setRatings(ratingsData);
@@ -111,42 +112,22 @@ export default function RatingsManagementPage() {
     }
   };
 
-  // Calculate statistics
-  const calculateStats = (ratingsData: Rating[]) => {
-    const total = ratingsData.length;
-    const average =
-      total > 0
-        ? ratingsData.reduce((sum, rating) => sum + rating.score, 0) / total
-        : 0;
-    const visible = ratingsData.filter(
-      (r) => r.status === "showtoeveryone",
-    ).length;
-    const hidden = ratingsData.filter(
-      (r) => r.status !== "showtoeveryone",
-    ).length;
-
-    setStats({
-      totalRatings: total,
-      averageRating: average,
-      visibleRatings: visible,
-      hiddenRatings: hidden,
-    });
-  };
 
   useEffect(() => {
     fetchRatings();
   }, [courseId]);
 
-  // Filter ratings based on filters
-  const filteredRatings = ratings.filter((rating) => {
-    const statusMatch =
-      statusFilter === "all" || rating.status === statusFilter;
-    const scoreMatch =
-      scoreFilter === "all" || rating.score.toString() === scoreFilter;
-    return statusMatch && scoreMatch;
-  });
-
-  // Replace your current handleHideRating and handleUnhideRating functions with these:
+  // Filter ratings based on filters and get latest five
+  const filteredRatings = ratings
+    .filter((rating) => {
+      const statusMatch =
+        statusFilter === "all" || rating.status === statusFilter;
+      const scoreMatch =
+        scoreFilter === "all" || rating.score.toString() === scoreFilter;
+      return statusMatch && scoreMatch;
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) // Sort by latest first
+    .slice(0, 5); // Get only the latest five ratings
 
   // Handle hide review (only hides the review text, keeps rating visible)
   const handleHideReview = async (ratingId: number) => {
@@ -289,169 +270,16 @@ export default function RatingsManagementPage() {
   }
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="mx-auto max-w-7xl">
+    <div className="min-h-screen ">
+      <div className="mx-auto ">
         {/* Header */}
-        <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
-          <div>
-            {courseTitle && (
-              <button
-                onClick={() => router.push("/super-admin/courses")}
-                className="mb-2 inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
-              >
-                <ArrowLeft className="mr-1 h-4 w-4" />
-                Back to Courses
-              </button>
-            )}
-            <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
-              <Star className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />
-              {courseTitle ? `${courseTitle} - Ratings` : "Ratings Management"}
-            </h1>
-            <p className="mt-2 text-gray-600 dark:text-white">
-              {courseTitle
-                ? `View and manage ratings for ${courseTitle}`
-                : "View and manage all course ratings and reviews"}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {/* View All Ratings button when filtered by course */}
-            {courseTitle && (
-              <button
-                onClick={() => router.push("/super-admin/ratings")}
-                className="inline-flex items-center rounded-lg bg-gray-600 px-4 py-2 text-white shadow-sm transition-colors hover:bg-gray-700"
-              >
-                <Eye className="mr-2 h-4 w-4" />
-                View All Ratings
-              </button>
-            )}
-            <button
-              onClick={fetchRatings}
-              className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] dark:bg-[#43bf79]"
-            >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
-            </button>
-          </div>
-        </div>
+    
 
         {/* Stats Cards */}
-        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-4">
-          {/* Total Ratings */}
-          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 dark:text-white">
-                  Total Ratings
-                </p>
-                <p className="mt-1 text-3xl font-bold text-[#02517b] dark:text-[#43bf79]">
-                  {stats.totalRatings}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#02517b]/10 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
-                <Star className="h-6 w-6 text-[#02517b] dark:text-[#43bf79]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Average Rating */}
-          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 dark:text-white">
-                  Average Rating
-                </p>
-                <p className="mt-1 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                  {stats.averageRating.toFixed(1)}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 transition-transform duration-300 group-hover:scale-110 dark:bg-yellow-500/20">
-                <Star className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* Visible Ratings */}
-          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 dark:text-white">
-                  Visible
-                </p>
-                <p className="mt-1 text-3xl font-bold text-green-600 dark:text-[#43bf79]">
-                  {stats.visibleRatings}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
-                <Eye className="h-6 w-6 text-green-600 dark:text-[#43bf79]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Hidden Ratings */}
-          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 dark:text-white">
-                  Hidden
-                </p>
-                <p className="mt-1 text-3xl font-bold text-gray-600 dark:text-gray-400">
-                  {stats.hiddenRatings}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 transition-transform duration-300 group-hover:scale-110 dark:bg-gray-500/20">
-                <Eye className="h-6 w-6 text-gray-600 dark:text-gray-400" />
-              </div>
-            </div>
-          </div>
-        </div>
+     
 
         {/* Filters */}
-        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-6">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Status
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              >
-                <option value="all">All Status</option>
-                <option value="showtoeveryone">Visible</option>
-                <option value="hidebyadmin">Hidden by Admin</option>
-                <option value="hidebysuperadmin">Hidden by Super Admin</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Score
-              </label>
-              <select
-                value={scoreFilter}
-                onChange={(e) => setScoreFilter(e.target.value)}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              >
-                <option value="all">All Scores</option>
-                <option value="5">5 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="2">2 Stars</option>
-                <option value="1">1 Star</option>
-              </select>
-            </div>
-
-            <div className="flex items-end">
-              <button
-                onClick={handleClearFilters}
-                className="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700"
-              >
-                Clear Filters
-              </button>
-            </div>
-          </div>
-        </div>
+      
 
         {/* Table */}
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
@@ -701,7 +529,7 @@ export default function RatingsManagementPage() {
         {/* Footer Summary */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Showing {filteredRatings.length} of {ratings.length} total ratings
+            Showing latest {filteredRatings.length} of {ratings.length} total ratings
           </p>
         </div>
       </div>
