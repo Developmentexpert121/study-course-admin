@@ -18,6 +18,7 @@ import {
   Eye,
   EyeOff,
   CheckCircle,
+  Star,
 } from "lucide-react";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { useRouter } from "next/navigation";
@@ -316,7 +317,10 @@ export default function Courses({ className }: any) {
                   </TableCell>
 
                   {/* Creator */}
-                  <TableCell className="py-2">{course.creator_name.charAt(0).toUpperCase() + course.creator_name.slice(1).toLowerCase() }</TableCell>
+                  <TableCell className="py-2">
+                    {course.creator?.username.charAt(0).toUpperCase() +
+                      course.creator?.username.slice(1).toLowerCase()}
+                  </TableCell>
 
                   <TableCell className="py-2">
                     {course.image ? (
@@ -342,7 +346,7 @@ export default function Courses({ className }: any) {
                     <div className="flex items-center justify-center gap-3">
                       {/* Edit Button */}
                       <button
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-blue-600 transition-colors hover:text-blue-800"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(course.id);
@@ -354,7 +358,7 @@ export default function Courses({ className }: any) {
 
                       {/* Delete Button */}
                       <button
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 transition-colors hover:text-red-800"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(course.id);
@@ -362,6 +366,21 @@ export default function Courses({ className }: any) {
                         title="Delete Course"
                       >
                         <Trash2 size={18} />
+                      </button>
+
+                      {/* View Ratings Button - Improved Design */}
+                      <button
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-all hover:from-blue-600 hover:to-blue-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(
+                            `/admin/rating?courseId=${course.id}&course_title=${course.title}`,
+                          );
+                        }}
+                        title="View Course Ratings"
+                      >
+                        <Star size={16} className="fill-yellow-400" />
+                        Ratings
                       </button>
                     </div>
                   </TableCell>

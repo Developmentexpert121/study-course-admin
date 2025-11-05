@@ -56,7 +56,7 @@ export default function Courses({ className }: any) {
       if (statusFilter === "draft") query.append("status", "draft");
       query.append("page", page.toString());
       query.append("limit", limit.toString());
-      const url = `course/list?${query.toString()}`;
+      const url = `course/list?view_type=admin&${query.toString()}`;
       const res = await api.get(url);
       if (res.success) {
         setCourses(res.data?.data?.courses || []);
@@ -329,8 +329,8 @@ export default function Courses({ className }: any) {
 
                   {/* Creator */}
                   <TableCell className="py-2">
-                    {course.creator_name.charAt(0).toUpperCase() +
-                      course.creator_name.slice(1).toLowerCase()}
+                    {course.creator?.username?.charAt(0).toUpperCase() +
+                      course.creator?.username?.slice(1).toLowerCase()}
                   </TableCell>
 
                   <TableCell className="py-2">

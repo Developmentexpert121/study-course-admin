@@ -44,6 +44,7 @@ const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const name: any = getDecryptedItem("name");
+  const role: any = getDecryptedItem("role");
 
   const courses = useSelector(selectAllCourses);
   const loading = useSelector(selectCoursesLoading);
@@ -96,7 +97,7 @@ const Home = () => {
 
   return (
     <div className="bg-gray-50">
-      <Header name={name} />
+      <Header name={name} role={role} />
       <Banner />
 
       <div className="bg-gray-50">

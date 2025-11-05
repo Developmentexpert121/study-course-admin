@@ -126,7 +126,7 @@ export default function UserCourseDashboard({ className }: any) {
       if (sortBy === "oldest") query.append("sort", "createdAt");
       if (sortBy === "popular") query.append("sort", "-ratings");
 
-      const url = `course/list?${query.toString()}`;
+      const url = `course/list?view_type=user&${query.toString()}`;
 
       const res = await api.get(url);
 
@@ -915,7 +915,7 @@ const CourseCard = ({
         <div className="mb-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">
           <div className="flex items-center">
             <User className="mr-2 h-4 w-4" />
-            <span>{course.creator_name || course.creator}</span>
+            <span>{course.creator?.username || course.creator}</span>
           </div>
           <div className="flex items-center">
             <Calendar className="mr-2 h-4 w-4" />

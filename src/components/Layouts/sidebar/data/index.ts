@@ -54,14 +54,20 @@ export const NAV_DATA = [
         items: [],
         type: "admin",
       },
-
+      {
+        title: "COURSES ENANGEMENT",
+        url: "/admin/enangement",
+        icon: Icons.Calendar,
+        items: [],
+        type: "admin",
+      },
       {
         title: "USER DETAILS",
         icon: Icons.Alphabet,
         items: [
           {
             title: "User List",
-            url: "/users",
+            url: "/admin/user",
           },
         ],
         type: "admin",
@@ -133,16 +139,6 @@ export const NAV_DATA = [
         items: [],
         type: "Super-Admin",
       },
-
-      {
-        title: "Rating",
-        url: "/admin/rating",
-        icon: Icons.Calendar,
-        items: [],
-        type: "admin",
-      },
-
-
 
     ],
   },
