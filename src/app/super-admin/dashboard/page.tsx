@@ -46,7 +46,7 @@ import {
   Area,
   AreaChart,
 } from "recharts";
-import CourseAuditLogsPage from "../courses-creation/CourseAuditLogsPage";
+import CourseAuditLogsPage from "../audit-logs/CourseAuditLogsPage";
 
 import RatingsManagementPage from "../../../app/super-admin/rating/RatingsManagementPage";
 
@@ -464,10 +464,10 @@ export default function DashboardStatsPage() {
         </div>
         <div className="rounded-2xl border border-gray-200 bg-white  shadow-lg dark:border-gray-700 dark:bg-gray-800">
 
-       <RatingsManagementPage/>
-      </div>
+          <RatingsManagementPage />
+        </div>
 
-    </div>
+      </div>
     </div >
   );
 }

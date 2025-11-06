@@ -44,7 +44,7 @@ export default function CourseAuditLogsPage() {
     course_name: '',
     is_active_status: '',
   });
-  
+
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -73,8 +73,8 @@ export default function CourseAuditLogsPage() {
   // Filter audit logs by course name (client-side filtering)
   const filteredAuditLogs = localFilters.course_name
     ? auditLogs.filter((log) =>
-        log.course_title.toLowerCase().includes(localFilters.course_name.toLowerCase())
-      )
+      log.course_title.toLowerCase().includes(localFilters.course_name.toLowerCase())
+    )
     : auditLogs;
 
   const handleClearFilters = () => {
@@ -164,8 +164,8 @@ export default function CourseAuditLogsPage() {
           key={i}
           onClick={() => handlePageChange(i)}
           className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${i === page
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
+            ? 'bg-blue-600 text-white shadow-sm'
+            : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
             }`}
         >
           {i}
@@ -281,7 +281,44 @@ export default function CourseAuditLogsPage() {
         )}
 
         {/* Filter Section */}
-     
+        <div className="mb-6 bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h2>
+            {localFilters.course_name !== "" && <button
+              onClick={handleClearFilters}
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium"
+            >
+              Clear Filters
+            </button>}
+          </div>
+
+          <div className="flex  items-end gap-6 flex-wrap">
+
+            <div className='flex-1'>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Course Name
+              </label>
+              <input
+                type="text"
+                value={localFilters.course_name}
+                onChange={(e) => setLocalFilters({ ...localFilters, course_name: e.target.value })}
+                placeholder="Filter by course name..."
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+              />
+            </div>
+
+
+            <div className="flex items-center gap-3 pt-4">
+              <button
+                onClick={handleApplyFilters}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium"
+              >
+                Apply Filters
+              </button>
+
+            </div>
+          </div>
+        </div>
 
         {/* Stats Section */}
         {showStats && (
@@ -356,53 +393,7 @@ export default function CourseAuditLogsPage() {
         )}
 
 
-           <div className="mb-6 bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h2>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium"
-            >
-              {showFilters ? 'Hide Filters' : 'Show Filters'}
-            </button>
-          </div>
 
-          {showFilters && (
-            <div className="space-y-4">
-              <div className="grid gap-4">
-               
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Course Name
-                  </label>
-                  <input
-                    type="text"
-                    value={localFilters.course_name}
-                    onChange={(e) => setLocalFilters({ ...localFilters, course_name: e.target.value })}
-                    placeholder="Filter by course name..."
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                  />
-                </div>
-
-              </div>
-
-              <div className="flex items-center gap-3 pt-4">
-                <button
-                  onClick={handleApplyFilters}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium"
-                >
-                  Apply Filters
-                </button>
-                <button
-                  onClick={handleClearFilters}
-                  className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium"
-                >
-                  Clear Filters
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Audit Logs Table */}
         <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">

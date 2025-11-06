@@ -119,7 +119,7 @@ export const NAV_DATA = [
 
       {
         title: "Activity Logs",
-        url: "/super-admin/courses-creation",
+        url: "/super-admin/audit-logs",
         icon: Icons.Calendar,
         items: [],
         type: "Super-Admin",
