@@ -7,15 +7,17 @@ export function Table({
   ...props
 }: React.HTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="mob-w w-full min-w-[600px] overflow-x-auto">
-      <table
-        className={cn(
-          "courses-list w-full min-w-[600px] caption-bottom text-sm sm:min-w-0",
-          className,
-        )}
-        {...props}
-        onClick={onClick}
-      />
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
+      <div className="overflow-x-auto">
+        <table
+          className={cn(
+            "min-w-full divide-y divide-gray-200 dark:divide-gray-700",
+            className,
+          )}
+          {...props}
+          onClick={onClick}
+        />
+      </div>
     </div>
   );
 }
@@ -24,7 +26,7 @@ export function TableHeader({
   className,
   ...props
 }: React.HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className={cn("[&_tr]:border-b", className)} {...props} />;
+  return <thead className={cn("bg-gray-50 dark:bg-gray-900/50", className)} {...props} />;
 }
 
 export function TableBody({
@@ -34,7 +36,7 @@ export function TableBody({
 }: React.HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <tbody
-      className={cn("[&_tr:last-child]:border-0", className)}
+      className={cn("divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-transparent", className)}
       {...props}
       onClick={onClick}
     />
@@ -64,7 +66,7 @@ export function TableRow({
   return (
     <tr
       className={cn(
-        "border-b transition-colors hover:bg-neutral-100/50 data-[state=selected]:bg-neutral-100 dark:border-dark-3 dark:hover:bg-dark-2 dark:data-[state=selected]:bg-neutral-800",
+        "cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/30",
         className,
       )}
       {...props}
@@ -80,7 +82,7 @@ export function TableHead({
   return (
     <th
       className={cn(
-        "h-12 px-4 text-left align-middle text-sm font-bold text-neutral-500 dark:text-neutral-400 [&:has([role=checkbox])]:pr-0",
+        "px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300",
         className,
       )}
       {...props}
@@ -95,7 +97,7 @@ export function TableCell({
   return (
     <td
       className={cn(
-        "p-3 align-middle text-sm [&:has([role=checkbox])]:pr-0",
+        " px-6 py-4 text-sm text-gray-900 dark:text-gray-300",
         className,
       )}
       {...props}

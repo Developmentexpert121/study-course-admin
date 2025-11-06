@@ -19,6 +19,9 @@ import {
   EyeOff,
   CheckCircle,
   BarChart2,
+  Search,
+  FileBadge,
+  BookOpen,
 } from "lucide-react";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { useRouter } from "next/navigation";
@@ -190,60 +193,168 @@ export default function Courses({ className }: any) {
   return (
     <div
       className={cn(
-        "grid overflow-auto rounded-[10px] bg-white px-7.5 pb-4 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card",
+        "grid overflow-auto rounded-[10px] px-7.5 pb-4 pt-7.5 dark:bg-gray-dark ",
         className,
       )}
     >
-      <div className="mobile-buttons mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {/* Heading */}
-        <h2 className="list text-center text-xl font-bold text-gray-900 dark:text-white">
-          All Courses List
-        </h2>
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
+            <FileBadge className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />
+            Courses
+          </h1>
+          <p className="mt-2 text-gray-600 dark:text-white">
+            View and manage all Courses
+          </p>
+        </div>
 
-        {/* Controls Section */}
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-nowrap sm:items-center">
-          {/* Filter Dropdown */}
-          <div className="relative w-full sm:w-48">
-            <select
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(
-                  e.target.value as "all" | "active" | "inactive" | "draft",
-                )
-              }
-              className="active-btn w-full appearance-none rounded-full border border-gray-300 bg-gray-50 px-4 py-2 text-sm text-gray-700 shadow-sm outline-none focus:border-[#02517b] focus:ring-1 focus:ring-[#02517b] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-            >
-              <option value="all">All Courses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="draft">Draft</option>
-            </select>
-            <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-              ▼
+        {/* Add Course Button */}
+        <button
+          onClick={() => router.push("/admin/courses/add-courses")}
+          className="rounded-lg bg-[#02517b] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#013d5b] sm:w-auto"
+        >
+          + Add Course
+        </button>
+      </div>
+      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
+
+        {/* Search and Filter Section */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+          {/* Search Input */}
+          <div className="flex-1">
+            <div className="relative">
+              <input
+                type="search"
+                placeholder="Search courses..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    fetchCourses();
+                  }
+                }}
+                className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-12 pr-4 text-sm text-gray-900 shadow-sm outline-none focus:border-[#02517b] focus:ring-1 focus:ring-[#02517b] dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
+              />
+              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
             </div>
           </div>
 
-          {/* Search Input */}
-          <div className="relative">
-            <input
-              type="search"
-              placeholder="Search courses..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-full border border-gray-300 bg-gray-50 py-2.5 pl-12 pr-4 text-sm text-gray-900 shadow-sm outline-none focus:border-[#02517b] focus:ring-1 focus:ring-[#02517b] dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
-            />
-            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+          {/* Status Filter */}
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(
+                e.target.value as "all" | "active" | "inactive" | "draft",
+              )
+            }
+            className="rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-700 shadow-sm outline-none focus:border-[#02517b] focus:ring-1 focus:ring-[#02517b] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+          >
+            <option value="all">All Courses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="draft">Draft</option>
+          </select>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={fetchCourses}
+              className="inline-flex items-center justify-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#43bf79] dark:hover:bg-[#43bf7999]"
+            >
+              <Search className="mr-2 h-4 w-4" />
+              Search
+            </button>
+
+            {(search || statusFilter !== 'all') && (
+              <button
+                onClick={() => {
+                  setSearch('');
+                  setStatusFilter('all');
+                }}
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+              >
+                Clear
+              </button>
+            )}
           </div>
 
-          {/* Add Course Button */}
-          <button
-            onClick={() => router.push("/admin/courses/add-courses")}
-            className="w-full rounded-full bg-[#02517b] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#013d5b] sm:w-auto"
-          >
-            + Add Course
-          </button>
+
+        </div>
+
+        {/* Active Filters Display */}
+        {(search || statusFilter !== 'all') && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <span>Active filters:</span>
+            {search && (
+              <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                Search: "{search}"
+              </span>
+            )}
+            {statusFilter !== 'all' && (
+              <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                Status: {statusFilter}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+      {/* Stats Cards */}
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center">
+            <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900">
+              <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Courses</h3>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">{courses.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center">
+            <div className="rounded-lg bg-green-100 p-3 dark:bg-green-900">
+              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Active</h3>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                {courses.filter((course: { status: string }) => course.status === 'active').length}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center">
+            <div className="rounded-lg bg-yellow-100 p-3 dark:bg-yellow-900">
+              <FileText className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Draft</h3>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                {courses.filter((course: { status: string }) => course.status === 'draft').length}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center">
+            <div className="rounded-lg bg-red-100 p-3 dark:bg-red-900">
+              <EyeOff className="h-6 w-6 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Inactive</h3>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                {courses.filter((course: { status: string }) => course.status === 'inactive').length}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
+
 
       <Table>
         <TableHeader>
@@ -269,7 +380,7 @@ export default function Courses({ className }: any) {
                 <TableRow
                   onClick={() =>
                     router.push(
-                      `/admin/chapters?course=${course.title}&course_id=${course.id}`,
+                      `/super-admin/chapters?course=${course.title}&course_id=${course.id}`,
                     )
                   }
                   className="cursor-pointer text-center text-base font-medium text-dark dark:text-white"

@@ -171,7 +171,7 @@ export default function Chapters({ className }: any) {
           </div>
 
           <button
-            onClick={() => router.push("/admin/courses")}
+            onClick={() => router.push("/super-admin/courses")}
             className="w-full rounded-full bg-gray-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-gray-700 sm:w-auto"
           >
             ← Back to Courses
