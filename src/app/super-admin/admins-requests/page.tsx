@@ -42,6 +42,7 @@ import {
   setEmailFilter,
   setNameFilter,
   clearFilters,
+  setPage,
 } from "@/store/slices/adminslice/adminSlice";
 import { useRouter } from "next/navigation";
 import { join } from "path";
@@ -62,19 +63,18 @@ export default function AdminUsersPage() {
   const rejectedCount = useAppSelector(selectRejectedCount);
   const totaluser = useAppSelector(selectTotalAdmins);
   const totalactive = useAppSelector(selectVerifiedAdmins);
-  
+
   // Search and filter selectors
   const searchQuery = useAppSelector(selectSearchQuery);
   const filters = useAppSelector(selectFilters);
 
   // Local state for search input
-  const [localSearch, setLocalSearch] = useState(searchQuery);
-  const [showFilters, setShowFilters] = useState(false);
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchQuery || '');
 
   // Fetch admins on component mount and when search/filters change
   useEffect(() => {
-    dispatch(fetchAdmins({ 
-      page: 1, 
+    dispatch(fetchAdmins({
+      page: 1,
       search: searchQuery,
       status: filters.status,
       email: filters.email,
@@ -84,8 +84,8 @@ export default function AdminUsersPage() {
 
   // Handle page change
   const handlePageChange = (page: number) => {
-    dispatch(fetchAdmins({ 
-      page, 
+    dispatch(fetchAdmins({
+      page,
       search: searchQuery,
       status: filters.status,
       email: filters.email,
@@ -93,14 +93,24 @@ export default function AdminUsersPage() {
     }));
   };
 
-  // Handle search with debounce
-  const handleSearch = (value: string) => {
-    setLocalSearch(value);
-    // Debounce the search dispatch
-    const timeoutId = setTimeout(() => {
-      dispatch(setSearchQuery(value));
-    }, 500);
-    return () => clearTimeout(timeoutId);
+  // Handle search
+  const handleSearch = () => {
+    dispatch(setPage(1));
+    dispatch(setSearchQuery(localSearchTerm));
+    dispatch(setStatusFilter(filters.status)); // Keep status filter
+  };
+
+  const handleClearSearch = () => {
+    setLocalSearchTerm('');
+    dispatch(setSearchQuery(''));
+    dispatch(setStatusFilter('')); // Clear status filter too
+    dispatch(setPage(1));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   // Handle filter changes
@@ -108,18 +118,18 @@ export default function AdminUsersPage() {
     dispatch(setStatusFilter(status));
   };
 
-  const handleEmailFilter = (email: string) => {
-    dispatch(setEmailFilter(email));
-  };
-
   const handleNameFilter = (name: string) => {
     dispatch(setNameFilter(name));
+  };
+
+  const handleEmailFilter = (email: string) => {
+    dispatch(setEmailFilter(email));
   };
 
   // Clear all filters
   const handleClearFilters = () => {
     dispatch(clearFilters());
-    setLocalSearch("");
+    setLocalSearchTerm("");
   };
 
   // Check if any filters are active
@@ -138,8 +148,8 @@ export default function AdminUsersPage() {
     try {
       const result = await dispatch(approveAdmin(adminId)).unwrap();
       alert(`✅ ${result.message}`);
-      dispatch(fetchAdmins({ 
-        page: currentPage, 
+      dispatch(fetchAdmins({
+        page: currentPage,
         search: searchQuery,
         status: filters.status,
         email: filters.email,
@@ -159,8 +169,8 @@ export default function AdminUsersPage() {
     try {
       const result = await dispatch(rejectAdmin(adminId)).unwrap();
       alert(`✅ ${result.message}`);
-      dispatch(fetchAdmins({ 
-        page: currentPage, 
+      dispatch(fetchAdmins({
+        page: currentPage,
         search: searchQuery,
         status: filters.status,
         email: filters.email,
@@ -255,116 +265,87 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Search and Filter Section */}
-        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-md dark:border-gray-700 dark:bg-gray-800/50">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             {/* Search Input */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by username or email..."
-                value={localSearch}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              />
+            <div className="flex-1">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Search Admins
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                <input
+                  type="text"
+                  value={localSearchTerm}
+                  onChange={(e) => setLocalSearchTerm(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Search by name or email..."
+                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
+                />
+              </div>
             </div>
 
-            {/* Filter Toggle */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            {/* Verification Status Filter */}
+            <div className="sm:w-48">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Approval Status
+              </label>
+              <select
+                value={filters.status}
+                onChange={(e) => handleStatusFilter(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 py-2 px-3 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
               >
-                <Filter className="mr-2 h-4 w-4" />
-                Filters
-                {hasActiveFilters && (
-                  <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                    Active
-                  </span>
-                )}
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 sm:flex-col">
+              <button
+                onClick={handleSearch}
+                disabled={loading}
+                className="inline-flex items-center justify-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#43bf79] dark:hover:bg-[#43bf7999]"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
               </button>
 
-              {hasActiveFilters && (
+              {(searchQuery || filters.status || filters.email || filters.name) && (
                 <button
                   onClick={handleClearFilters}
-                  className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                  disabled={loading}
+                  className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
                 >
-                  <CloseIcon className="h-4 w-4" />
+                  Clear
                 </button>
               )}
             </div>
           </div>
 
-          {/* Filter Options */}
-          {showFilters && (
-            <div className="mt-4 grid grid-cols-1 gap-4 border-t border-gray-200 pt-4 dark:border-gray-700 md:grid-cols-3">
-              {/* Status Filter */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
-                  Status
-                </label>
-                <select
-                  value={filters.status}
-                  onChange={(e) => handleStatusFilter(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                >
-                  <option value="">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-
-              {/* Name Filter */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  placeholder="Filter by username..."
-                  value={filters.name}
-                  onChange={(e) => handleNameFilter(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              {/* Email Filter */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
-                  Email
-                </label>
-                <input
-                  type="text"
-                  placeholder="Filter by email..."
-                  value={filters.email}
-                  onChange={(e) => handleEmailFilter(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Active Filters Display */}
-          {hasActiveFilters && (
-            <div className="mt-3 flex flex-wrap gap-2">
+          {/* Active Search Info */}
+          {(searchQuery || filters.status || filters.email || filters.name) && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <span>Active filters:</span>
               {searchQuery && (
-                <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                   Search: "{searchQuery}"
                 </span>
               )}
               {filters.status && (
-                <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
+                <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
                   Status: {filters.status}
                 </span>
               )}
               {filters.name && (
-                <span className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                  Username: {filters.name}
+                <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                  Name: {filters.name}
                 </span>
               )}
               {filters.email && (
-                <span className="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                <span className="rounded-full bg-orange-100 px-2 py-1 text-xs font-medium text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
                   Email: {filters.email}
                 </span>
               )}
@@ -731,11 +712,10 @@ export default function AdminUsersPage() {
                           key={page}
                           onClick={() => handlePageChange(page)}
                           disabled={loading}
-                          className={`rounded-lg px-3 py-2 text-sm shadow-sm transition-all duration-200 ${
-                            currentPage === page
-                              ? "bg-[#02517b] font-semibold text-white dark:bg-[#43bf79] dark:text-gray-900"
-                              : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                          } disabled:cursor-not-allowed disabled:opacity-50`}
+                          className={`rounded-lg px-3 py-2 text-sm shadow-sm transition-all duration-200 ${currentPage === page
+                            ? "bg-[#02517b] font-semibold text-white dark:bg-[#43bf79] dark:text-gray-900"
+                            : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                            } disabled:cursor-not-allowed disabled:opacity-50`}
                         >
                           {page}
                         </button>

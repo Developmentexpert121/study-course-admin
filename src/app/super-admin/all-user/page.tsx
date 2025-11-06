@@ -19,21 +19,21 @@ import {
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchUsers, setPage, setSearch, setFilterType } from "../../../store/slices/adminslice/all-user-details";
+import { fetchUsers, setPage, setSearch, setVerificationStatus } from "../../../store/slices/adminslice/all-user-details";
 import { activateUser, deactivateUser } from "../../../store/slices/adminslice/userManagement";
 
 export default function UsersWithProgressPage({ className }: any) {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { users, totalPages, currentPage, loading, error, searchTerm, filterType , totalUsers ,activeUsers } = useAppSelector(
+  const { users, totalPages, currentPage, loading, error, searchTerm, verificationStatus, totalUsers, activeUsers } = useAppSelector(
     (state) => state.users
   );
-console.log("object",totalUsers)
+  console.log("object", totalUsers)
   const limit = 5;
   const [processingUserId, setProcessingUserId] = useState<string | null>(null);
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm || '');
-  const [localFilterType, setLocalFilterType] = useState(filterType || 'all');
+  const [localVerificationStatus, setLocalVerificationStatus] = useState(verificationStatus || 'all');
 
   // Calculate stats
   const totalCount = totalUsers || 0;
@@ -41,13 +41,13 @@ console.log("object",totalUsers)
   const inactiveCount = totalCount - activeUsers || 0;
 
   useEffect(() => {
-    dispatch(fetchUsers({ 
-      page: currentPage, 
-      limit, 
-      search: searchTerm, 
-      filterType 
+    dispatch(fetchUsers({
+      page: currentPage,
+      limit,
+      search: searchTerm,
+      verificationStatus
     }));
-  }, [dispatch, currentPage, limit, searchTerm, filterType]);
+  }, [dispatch, currentPage, limit, searchTerm, verificationStatus]);
 
   const handlePageChange = (page: number) => {
     dispatch(setPage(page));
@@ -57,14 +57,14 @@ console.log("object",totalUsers)
     // Reset to page 1 when searching
     dispatch(setPage(1));
     dispatch(setSearch(localSearchTerm));
-    dispatch(setFilterType(localFilterType));
+    dispatch(setVerificationStatus(localVerificationStatus));
   };
 
   const handleClearSearch = () => {
     setLocalSearchTerm('');
-    setLocalFilterType('all');
+    setLocalVerificationStatus('all');
     dispatch(setSearch(''));
-    dispatch(setFilterType('all'));
+    dispatch(setVerificationStatus('all'));
     dispatch(setPage(1));
   };
 
@@ -82,11 +82,11 @@ console.log("object",totalUsers)
       try {
         const result = await dispatch(deactivateUser({ userId }));
         if (deactivateUser.fulfilled.match(result)) {
-          dispatch(fetchUsers({ 
-            page: currentPage, 
-            limit, 
-            search: searchTerm, 
-            filterType 
+          dispatch(fetchUsers({
+            page: currentPage,
+            limit,
+            search: searchTerm,
+            verificationStatus
           }));
         }
       } catch (error) {
@@ -105,11 +105,11 @@ console.log("object",totalUsers)
       try {
         const result = await dispatch(activateUser({ userId }));
         if (activateUser.fulfilled.match(result)) {
-          dispatch(fetchUsers({ 
-            page: currentPage, 
-            limit, 
-            search: searchTerm, 
-            filterType 
+          dispatch(fetchUsers({
+            page: currentPage,
+            limit,
+            search: searchTerm,
+            verificationStatus
           }));
         }
       } catch (error) {
@@ -159,11 +159,11 @@ console.log("object",totalUsers)
             </h3>
             <p className="mb-4 text-red-700 dark:text-red-300">{error}</p>
             <button
-              onClick={() => dispatch(fetchUsers({ 
-                page: currentPage, 
-                limit, 
-                search: searchTerm, 
-                filterType 
+              onClick={() => dispatch(fetchUsers({
+                page: currentPage,
+                limit,
+                search: searchTerm,
+                verificationStatus
               }))}
               className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
             >
@@ -191,11 +191,11 @@ console.log("object",totalUsers)
             </p>
           </div>
           <button
-            onClick={() => dispatch(fetchUsers({ 
-              page: currentPage, 
-              limit, 
-              search: searchTerm, 
-              filterType 
+            onClick={() => dispatch(fetchUsers({
+              page: currentPage,
+              limit,
+              search: searchTerm,
+              verificationStatus
             }))}
             className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] dark:bg-[#43bf79]"
           >
@@ -225,19 +225,19 @@ console.log("object",totalUsers)
               </div>
             </div>
 
-            {/* Filter Type Dropdown */}
+            {/* Verification Status Dropdown */}
             <div className="sm:w-48">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Filter By
+                Verification Status
               </label>
               <select
-                value={localFilterType}
-                onChange={(e) => setLocalFilterType(e.target.value)}
+                value={localVerificationStatus}
+                onChange={(e) => setLocalVerificationStatus(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 py-2 px-3 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
               >
-                <option value="all">All Fields</option>
-                <option value="name">Name Only</option>
-                <option value="email">Email Only</option>
+                <option value="all">All Users</option>
+                <option value="verified">Verified</option>
+                <option value="unverified">Unverified</option>
               </select>
             </div>
 
@@ -251,8 +251,8 @@ console.log("object",totalUsers)
                 <Search className="mr-2 h-4 w-4" />
                 Search
               </button>
-              
-              {(searchTerm || filterType !== 'all') && (
+
+              {(searchTerm || verificationStatus !== 'all') && (
                 <button
                   onClick={handleClearSearch}
                   disabled={loading}
@@ -265,7 +265,7 @@ console.log("object",totalUsers)
           </div>
 
           {/* Active Search Info */}
-          {(searchTerm || filterType !== 'all') && (
+          {(searchTerm || verificationStatus !== 'all') && (
             <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <span>Active filters:</span>
               {searchTerm && (
@@ -273,9 +273,9 @@ console.log("object",totalUsers)
                   Search: "{searchTerm}"
                 </span>
               )}
-              {filterType !== 'all' && (
+              {verificationStatus !== 'all' && (
                 <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                  Filter: {filterType === 'name' ? 'Name' : 'Email'}
+                  Status: {verificationStatus === 'verified' ? 'Verified' : 'Unverified'}
                 </span>
               )}
             </div>
@@ -559,8 +559,8 @@ console.log("object",totalUsers)
                         onClick={() => handlePageChange(page)}
                         disabled={loading}
                         className={`rounded-lg px-3 py-2 text-sm shadow-sm transition-all duration-200 ${currentPage === page
-                            ? "bg-[#02517b] font-semibold text-white dark:bg-[#43bf79] dark:text-gray-900"
-                            : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                          ? "bg-[#02517b] font-semibold text-white dark:bg-[#43bf79] dark:text-gray-900"
+                          : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                           } disabled:cursor-not-allowed disabled:opacity-50`}
                       >
                         {page}

@@ -24,7 +24,7 @@ interface UsersState {
   loading: boolean;
   error: string | null;
   searchTerm: string;
-  filterType: string;
+  verificationStatus: string;
 }
 
 const initialState: UsersState = {
@@ -38,22 +38,22 @@ const initialState: UsersState = {
   loading: false,
   error: null,
   searchTerm: "",
-  filterType: "all",
+  verificationStatus: "all",
 };
 
-// Async thunk for fetching users - UPDATED to include search parameters
+// Async thunk for fetching users - UPDATED to include search and verification status parameters
 export const fetchUsers = createAsyncThunk(
   'users/fetchUsers',
-  async ({ 
-    page, 
-    limit, 
-    search = "", 
-    filterType = "all" 
-  }: { 
-    page: number; 
+  async ({
+    page,
+    limit,
+    search = "",
+    verificationStatus = "all"
+  }: {
+    page: number;
     limit: number;
     search?: string;
-    filterType?: string;
+    verificationStatus?: string;
   }, { rejectWithValue }) => {
     try {
       // Build query parameters
@@ -65,10 +65,18 @@ export const fetchUsers = createAsyncThunk(
       // Add search parameters if they exist
       if (search) {
         params.append('search', search);
-        params.append('filterType', filterType);
       }
 
+      // Add verification status filter if not 'all'
+      if (verificationStatus && verificationStatus !== 'all') {
+        // Convert to boolean value for the API
+        const isVerified = verificationStatus === 'verified';
+        params.append('verifyUser', isVerified.toString());
+      }
+
+      console.log('API URL:', `user/get-all-details-admin?${params.toString()}`);
       const res = await reduxApiClient.get(`user/get-all-details-admin?${params.toString()}`);
+      console.log('API Response:', res.data);
       return {
         users: res.data.data.users || [],
         totalPages: res.data?.data?.totalPages || 0,
@@ -78,7 +86,7 @@ export const fetchUsers = createAsyncThunk(
         inactiveUsers: res.data?.data?.inactiveUsers || 0,
         filteredUsersCount: res.data?.data?.filteredUsersCount || 0,
         searchTerm: search,
-        filterType: filterType,
+        verificationStatus: verificationStatus,
       };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch users');
@@ -96,8 +104,8 @@ const usersSlice = createSlice({
     setSearch: (state, action: PayloadAction<string>) => {
       state.searchTerm = action.payload;
     },
-    setFilterType: (state, action: PayloadAction<string>) => {
-      state.filterType = action.payload;
+    setVerificationStatus: (state, action: PayloadAction<string>) => {
+      state.verificationStatus = action.payload;
     },
     setTotalUsers: (state, action: PayloadAction<number>) => {
       state.totalUsers = action.payload;
@@ -114,7 +122,7 @@ const usersSlice = createSlice({
     // Optional: Add a clearSearch action
     clearSearch: (state) => {
       state.searchTerm = "";
-      state.filterType = "all";
+      state.verificationStatus = "all";
     },
     // Reset all user counts
     resetUserCounts: (state) => {
@@ -140,7 +148,7 @@ const usersSlice = createSlice({
         state.inactiveUsers = action.payload.inactiveUsers;
         state.filteredUsersCount = action.payload.filteredUsersCount;
         state.searchTerm = action.payload.searchTerm;
-        state.filterType = action.payload.filterType;
+        state.verificationStatus = action.payload.verificationStatus;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
@@ -149,14 +157,14 @@ const usersSlice = createSlice({
   },
 });
 
-export const { 
-  setPage, 
-  setSearch, 
-  setFilterType, 
+export const {
+  setPage,
+  setSearch,
+  setVerificationStatus,
   setTotalUsers,
   setActiveUsers,
   setInactiveUsers,
-  clearError, 
+  clearError,
   clearSearch,
   resetUserCounts
 } = usersSlice.actions;
