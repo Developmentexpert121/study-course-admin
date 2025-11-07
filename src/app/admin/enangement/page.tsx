@@ -18,11 +18,18 @@ import {
   FileText,
   EyeOff,
   FileBadge,
+  Plus,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import { useApiClient } from "@/lib/api";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import StatCard from "@/app/ui-elements/StatCard";
+import SafeHtmlRenderer from "@/components/SafeHtmlRenderer";
 
 interface Course {
   id: number;
@@ -41,6 +48,13 @@ interface Stats {
   certificates_issued: number;
 }
 
+interface PaginationData {
+  total: number;
+  page: number;
+  totalPages: number;
+  courses: Course[];
+}
+
 const CourseManagementDashboard: React.FC = () => {
   const api = useApiClient();
 
@@ -53,28 +67,37 @@ const CourseManagementDashboard: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive" | "draft">("all");
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "inactive" | "draft"
+  >("all");
+
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 9, // You can adjust this as needed
+  });
 
   useEffect(() => {
-    // Check system preference for dark mode
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDarkMode(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
-    mediaQuery.addEventListener("change", handleChange);
-
     fetchCourses();
     fetchStats();
-
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  }, [pagination.currentPage]); // Refetch when page changes
 
   const fetchCourses = async () => {
     try {
-      const response = await api.get("course/admin/all-courses");
+      setLoading(true);
+      const response = await api.get(
+        `course/list?page=${pagination.currentPage}&limit=${pagination.itemsPerPage}`,
+      );
       if (response?.data.success) {
-        setCourses(response?.data.data.courses);
+        const data: PaginationData = response.data.data;
+        setCourses(data.courses);
+        setPagination((prev) => ({
+          ...prev,
+          totalPages: data.totalPages,
+          totalItems: data.total,
+        }));
       }
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -105,20 +128,51 @@ const CourseManagementDashboard: React.FC = () => {
     }
   };
 
-  const filteredCourses = courses.filter(
-    (course) => {
-      const matchesSearch =
-        course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.category.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === "all" || course.status === statusFilter;
-      return matchesSearch && matchesStatus;
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setPagination((prev) => ({ ...prev, currentPage: newPage }));
     }
-  );
+  };
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(
+      1,
+      pagination.currentPage - Math.floor(maxVisiblePages / 2),
+    );
+    let endPage = Math.min(
+      pagination.totalPages,
+      startPage + maxVisiblePages - 1,
+    );
+
+    // Adjust start page if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
+
+  const filteredCourses = courses.filter((course) => {
+    const matchesSearch =
+      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || course.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   if (loading) {
     return (
       <div
-        className={`flex min-h-screen items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+        className={`flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900`}
       >
         <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
       </div>
@@ -128,175 +182,286 @@ const CourseManagementDashboard: React.FC = () => {
   return (
     <div
       className={
-        "grid overflow-auto rounded-[10px] px-7.5 pb-4 pt-7.5 dark:bg-gray-dark "
+        "min-h-screen overflow-auto bg-gray-50 px-6 pb-8 pt-6 dark:bg-gray-900"
       }
     >
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
-            <FileBadge className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />
-            Courses
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-white">
-            View and manage all Courses
-          </p>
+      <div className="mb-8">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+                <FileBadge className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  Courses
+                </h1>
+                <p className="mt-1 text-gray-600 dark:text-gray-300">
+                  View and manage all courses in your platform
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* Add Course Button */}
-        <Link
-          href={"/admin/courses/add-courses"}
-          className="rounded-lg bg-[#02517b] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#013d5b] sm:w-auto"
-        >
-          + Add Course
-        </Link>
       </div>
 
-
-      {/* Search and Filter */}
+      {/* Search and Filter Section */}
       <div
-        className={`mb-6 rounded-lg border p-6 shadow-sm transition-colors duration-200 ${isDarkMode
-          ? "border-gray-700 bg-gray-800"
-          : "border-gray-200 bg-white"
-          }`}
+        className={`bg-white-800 shadow-gray-900/50bg-white mb-8 rounded-2xl p-6 shadow-sm shadow-gray-200/60 transition-colors duration-200`}
       >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
           {/* Search Input */}
           <div className="flex-1">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Search Courses
+            </label>
             <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="search"
-                placeholder="Search courses..."
+                placeholder="Search by course title or category..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
+                    setPagination((prev) => ({ ...prev, currentPage: 1 }));
                     fetchCourses();
                   }
                 }}
-                className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-12 pr-4 text-sm text-gray-900 shadow-sm outline-none focus:border-[#02517b] focus:ring-1 focus:ring-[#02517b] dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
+                className="w-full rounded-xl border border-gray-300 bg-gray-50 py-3 pl-12 pr-4 text-sm text-gray-900 shadow-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
               />
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
             </div>
           </div>
 
           {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(
-                e.target.value as "all" | "active" | "inactive" | "draft",
-              )
-            }
-            className="rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-700 shadow-sm outline-none focus:border-[#02517b] focus:ring-1 focus:ring-[#02517b] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-          >
-            <option value="all">All Courses</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="draft">Draft</option>
-          </select>
+          <div className="lg:w-48">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Filter by Status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(
+                  e.target.value as "all" | "active" | "inactive" | "draft",
+                );
+                setPagination((prev) => ({ ...prev, currentPage: 1 }));
+              }}
+              className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 shadow-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="all">All Courses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={fetchCourses}
-              className="inline-flex items-center justify-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#43bf79] dark:hover:bg-[#43bf7999]"
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </button>
-
-            {(searchTerm || statusFilter !== 'all') && (
+          <div className="flex gap-3 pt-2 lg:pt-0">
+            {(searchTerm || statusFilter !== "all") && (
               <button
                 onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('all');
+                  setSearchTerm("");
+                  setStatusFilter("all");
+                  setPagination((prev) => ({ ...prev, currentPage: 1 }));
                 }}
-                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-6 py-3 font-medium text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
               >
+                <X className="h-4 w-4" />
                 Clear
               </button>
             )}
           </div>
-
-
         </div>
 
         {/* Active Filters Display */}
-        {(searchTerm || statusFilter !== 'all') && (
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <span>Active filters:</span>
+        {(searchTerm || statusFilter !== "all") && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Active filters:
+            </span>
             {searchTerm && (
-              <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                 Search: "{searchTerm}"
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="ml-1 rounded-full p-0.5 hover:bg-blue-200 dark:hover:bg-blue-800/50"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </span>
             )}
-            {statusFilter !== 'all' && (
-              <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
+            {statusFilter !== "all" && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
                 Status: {statusFilter}
+                <button
+                  onClick={() => setStatusFilter("all")}
+                  className="ml-1 rounded-full p-0.5 hover:bg-green-200 dark:hover:bg-green-800/50"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </span>
             )}
           </div>
         )}
       </div>
 
-
       {/* Stats Cards */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Courses" value={courses.length} icon={BookOpen} color="blue" />
-        <StatCard title="Active" value={courses.filter(c => c.status === "active").length} icon={CheckCircle} color="green" />
-        <StatCard title="Draft" value={courses.filter(c => c.status === "draft").length} icon={FileText} color="yellow" />
-        <StatCard title="Inactive" value={courses.filter(c => c.status === "inactive").length} icon={EyeOff} color="red" />
+      <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Courses"
+          value={pagination.totalItems}
+          icon={BookOpen}
+          color="blue"
+          gradient="from-blue-500 to-blue-600"
+        />
+        <StatCard
+          title="Active Courses"
+          value={courses.filter((c) => c.status === "active").length}
+          icon={CheckCircle}
+          color="green"
+          gradient="from-green-500 to-green-600"
+        />
+        <StatCard
+          title="Draft Courses"
+          value={courses.filter((c) => c.status === "draft").length}
+          icon={FileText}
+          color="yellow"
+          gradient="from-amber-500 to-amber-600"
+        />
+        <StatCard
+          title="Inactive Courses"
+          value={courses.filter((c) => c.status === "inactive").length}
+          icon={EyeOff}
+          color="red"
+          gradient="from-red-500 to-red-600"
+        />
       </div>
 
       {/* Courses Grid */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {filteredCourses.map((course) => (
-          <CourseCard
-            key={course.id}
-            course={course}
-            isDarkMode={isDarkMode}
-          />
+          <CourseCard key={course.id} course={course} />
         ))}
       </div>
 
       {filteredCourses.length === 0 && (
-        <div className="py-12 text-center">
-          <BookOpen
-            className={`mx-auto h-12 w-12 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`}
-          />
-          <h3 className="mt-2 text-sm font-medium">No courses found</h3>
-          <p
-            className={`mt-1 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
-          >
-            {searchTerm
-              ? "Try adjusting your search terms"
-              : "Get started by creating a new course"}
+        <div className="flex flex-col items-center justify-center rounded-2xl bg-white py-16 shadow-sm dark:bg-gray-800">
+          <div className="mb-4 rounded-full bg-gray-100 p-6 dark:bg-gray-700">
+            <BookOpen className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+          </div>
+          <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+            No courses found
+          </h3>
+          <p className="max-w-sm text-center text-gray-600 dark:text-gray-400">
+            {searchTerm || statusFilter !== "all"
+              ? "Try adjusting your search terms or filters to find what you're looking for."
+              : "Get started by creating your first course to build your learning platform."}
           </p>
+          {!searchTerm && statusFilter === "all" && (
+            <Link
+              href={"/admin/courses/add-courses"}
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition-all duration-200 hover:bg-blue-700"
+            >
+              <Plus className="h-5 w-5" />
+              Create Your First Course
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Pagination Component */}
+      {pagination.totalPages > 1 && (
+        <div className="mt-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Showing{" "}
+            <span className="font-semibold text-gray-900 dark:text-white">
+              {(pagination.currentPage - 1) * pagination.itemsPerPage + 1}-
+              {Math.min(
+                pagination.currentPage * pagination.itemsPerPage,
+                pagination.totalItems,
+              )}
+            </span>{" "}
+            of{" "}
+            <span className="font-semibold text-gray-900 dark:text-white">
+              {pagination.totalItems}
+            </span>{" "}
+            courses
+          </div>
+
+          <div className="flex items-center gap-1">
+            {/* First Page */}
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={pagination.currentPage === 1}
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 transition-all duration-200 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </button>
+
+            {/* Previous Page */}
+            <button
+              onClick={() => handlePageChange(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 1}
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 transition-all duration-200 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
+            {/* Page Numbers */}
+            {getPageNumbers().map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-medium transition-all duration-200 ${
+                  page === pagination.currentPage
+                    ? "border-blue-600 bg-blue-600 text-white"
+                    : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            {/* Next Page */}
+            <button
+              onClick={() => handlePageChange(pagination.currentPage + 1)}
+              disabled={pagination.currentPage === pagination.totalPages}
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 transition-all duration-200 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+
+            {/* Last Page */}
+            <button
+              onClick={() => handlePageChange(pagination.totalPages)}
+              disabled={pagination.currentPage === pagination.totalPages}
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 transition-all duration-200 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-const CourseCard: React.FC<{ course: Course; isDarkMode: boolean }> = ({
-  course,
-  isDarkMode,
-}) => {
+const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
   const [showMenu, setShowMenu] = useState(false);
 
   const statusColors = {
     active: {
-      light: "bg-green-100 text-green-800",
-      dark: "bg-green-900/30 text-green-400",
+      light: "bg-green-100 text-green-800 border-green-200",
+      dark: "bg-green-900/30 text-green-400 border-green-800",
     },
     inactive: {
-      light: "bg-red-100 text-red-800",
-      dark: "bg-red-900/30 text-red-400",
+      light: "bg-red-100 text-red-800 border-red-200",
+      dark: "bg-red-900/30 text-red-400 border-red-800",
     },
     draft: {
-      light: "bg-yellow-100 text-yellow-800",
-      dark: "bg-yellow-900/30 text-yellow-400",
+      light: "bg-amber-100 text-amber-800 border-amber-200",
+      dark: "bg-amber-900/30 text-amber-400 border-amber-800",
     },
   };
 
@@ -308,92 +473,54 @@ const CourseCard: React.FC<{ course: Course; isDarkMode: boolean }> = ({
     window.location.href = `/admin/enangement/certificates?id=${course.id}`;
   };
 
-  const currentStatusColor = isDarkMode
-    ? statusColors[course.status].dark
-    : statusColors[course.status].light;
-
   return (
     <div
-      className={`group rounded-xl border shadow-sm transition-all duration-300 hover:shadow-xl ${isDarkMode
-        ? "border-gray-700 bg-gray-800 hover:border-gray-600"
-        : "border-gray-200 bg-white hover:border-gray-300"
-        }`}
+      className={`group relative overflow-hidden rounded-2xl border-2 border-gray-700 shadow-lg transition-all duration-300 hover:border-gray-600 hover:shadow-2xl dark:bg-gray-800`}
     >
+      {/* Gradient Top Border */}
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500" />
+
       <div className="p-6">
         <div className="mb-4 flex items-start justify-between">
-          <div className="flex-1">
-            <h3 className="line-clamp-2 text-lg font-semibold transition-colors duration-200 group-hover:text-blue-600">
+          <div className="flex-1 pr-4">
+            <h3 className="line-clamp-2 text-xl font-bold text-gray-900 transition-colors duration-200 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
               {course.title}
             </h3>
           </div>
-          <div className="relative ml-2">
-            <button
-              onClick={() => setShowMenu(!showMenu)}
-              className={`rounded-lg p-1 transition-colors duration-200 ${isDarkMode
-                ? "text-gray-400 hover:bg-gray-700"
-                : "text-gray-500 hover:bg-gray-100"
-                }`}
-            >
-              <MoreVertical className="h-4 w-4" />
-            </button>
-            {showMenu && (
-              <div
-                className={`absolute right-0 top-8 z-10 w-48 rounded-lg border py-1 shadow-lg ${isDarkMode
-                  ? "border-gray-700 bg-gray-800"
-                  : "border-gray-200 bg-white"
-                  }`}
-              >
-                <button
-                  className={`flex w-full items-center px-3 py-2 text-sm transition-colors duration-200 ${isDarkMode
-                    ? "text-gray-200 hover:bg-gray-700"
-                    : "text-gray-700 hover:bg-gray-50"
-                    }`}
-                >
-                  <Eye className="mr-2 h-4 w-4" />
-                  View Details
-                </button>
-                <button
-                  className={`flex w-full items-center px-3 py-2 text-sm transition-colors duration-200 ${isDarkMode
-                    ? "text-gray-200 hover:bg-gray-700"
-                    : "text-gray-700 hover:bg-gray-50"
-                    }`}
-                >
-                  <Settings className="mr-2 h-4 w-4" />
-                  Edit Course
-                </button>
-              </div>
-            )}
-          </div>
+          <div className="relative"></div>
         </div>
 
         <div className="mb-4">
           <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${currentStatusColor}`}
+            className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold`}
           >
-            {course.status}
+            <div
+              className={`mr-2 h-2 w-2 rounded-full ${course.status === "active" ? "bg-green-500" : course.status === "inactive" ? "bg-red-500" : "bg-amber-500"}`}
+            />
+            {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
           </span>
         </div>
 
-        <p
-          className={`mb-4 line-clamp-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"
-            }`}
+        <div
+          className={`mb-6 line-clamp-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300`}
         >
-          {course.description}
-        </p>
+          <SafeHtmlRenderer
+            html={course.description}
+            maxLength={100}
+            className="text-sm leading-6"
+            showMoreButton={false}
+          />
+        </div>
 
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between">
           <span
-            className={`flex items-center ${isDarkMode ? "text-gray-400" : "text-gray-500"
-              }`}
+            className={`flex items-center text-sm font-medium text-gray-500 dark:text-gray-400`}
           >
-            <Users className="mr-1 h-4 w-4" />
+            <Users className="mr-2 h-4 w-4" />
             {course.enrollment_count} enrolled
           </span>
           <span
-            className={`rounded px-2 py-1 text-xs ${isDarkMode
-              ? "bg-gray-700 text-gray-300"
-              : "bg-gray-100 text-gray-700"
-              }`}
+            className={`text-black-300 rounded-xl bg-gray-200 px-3 py-1 text-xs font-medium dark:bg-gray-700 dark:text-gray-700`}
           >
             {course.category}
           </span>
@@ -401,29 +528,24 @@ const CourseCard: React.FC<{ course: Course; isDarkMode: boolean }> = ({
       </div>
 
       <div
-        className={`rounded-b-xl border-t px-6 py-4 transition-colors duration-200 ${isDarkMode
-          ? "border-gray-700 bg-gray-800/50"
-          : "border-gray-200 bg-gray-50"
-          }`}
+        className={`border-t border-gray-100 bg-gray-50 bg-gray-800/50 px-6 py-4 transition-colors duration-200 dark:border-gray-700`}
       >
-        <div className="flex space-x-3">
+        <div className="flex gap-3">
           <button
             onClick={handleViewUsers}
-            className={`inline-flex flex-1 items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 ${isDarkMode
-              ? "border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600"
-              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-              }`}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-105 hover:bg-blue-700 hover:shadow-lg active:scale-95"
           >
-            <Users className="mr-2 h-4 w-4" />
+            <Users className="h-4 w-4" />
             Users
           </button>
-          <button
+
+          {/* <button
             onClick={handleViewCertificates}
-            className="inline-flex flex-1 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-3 py-2 text-sm font-medium text-white transition-all duration-200 hover:scale-105 hover:shadow-lg"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
           >
-            <Award className="mr-2 h-4 w-4" />
+            <Award className="h-4 w-4" />
             Certificates
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

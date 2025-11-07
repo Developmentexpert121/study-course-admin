@@ -21,7 +21,14 @@ import {
 } from "lucide-react";
 import { useApiClient } from "@/lib/api";
 import StatCard from "@/app/ui-elements/StatCard";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 
 const CourseUsersManagement: React.FC = () => {
   const api = useApiClient();
@@ -33,10 +40,6 @@ const CourseUsersManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<any>("");
   const [progressFilter, setProgressFilter] = useState<string>("all");
   const [actionLoading, setActionLoading] = useState<number | null>(null);
-  const [notification, setNotification] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -44,7 +47,7 @@ const CourseUsersManagement: React.FC = () => {
     if (id) {
       setCourseId(id);
     } else {
-      showNotification("error", "No course ID provided");
+      console.log("error", "No course ID provided");
     }
   }, []);
 
@@ -54,11 +57,6 @@ const CourseUsersManagement: React.FC = () => {
     }
   }, [courseId]);
 
-  const showNotification = (type: "success" | "error", message: string) => {
-    setNotification({ type, message });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
   const fetchCourseUsers = async () => {
     try {
       setLoading(true);
@@ -67,15 +65,27 @@ const CourseUsersManagement: React.FC = () => {
       );
 
       if (response?.data.success) {
-        setUsers(response?.data.data.users);
-        setCourse(response?.data.data.course);
-        showNotification("success", "Users data loaded successfully");
+        const usersData = response.data.data.users;
+
+        // Transform the data to match component expectations
+        const transformedUsers = usersData.map((user: any) => ({
+          ...user,
+          // Add is_completed for backward compatibility
+          progress: {
+            ...user.progress,
+            is_completed: user.progress.course_completed,
+          },
+        }));
+
+        setUsers(transformedUsers);
+        setCourse(response.data.data.course);
+        toasterSuccess("Users data loaded successfully", 2000, "id");
       } else {
-        showNotification("error", "Failed to load users data");
+        toasterError("Failed to load users data", 2000, "id");
       }
     } catch (error) {
       console.error("Error fetching course users:", error);
-      showNotification("error", "Error loading users data");
+      toasterError("Failed to load users data", 2000, "id");
     } finally {
       setLoading(false);
     }
@@ -88,9 +98,9 @@ const CourseUsersManagement: React.FC = () => {
 
     const matchesProgress =
       progressFilter === "all" ||
-      (progressFilter === "completed" && user.progress.is_completed) ||
+      (progressFilter === "completed" && user.progress.course_completed) ||
       (progressFilter === "in_progress" &&
-        !user.progress.is_completed &&
+        !user.progress.course_completed &&
         user.progress.overall_progress > 0) ||
       (progressFilter === "not_started" &&
         user.progress.overall_progress === 0);
@@ -98,12 +108,12 @@ const CourseUsersManagement: React.FC = () => {
     return matchesSearch && matchesProgress;
   });
 
-  // Calculate summary statistics
+  // Calculate summary statistics based on actual data
   const summary = {
     total_enrolled: users.length,
-    completed_course: users.filter((u) => u.progress.is_completed).length,
+    completed_course: users.filter((u) => u.progress.course_completed).length,
     in_progress: users.filter(
-      (u) => !u.progress.is_completed && u.progress.overall_progress > 0,
+      (u) => !u.progress.course_completed && u.progress.overall_progress > 0,
     ).length,
     not_started: users.filter((u) => u.progress.overall_progress === 0).length,
     certificates_issued: users.filter((u) => u.certificate).length,
@@ -115,25 +125,28 @@ const CourseUsersManagement: React.FC = () => {
   ) => {
     setActionLoading(userId);
     try {
-      const response = await fetch(
+      const response = await api.post(
         `certificate/admin/courses/${courseId}/users/${userId}/generate-certificate`,
-        {
-          method: "POST",
-        },
+        {},
       );
-      const data = await response.json();
-      if (data.success) {
-        showNotification("success", `Certificate generated for ${userName}`);
+
+      if (response?.data.success) {
+        toasterSuccess(`Certificate generated for ${userName}`, 2000, "id");
         await fetchCourseUsers();
       } else {
-        showNotification(
-          "error",
-          data.message || "Failed to generate certificate",
+        toasterError(
+          response?.data.message || "Failed to generate certificate",
+          2000,
+          "id",
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating certificate:", error);
-      showNotification("error", "Error generating certificate");
+      toasterError(
+        error.response?.data?.message || "Failed to generate certificate",
+        2000,
+        "id",
+      );
     } finally {
       setActionLoading(null);
     }
@@ -151,17 +164,22 @@ const CourseUsersManagement: React.FC = () => {
       );
 
       if (response?.data.success) {
-        showNotification("success", `Certificate email sent to ${userName}`);
+        toasterSuccess(`Certificate email sent to ${userName}`, 2000, "id");
         await fetchCourseUsers();
       } else {
-        showNotification(
-          "error",
+        toasterError(
           response?.data.message || "Failed to send email",
+          2000,
+          "id",
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending certificate email:", error);
-      showNotification("error", "Error sending email");
+      toasterError(
+        error.response?.data?.message || "Failed to send email",
+        2000,
+        "id",
+      );
     } finally {
       setActionLoading(null);
     }
@@ -175,14 +193,15 @@ const CourseUsersManagement: React.FC = () => {
     try {
       const link = document.createElement("a");
       link.href = certificateUrl;
-      link.download = `certificate_${certificateCode}.pdf`;
+      link.download = `certificate_${certificateCode}_${userName.replace(/\s+/g, "_")}.pdf`;
+      link.target = "_blank"; // Open in new tab for better UX
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      showNotification("success", `Certificate downloaded for ${userName}`);
+      toasterSuccess(`Certificate downloaded for ${userName}`, 2000, "id");
     } catch (error) {
       console.error("Error downloading certificate:", error);
-      showNotification("error", "Error downloading certificate");
+      toasterError("Failed to download certificate", 2000, "id");
     }
   };
 
@@ -209,18 +228,6 @@ const CourseUsersManagement: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Notification */}
-      {notification && (
-        <div
-          className={`fixed right-4 top-4 z-50 rounded-lg p-4 shadow-lg ${notification.type === "success"
-            ? "bg-green-500 text-white"
-            : "bg-red-500 text-white"
-            }`}
-        >
-          {notification.message}
-        </div>
-      )}
-
       {/* Header */}
       <div className="border-b bg-white shadow-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -230,7 +237,7 @@ const CourseUsersManagement: React.FC = () => {
               className="mb-4 inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700"
             >
               <ChevronLeft className="mr-1 h-4 w-4" />
-              Back to Enangement
+              Back to Dashboard
             </button>
 
             <div className="flex items-center justify-between">
@@ -241,6 +248,20 @@ const CourseUsersManagement: React.FC = () => {
                 <p className="mt-1 text-gray-600">
                   Manage enrolled users and certificates
                 </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                    <Users className="mr-1 h-3 w-3" />
+                    {summary.total_enrolled} Enrolled
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                    <CheckCircle className="mr-1 h-3 w-3" />
+                    {summary.completed_course} Completed
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800">
+                    <Award className="mr-1 h-3 w-3" />
+                    {summary.certificates_issued} Certificates
+                  </span>
+                </div>
               </div>
               <div className="flex items-center space-x-3">
                 <button
@@ -260,8 +281,6 @@ const CourseUsersManagement: React.FC = () => {
       </div>
 
       {/* Stats and Filters */}
-
-
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Filters */}
         <div className="mb-6 rounded-lg border bg-white p-6 shadow-sm">
@@ -291,16 +310,34 @@ const CourseUsersManagement: React.FC = () => {
             </select>
           </div>
         </div>
+
         {/* Quick Stats */}
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <StatCard title="Total Courses" value={summary.total_enrolled} icon={Users} color="blue" />
-          <StatCard title="Active" value={summary.completed_course} icon={UserCheck} color="green" />
-          <StatCard title="Draft" value={summary.in_progress} icon={PlayCircle} color="yellow" />
-          <StatCard title="Inactive" value={summary.certificates_issued} icon={Award} color="purple" />
-
+          <StatCard
+            title="Total Enrolled"
+            value={summary.total_enrolled}
+            icon={Users}
+            color="blue"
+          />
+          <StatCard
+            title="Course Completed"
+            value={summary.completed_course}
+            icon={UserCheck}
+            color="green"
+          />
+          <StatCard
+            title="In Progress"
+            value={summary.in_progress}
+            icon={PlayCircle}
+            color="yellow"
+          />
+          <StatCard
+            title="Certificates Issued"
+            value={summary.certificates_issued}
+            icon={Award}
+            color="purple"
+          />
         </div>
-
-
 
         {/* Users Table */}
         <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
@@ -346,8 +383,8 @@ const CourseUsersManagement: React.FC = () => {
                 No users found
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {searchTerm
-                  ? "Try adjusting your search terms"
+                {searchTerm || progressFilter !== "all"
+                  ? "Try adjusting your search terms or filters"
                   : "No users enrolled in this course"}
               </p>
             </div>
@@ -357,8 +394,6 @@ const CourseUsersManagement: React.FC = () => {
     </div>
   );
 };
-
-
 
 const UserRow: React.FC<{
   userProgress: any;
@@ -377,134 +412,198 @@ const UserRow: React.FC<{
   getProgressColor,
   getProgressIcon,
 }) => {
-    const { user, progress, certificate, actions } = userProgress;
+  const { user, progress, certificate, actions } = userProgress;
 
-    return (
-      <TableRow className="transition-colors duration-150 hover:bg-gray-50">
-        {/* User Info */}
-        <td className="whitespace-nowrap px-6 py-4">
-          <div className="flex items-center">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-medium text-white">
-              {user.profileImage ? (
-                <img
-                  className="h-10 w-10 rounded-full"
-                  src={user.profileImage}
-                  alt={user.fullName}
-                />
-              ) : (
-                user.fullName
-                  .split(" ")
-                  .map((n: any) => n[0])
-                  .join("")
-                  .toUpperCase()
-                  .substring(0, 2)
-              )}
+  // FIX: Always allow download and email if certificate exists and is issued
+  const canDownload = certificate && certificate.status === "issued";
+  const canSendEmail = certificate && certificate.status === "issued";
+  const canGenerate = progress.course_completed && !certificate;
+
+  console.log("UserRow Debug:", {
+    user: user.fullName,
+    courseCompleted: progress.course_completed,
+    certificateExists: !!certificate,
+    certificateStatus: certificate?.status,
+    canDownload,
+    canSendEmail,
+    canGenerate,
+    backendActions: actions,
+  });
+
+  return (
+    <TableRow className="transition-colors duration-150 hover:bg-gray-50">
+      {/* User Info */}
+      <td className="whitespace-nowrap px-6 py-4">
+        <div className="flex items-center">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-medium text-white">
+            {user.profileImage ? (
+              <img
+                className="h-10 w-10 rounded-full"
+                src={user.profileImage}
+                alt={user.fullName}
+              />
+            ) : (
+              user.fullName
+                .split(" ")
+                .map((n: any) => n[0])
+                .join("")
+                .toUpperCase()
+                .substring(0, 2)
+            )}
+          </div>
+          <div className="ml-4">
+            <div className="text-sm font-medium text-gray-900">
+              {user.fullName}
             </div>
-            <div className="ml-4">
-              <div className="text-sm font-medium text-gray-900">
-                {user.fullName}
-              </div>
-              <div className="text-sm text-gray-500">{user.email}</div>
+            <div className="text-sm text-gray-500">{user.email}</div>
+            <div className="text-xs text-gray-400">
+              Enrolled:{" "}
+              {new Date(
+                userProgress.enrollment.enrolled_at,
+              ).toLocaleDateString()}
             </div>
           </div>
-        </td>
+        </div>
+      </td>
 
-        {/* Progress */}
-        <td className="whitespace-nowrap px-6 py-4">
-          <div className="flex items-center">
-            {getProgressIcon(progress.overall_progress, progress.is_completed)}
-            <div className="mx-3 h-2 w-32 rounded-full bg-gray-200">
-              <div
-                className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(progress.overall_progress)}`}
-                style={{ width: `${progress.overall_progress}%` }}
-              ></div>
-            </div>
-            <span className="min-w-12 text-sm font-medium text-gray-900">
-              {progress.overall_progress}%
-            </span>
-          </div>
-          <div className="mt-1 text-xs text-gray-500">
-            {progress.completed_chapters}/{progress.total_chapters} chapters
-          </div>
-        </td>
-
-        {/* Certificate Status */}
-        <td className="whitespace-nowrap px-6 py-4">
-          {certificate ? (
-            <div className="flex items-center">
-              <Award className="mr-2 h-4 w-4 text-green-600" />
-              <div>
-                <div className="text-sm font-medium text-gray-900">Issued</div>
-                <div className="text-xs text-gray-500">
-                  {new Date(certificate.issued_date).toLocaleDateString()}
-                </div>
-              </div>
-            </div>
-          ) : progress.is_completed ? (
-            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
-              <Award className="mr-1 h-3 w-3" />
-              Ready to Issue
-            </span>
-          ) : (
-            <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-              <Clock className="mr-1 h-3 w-3" />
-              In Progress
-            </span>
+      {/* Progress */}
+      <td className="whitespace-nowrap px-6 py-4">
+        <div className="flex items-center">
+          {getProgressIcon(
+            progress.overall_progress,
+            progress.course_completed,
           )}
-        </td>
-
-        {/* Actions */}
-        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-          <div className="flex items-center space-x-2">
-            {actions.can_generate_certificate && (
-              <button
-                onClick={() => onGenerateCertificate(user.id, user.fullName)}
-                disabled={actionLoading === user.id}
-                className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:opacity-50"
-              >
-                {actionLoading === user.id ? (
-                  <div className="mr-1 h-3 w-3 animate-spin rounded-full border-b-2 border-white"></div>
-                ) : (
-                  <Award className="mr-1 h-3 w-3" />
-                )}
-                Generate
-              </button>
-            )}
-
-            {actions.can_download_certificate && certificate && (
-              <button
-                onClick={() =>
-                  onDownloadCertificate(
-                    certificate.certificate_url,
-                    certificate.certificate_code,
-                    user.fullName,
-                  )
-                }
-                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50"
-              >
-                <Download className="mr-1 h-3 w-3" />
-                Download
-              </button>
-            )}
-
-            {actions.can_send_certificate && certificate && (
-              <button
-                onClick={() => onSendEmail(certificate.id, user.fullName)}
-                disabled={actionLoading === certificate.id}
-                className="inline-flex items-center rounded-md border border-transparent bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-green-700 disabled:opacity-50"
-              >
-                {actionLoading === certificate.id ? (
-                  <div className="mr-1 h-3 w-3 animate-spin rounded-full border-b-2 border-white"></div>
-                ) : (
-                  <Send className="mr-1 h-3 w-3" />
-                )}
-                Email
-              </button>
-            )}
+          <div className="mx-3 h-2 w-32 rounded-full bg-gray-200">
+            <div
+              className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(progress.overall_progress)}`}
+              style={{ width: `${progress.overall_progress}%` }}
+            ></div>
           </div>
-        </td>
-      </TableRow>
-    );
-  };
+          <span className="min-w-12 text-sm font-medium text-gray-900">
+            {progress.overall_progress}%
+          </span>
+        </div>
+        <div className="mt-1 text-xs text-gray-500">
+          {progress.completed_chapters}/{progress.total_chapters} chapters
+          {progress.course_completed && (
+            <span className="ml-2 text-green-600">✓ Completed</span>
+          )}
+        </div>
+      </td>
+
+      {/* Certificate Status */}
+      <td className="whitespace-nowrap px-6 py-4">
+        {certificate ? (
+          <div className="flex items-center">
+            <Award className="mr-2 h-4 w-4 text-green-600" />
+            <div>
+              <div className="text-sm font-medium text-gray-900">Issued</div>
+              <div className="text-xs text-gray-500">
+                {new Date(certificate.issued_date).toLocaleDateString()}
+              </div>
+              <div className="text-xs text-gray-400">
+                Code: {certificate.certificate_code}
+              </div>
+            </div>
+          </div>
+        ) : progress.course_completed ? (
+          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+            <Award className="mr-1 h-3 w-3" />
+            Ready to Issue
+          </span>
+        ) : (
+          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+            <Clock className="mr-1 h-3 w-3" />
+            In Progress
+          </span>
+        )}
+      </td>
+
+      {/* Actions - FIXED: Use frontend logic instead of backend actions */}
+      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
+        <div className="flex items-center space-x-2">
+          {/* Generate Certificate Button */}
+          {canGenerate && (
+            <button
+              onClick={() => onGenerateCertificate(user.id, user.fullName)}
+              disabled={actionLoading === user.id}
+              className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:opacity-50"
+            >
+              {actionLoading === user.id ? (
+                <div className="mr-1 h-3 w-3 animate-spin rounded-full border-b-2 border-white"></div>
+              ) : (
+                <Award className="mr-1 h-3 w-3" />
+              )}
+              Generate
+            </button>
+          )}
+
+          {/* Download Certificate Button - ALWAYS SHOW IF CERTIFICATE EXISTS */}
+          {canDownload && (
+            <button
+              onClick={() =>
+                onDownloadCertificate(
+                  certificate.certificate_url,
+                  certificate.certificate_code,
+                  user.fullName,
+                )
+              }
+              className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50"
+            >
+              <Download className="mr-1 h-3 w-3" />
+              Download
+            </button>
+          )}
+
+          {/* Send Email Button - ALWAYS SHOW IF CERTIFICATE EXISTS */}
+          {canSendEmail && (
+            <button
+              onClick={() => onSendEmail(certificate.id, user.fullName)}
+              disabled={actionLoading === certificate.id}
+              className="inline-flex items-center rounded-md border border-transparent bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-green-700 disabled:opacity-50"
+            >
+              {actionLoading === certificate.id ? (
+                <div className="mr-1 h-3 w-3 animate-spin rounded-full border-b-2 border-white"></div>
+              ) : (
+                <Send className="mr-1 h-3 w-3" />
+              )}
+              Email
+            </button>
+          )}
+
+          {/* Revoke Certificate Button */}
+          {/* {actions.can_revoke_certificate && certificate && (
+            <button
+              onClick={() => {
+              }}
+              className="inline-flex items-center rounded-md border border-transparent bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-red-700"
+            >
+              <XCircle className="mr-1 h-3 w-3" />
+              Revoke
+            </button>
+          )} */}
+
+          {/* {process.env.NODE_ENV === "development" && (
+            <div className="text-xs text-gray-400">
+              CanDownload: {canDownload ? "Yes" : "No"}, CanSendEmail:{" "}
+              {canSendEmail ? "Yes" : "No"}, CanGenerate:{" "}
+              {canGenerate ? "Yes" : "No"}
+            </div>
+          )} */}
+
+          {/* Show message if no actions available */}
+          {!canGenerate &&
+            !canDownload &&
+            !canSendEmail &&
+            !actions.can_revoke_certificate && (
+              <span className="text-xs italic text-gray-500">
+                No actions available
+              </span>
+            )}
+        </div>
+      </td>
+    </TableRow>
+  );
+};
 
 export default CourseUsersManagement;
