@@ -11,6 +11,7 @@ import {
   DownloadCloud,
   Filter,
   Search,
+  FileDown,
 } from "lucide-react";
 import { getDecryptedItem } from "@/utils/storageHelper";
 
@@ -23,11 +24,11 @@ interface Certificate {
   issued_date: string;
   status: "issued" | "revoked";
   download_count: number;
-  course?: {
+  certificate_course?: {
+    // ✅ Fixed: Changed from 'course' to 'certificate_course'
     id: number;
     title: string;
     description: string;
-    thumbnail: string;
   };
 }
 
@@ -46,11 +47,19 @@ const CertificatesPage = () => {
   const fetchCertificates = async () => {
     try {
       const user = getDecryptedItem("userId");
+      if (!user) {
+        console.error("No user ID found");
+        setCertificates([]);
+        setLoading(false);
+        return;
+      }
+
       const response = await api.get(`certificate/user/${user}`);
 
-      if (response.success) {
+      if (response?.data?.success) {
         setCertificates(response.data.data || []);
       } else {
+        console.error("Failed to fetch certificates:", response?.data?.message);
         setCertificates([]);
       }
     } catch (error) {
@@ -64,22 +73,29 @@ const CertificatesPage = () => {
   const handleDownload = async (
     certificateId: number,
     certificateUrl: string,
+    certificateCode: string,
+    courseTitle: string,
   ) => {
     setDownloading(certificateId);
     try {
+      // Create a more descriptive filename
+      const fileName = `certificate_${certificateCode}_${courseTitle.replace(/\s+/g, "_")}.pdf`;
+
       const link = document.createElement("a");
       link.href = certificateUrl;
-      link.download = `certificate-${certificateId}.png`;
+      link.download = fileName; // ✅ Fixed: Use PDF extension
       link.target = "_blank";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
+      // Try to update download count (if endpoint exists)
       try {
         await api.post(`certificate/${certificateId}/download`, {});
+        // Refresh to get updated download count
         fetchCertificates();
       } catch (apiError) {
-        console.log("Download count update failed");
+        console.log("Download count update not available");
       }
     } catch (error) {
       console.error("Download error:", error);
@@ -93,8 +109,11 @@ const CertificatesPage = () => {
   };
 
   // Filter certificates based on search
-  const filteredCertificates = certificates.filter((certificate) =>
-    certificate.course?.title?.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredCertificates = certificates.filter(
+    (certificate) =>
+      certificate.certificate_course?.title
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()), // ✅ Fixed: certificate_course
   );
 
   if (loading) {
@@ -147,6 +166,17 @@ const CertificatesPage = () => {
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   Active
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {certificates.reduce(
+                    (total, cert) => total + cert.download_count,
+                    0,
+                  )}
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Total Downloads
                 </div>
               </div>
             </div>
@@ -256,7 +286,7 @@ const CertificateCard = ({
   downloading,
 }: {
   certificate: Certificate;
-  onDownload: (id: number, url: string) => void;
+  onDownload: (id: number, url: string, code: string, title: string) => void;
   onView: (url: string) => void;
   downloading: number | null;
 }) => (
@@ -265,7 +295,8 @@ const CertificateCard = ({
     <div className="p-6">
       {/* Course Title */}
       <h3 className="mb-3 line-clamp-2 text-xl font-bold text-gray-900 transition-colors duration-200 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-        {certificate.course?.title}
+        {certificate.certificate_course?.title || "Unknown Course"}{" "}
+        {/* ✅ Fixed */}
       </h3>
 
       {/* Certificate Details */}
@@ -279,6 +310,10 @@ const CertificateCard = ({
         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
           <DownloadCloud className="mr-2 h-4 w-4" />
           <span>{certificate.download_count} downloads</span>
+        </div>
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+          <FileDown className="mr-2 h-4 w-4" />
+          <span>Certificate Code: {certificate.certificate_code}</span>
         </div>
       </div>
 
@@ -308,7 +343,12 @@ const CertificateCard = ({
         </button>
         <button
           onClick={() =>
-            onDownload(certificate.id, certificate.certificate_url)
+            onDownload(
+              certificate.id,
+              certificate.certificate_url,
+              certificate.certificate_code,
+              certificate.certificate_course?.title || "Certificate",
+            )
           }
           disabled={downloading === certificate.id}
           className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:bg-blue-400"
@@ -334,7 +374,7 @@ const CertificateListItem = ({
   isLast,
 }: {
   certificate: Certificate;
-  onDownload: (id: number, url: string) => void;
+  onDownload: (id: number, url: string, code: string, title: string) => void;
   onView: (url: string) => void;
   downloading: number | null;
   isLast: boolean;
@@ -347,7 +387,8 @@ const CertificateListItem = ({
     {/* Left Section - Course Info */}
     <div className="mb-4 flex-1 sm:mb-0">
       <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
-        {certificate.course?.title}
+        {certificate.certificate_course?.title || "Unknown Course"}{" "}
+        {/* ✅ Fixed */}
       </h3>
       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
         <div className="flex items-center">
@@ -357,6 +398,10 @@ const CertificateListItem = ({
         <div className="flex items-center">
           <DownloadCloud className="mr-1 h-4 w-4" />
           {certificate.download_count} downloads
+        </div>
+        <div className="flex items-center">
+          <FileDown className="mr-1 h-4 w-4" />
+          {certificate.certificate_code}
         </div>
         <span
           className={`rounded-full px-2 py-1 text-xs ${
@@ -380,7 +425,14 @@ const CertificateListItem = ({
         View
       </button>
       <button
-        onClick={() => onDownload(certificate.id, certificate.certificate_url)}
+        onClick={() =>
+          onDownload(
+            certificate.id,
+            certificate.certificate_url,
+            certificate.certificate_code,
+            certificate.certificate_course?.title || "Certificate",
+          )
+        }
         disabled={downloading === certificate.id}
         className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700 disabled:bg-blue-400"
       >
