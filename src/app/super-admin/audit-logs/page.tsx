@@ -50,7 +50,7 @@ export default function CourseAuditLogsPage() {
   useEffect(() => {
     dispatch(fetchCourseAuditLogs(filters));
     if (showStats) {
-      dispatch(fetchAuditLogStats());
+      // dispatch(fetchAuditLogStats());
     }
   }, [dispatch, filters, showStats]);
 
@@ -95,7 +95,7 @@ export default function CourseAuditLogsPage() {
   const handleRefresh = () => {
     dispatch(fetchCourseAuditLogs(filters));
     if (showStats) {
-      dispatch(fetchAuditLogStats());
+      // dispatch(fetchAuditLogStats());
     }
   };
 

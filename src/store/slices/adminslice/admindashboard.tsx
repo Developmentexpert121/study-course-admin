@@ -16,12 +16,15 @@ interface CourseStats {
   completion_count: number;
 }
 
+
+
 interface AdminCourseStats {
   total_courses: number;
   total_active_courses: number;
   total_enrollments: number;
   total_users_completed: number;
   top_3_courses: CourseStats[];
+  all_courses: CourseStats[];
 }
 
 interface AdminStatsState {
@@ -92,7 +95,7 @@ export const { clearError, clearAdminStats } = adminDashboardSlice.actions;
 // Selectors
 export const selectAdminCourseStats = (state: { adminDashboard: AdminStatsState }) => 
   // state?.instructorDashboard?.data;
-{console.log("welcome to state ",state?.instructorDashboard?.data?.data)}
+{console.log("welcome to state ",  state?.instructorDashboard?.data?.data?.all_courses)}
 
 export const selectAdminCourseStatsLoading = (state: { adminDashboard: AdminStatsState }) => 
   state?.instructorDashboard?.data?.loading;
@@ -153,5 +156,9 @@ export const selectedtotaluserscompleted = (state: { adminDashboard: AdminStatsS
 export const selectTop3Coursess = (state: { adminDashboard: AdminStatsState }) => 
   state?.instructorDashboard?.data?.data?.top_3_courses || [];
 
+
+
+export const selectAllCoursesWithStats = (state: { adminDashboard: AdminStatsState }) => 
+    state?.instructorDashboard?.data?.data?.all_courses || [];
 // Export reducer
 export default adminDashboardSlice.reducer;

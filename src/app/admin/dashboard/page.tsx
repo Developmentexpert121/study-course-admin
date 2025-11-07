@@ -19,16 +19,15 @@ import {
   selectAdminCourseStatsLoading,
   selectAdminCourseStatsError,
   selectTop3Coursess,
-  selectAverageEnrollmentPerCourse,
   selectAverageCompletionRate,
   selectTotalAdminCourses,
-  selecttotalenrollments,
  selectedtotaluserscompleted,
   clearError,
   selectedtotalcourses,
   selectTotalAdminCoursesactive,
   selectedtotalcoursesactivate,
   selectedtotalcoursesEnrolled,
+  selectAllCoursesWithStats,
   
 
 } from "@/store/slices/adminslice/admindashboard";
@@ -66,10 +65,10 @@ export default function AdminDashboardPage() {
   const totalEnrollments = useAppSelector(selectedtotalcoursesEnrolled);
   const totalCompleted = useAppSelector(selectedtotaluserscompleted);
   const top3Courses = useAppSelector(selectTop3Coursess);
-  
+  const allcourse = useAppSelector(selectAllCoursesWithStats);
 
 
-console.log("welcome to the page", top3Courses)
+console.log("welcome to the page", allcourse)
 
 
   useEffect(() => {

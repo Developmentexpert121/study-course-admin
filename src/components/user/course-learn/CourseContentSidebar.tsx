@@ -1,7 +1,14 @@
 // components/course-learn/CourseContentSidebar.tsx
 import React, { useState } from "react";
 import ChapterAccordion from "./ChapterAccordion";
-import { BookOpen, Clock, CheckCircle2, Target } from "lucide-react";
+import {
+  BookOpen,
+  Clock,
+  CheckCircle2,
+  Target,
+  Award,
+  Play,
+} from "lucide-react";
 
 interface CourseContentSidebarProps {
   course: any;
@@ -18,12 +25,10 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
   onStartMCQ,
   selectedLesson,
 }) => {
-  // State to store MCQ results for each chapter
   const [mcqResults, setMcqResults] = useState<{ [chapterId: number]: any }>(
     {},
   );
 
-  // Function to handle MCQ results from API
   const handleMCQResult = (chapterId: number, result: any) => {
     setMcqResults((prev) => ({
       ...prev,
@@ -31,19 +36,12 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
     }));
   };
 
-  // Update your onStartMCQ to handle results if needed
   const handleStartMCQ = (chapter: any) => {
-    // If you need to handle MCQ start logic, do it here
     onStartMCQ(chapter);
   };
 
   const getChapterProgress = (chapter: any) => {
-    // Safe check for courseProgress structure
-    if (
-      !courseProgress ||
-      !courseProgress.chapters ||
-      !Array.isArray(courseProgress.chapters)
-    ) {
+    if (!courseProgress?.chapters || !Array.isArray(courseProgress.chapters)) {
       return null;
     }
     const progressChapter = courseProgress.chapters.find(
@@ -78,58 +76,53 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
     return `${mins}m`;
   };
 
-  // Calculate progress percentage safely
   const progressPercentage =
     totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
   return (
-    <div className="h-full border-l border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="h-full border-l border-slate-200 bg-white/90 shadow-lg backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/90">
       <div className="flex h-full flex-col">
         {/* Enhanced Header */}
-        <div className="border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900">
+        <div className="border-b border-slate-200 bg-gradient-to-r from-blue-500 to-purple-600 p-6 dark:border-slate-700">
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-              <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="rounded-xl bg-white/20 p-2 backdrop-blur-sm">
+              <BookOpen className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                Course Content
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Learn at your own pace
-              </p>
+              <h2 className="text-lg font-bold text-white">Course Content</h2>
+              <p className="text-sm text-blue-100">Your learning journey</p>
             </div>
           </div>
 
           {/* Progress Stats */}
           <div className="mt-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Progress
+              <span className="text-sm font-medium text-white">
+                Your Progress
               </span>
-              <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+              <span className="text-sm font-bold text-white">
                 {progressPercentage}%
               </span>
             </div>
 
             {/* Progress Bar */}
-            <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+            <div className="h-2 w-full rounded-full bg-white/30 backdrop-blur-sm">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-500"
+                className="h-full rounded-full bg-gradient-to-r from-green-400 to-cyan-400 transition-all duration-700"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-xs">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-3 w-3 text-green-500" />
-                <span className="text-gray-600 dark:text-gray-400">
+                <CheckCircle2 className="h-3 w-3 text-green-300" />
+                <span className="text-blue-100">
                   {completedLessons}/{totalLessons} lessons
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="h-3 w-3 text-purple-500" />
-                <span className="text-gray-600 dark:text-gray-400">
+                <Clock className="h-3 w-3 text-purple-300" />
+                <span className="text-blue-100">
                   {formatDuration(totalDuration)}
                 </span>
               </div>
@@ -149,7 +142,7 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
                   chapterProgress={getChapterProgress(chapter)}
                   onLessonClick={onLessonClick}
                   onStartMCQ={handleStartMCQ}
-                  mcqResults={mcqResults[chapter.id]} // Pass specific chapter results
+                  mcqResults={mcqResults[chapter.id]}
                   defaultOpen={index === 0}
                   selectedLesson={selectedLesson}
                 />
@@ -158,38 +151,38 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
         </div>
 
         {/* Enhanced Quick Stats Footer */}
-        <div className="border-t border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50 p-4 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900">
+        <div className="border-t border-slate-200 bg-gradient-to-r from-slate-50 to-blue-50 p-4 dark:border-slate-700 dark:from-slate-800 dark:to-slate-900">
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
+            <div className="rounded-lg bg-white/50 p-3 backdrop-blur-sm dark:bg-slate-700/50">
               <div className="flex justify-center">
                 <BookOpen className="h-4 w-4 text-blue-500" />
               </div>
-              <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+              <div className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
                 {course.chapters.length}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
+              <div className="text-xs text-slate-600 dark:text-slate-400">
                 Chapters
               </div>
             </div>
-            <div>
+            <div className="rounded-lg bg-white/50 p-3 backdrop-blur-sm dark:bg-slate-700/50">
               <div className="flex justify-center">
                 <Target className="h-4 w-4 text-green-500" />
               </div>
-              <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+              <div className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
                 {totalLessons}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
+              <div className="text-xs text-slate-600 dark:text-slate-400">
                 Lessons
               </div>
             </div>
-            <div>
+            <div className="rounded-lg bg-white/50 p-3 backdrop-blur-sm dark:bg-slate-700/50">
               <div className="flex justify-center">
                 <Clock className="h-4 w-4 text-purple-500" />
               </div>
-              <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+              <div className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
                 {formatDuration(totalDuration)}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
+              <div className="text-xs text-slate-600 dark:text-slate-400">
                 Total
               </div>
             </div>

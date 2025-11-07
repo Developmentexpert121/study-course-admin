@@ -49,7 +49,7 @@ export default function CourseAuditLogsPage() {
     // Fetch with limit of 5
     dispatch(fetchCourseAuditLogs({ ...filters, limit: 5 }));
     if (showStats) {
-      dispatch(fetchAuditLogStats());
+      // dispatch(fetchAuditLogStats());
     }
   }, [dispatch, filters, showStats]);
 
@@ -91,7 +91,7 @@ export default function CourseAuditLogsPage() {
   const handleRefresh = () => {
     dispatch(fetchCourseAuditLogs({ ...filters, limit: 5 }));
     if (showStats) {
-      dispatch(fetchAuditLogStats());
+      // dispatch(fetchAuditLogStats());
     }
   };
 

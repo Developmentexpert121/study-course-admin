@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 interface CourseSidebarProps {
   courseData: any;
   statistics: any;
-  userData: any; // Add this
+  userData: any;
   isEnrolled: boolean;
   enrolling: boolean;
   enrollmentStatus: any;
@@ -25,7 +25,7 @@ interface CourseSidebarProps {
 export default function CourseSidebar({
   courseData,
   statistics,
-  userData, // Add this
+  userData,
   isEnrolled,
   enrolling,
   enrollmentStatus,
@@ -45,8 +45,8 @@ export default function CourseSidebar({
 
   return (
     <div className="space-y-6">
-      {/* Enrollment Card */}
-      <div className="sticky top-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      {/* Enrollment Card - Only this one has sticky and high z-index */}
+      <div className="sticky top-6 z-40 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
         {isEnrolled ? (
           <>
             <div className="mb-4 text-center">
@@ -63,14 +63,14 @@ export default function CourseSidebar({
 
             <button
               onClick={onContinueLearning}
-              className="mb-3 w-full rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+              className="mb-3 w-full rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 font-medium text-white transition-all duration-200 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Continue Learning
             </button>
 
             <button
               onClick={onViewProgress}
-              className="w-full rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="w-full rounded-lg border border-gray-300 bg-white px-6 py-3 font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               View Progress
             </button>
@@ -91,13 +91,13 @@ export default function CourseSidebar({
             </div>
 
             {enrollmentStatus === "success" && (
-              <div className="mb-4 rounded-lg bg-green-50 p-3 text-center text-green-700 dark:bg-green-900/20 dark:text-green-400">
+              <div className="mb-4 rounded-lg bg-green-50 p-3 text-center text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
                 Successfully enrolled!
               </div>
             )}
 
             {enrollmentStatus && enrollmentStatus !== "success" && (
-              <div className="mb-4 rounded-lg bg-yellow-50 p-3 text-center text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">
+              <div className="mb-4 rounded-lg bg-yellow-50 p-3 text-center text-sm text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">
                 {enrollmentStatus}
               </div>
             )}
@@ -105,7 +105,7 @@ export default function CourseSidebar({
             {!courseData.is_active ? (
               <button
                 disabled
-                className="w-full cursor-not-allowed rounded-lg bg-gray-300 px-6 py-3 font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+                className="w-full cursor-not-allowed rounded-lg bg-gray-200 px-6 py-3 font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400"
               >
                 Coming Soon
               </button>
@@ -114,10 +114,10 @@ export default function CourseSidebar({
                 onClick={onEnroll}
                 disabled={enrolling || !statistics.has_content}
                 className={cn(
-                  "w-full rounded-lg px-6 py-3 font-medium text-white transition-colors",
+                  "w-full rounded-lg px-6 py-3 font-medium text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2",
                   enrolling || !statistics.has_content
                     ? "cursor-not-allowed bg-gray-400 dark:bg-gray-600"
-                    : "bg-blue-600 hover:bg-blue-700",
+                    : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:ring-blue-500",
                 )}
               >
                 {enrolling
@@ -158,7 +158,7 @@ export default function CourseSidebar({
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600 dark:text-gray-400">Level</span>
             <span className="font-medium text-gray-900 dark:text-white">
-              All Levels
+              {courseData.level || "All Levels"}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
@@ -180,49 +180,50 @@ export default function CourseSidebar({
                 onClick={() =>
                   (window.location.href = `/user/courses/learn?id=${courseId}`)
                 }
-                className="flex w-full items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 transition-all duration-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 <PlayCircle className="h-4 w-4" />
                 Resume Learning
               </button>
               <button
                 onClick={onViewProgress}
-                className="flex w-full items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 transition-all duration-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 <BarChart3 className="h-4 w-4" />
                 View Progress
-              </button>
-              <button className="flex w-full items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
-                <Download className="h-4 w-4" />
-                Download Resources
               </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Instructor Info */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      {/* Instructor Info - No z-index, normal flow */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
         <h3 className="mb-4 font-medium text-gray-900 dark:text-white">
           Instructor
         </h3>
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 font-bold text-white">
-            {courseData.creator?.username?.charAt(0) || "I"}
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 font-bold text-white shadow-sm">
+            {courseData.creator?.username?.charAt(0)?.toUpperCase() || "I"}
           </div>
-          <div>
-            <div className="font-medium text-gray-900 dark:text-white">
-              {courseData.creator.username}
+          <div className="min-w-0 flex-1">
+            <div className="truncate font-medium text-gray-900 dark:text-white">
+              {courseData.creator?.username || "Instructor"}
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Course Instructor
             </div>
           </div>
         </div>
+        {courseData.creator?.bio && (
+          <p className="mt-3 line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
+            {courseData.creator.bio}
+          </p>
+        )}
       </div>
 
-      {/* Course Stats */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      {/* Course Stats - No z-index, normal flow */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
         <h3 className="mb-4 font-medium text-gray-900 dark:text-white">
           Course Stats
         </h3>
@@ -232,7 +233,7 @@ export default function CourseSidebar({
               Enrolled
             </span>
             <span className="font-medium text-gray-900 dark:text-white">
-              {courseData.enrollment_count || 0}
+              {courseData.enrollment_count?.toLocaleString() || 0}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -242,7 +243,7 @@ export default function CourseSidebar({
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
               <span className="font-medium text-gray-900 dark:text-white">
-                {courseData.ratings || 0}
+                {courseData.ratings ? courseData.ratings.toFixed(1) : "0.0"}
               </span>
             </div>
           </div>
@@ -251,7 +252,9 @@ export default function CourseSidebar({
               Last Updated
             </span>
             <span className="font-medium text-gray-900 dark:text-white">
-              {new Date(courseData.updatedAt).toLocaleDateString()}
+              {courseData.updatedAt
+                ? new Date(courseData.updatedAt).toLocaleDateString()
+                : "N/A"}
             </span>
           </div>
           {isEnrolled && userData && (
@@ -267,12 +270,15 @@ export default function CourseSidebar({
         </div>
       </div>
 
-      {/* Intro Video Card in Sidebar - Only shown if video exists */}
+      {/* Intro Video Card - No z-index, normal flow */}
       {courseData.intro_video && (
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <h3 className="mb-4 font-medium text-gray-900 dark:text-white">
-            Introduction Video
-          </h3>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+          <div className="mb-4 flex items-center gap-2">
+            <Video className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            <h3 className="font-medium text-gray-900 dark:text-white">
+              Introduction Video
+            </h3>
+          </div>
           <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
             <video
               controls
