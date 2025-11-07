@@ -170,7 +170,7 @@ export default function CourseAuditLogsPage() {
   const displayStats = stats || mockStats;
 
   return (
-    <div className="min-h-screen dark:bg-gray-900">
+    <div className=" ">
       <div className=" mx-auto">
         {/* Header */}
       
@@ -183,12 +183,7 @@ export default function CourseAuditLogsPage() {
           </div>
         )}
 
-        {/* Stats Section */}
-        {showStats && (
-        <div></div>
-        )}
-
-        {/* Filter Section */}
+        
        
         {/* Audit Logs Table */}
         <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -207,9 +202,7 @@ export default function CourseAuditLogsPage() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-900/50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      ID
-                    </th>
+                  
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       Course
                     </th>
@@ -219,31 +212,29 @@ export default function CourseAuditLogsPage() {
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       User
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    {/* <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       Status
-                    </th>
+                    </th> */}
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       Timestamp
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      Details
-                    </th>
+                   
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-transparent divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredAuditLogs.map((log) => {
+                  {filteredAuditLogs.map((log: any , index: number) => {
                     const actionColor = getActionColor(log.action);
                     return (
-                      <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-mono font-semibold text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                            #{log.id}
-                          </div>
-                        </td>
+                      <tr key={index}
+                        onClick={() => {
+                              setSelectedLog(log);
+                              setShowDetails(true);
+                            }} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                       
                         <td className="px-6 py-4">
                           <div>
                             <p className="text-sm font-semibold text-gray-900 dark:text-white">{log.course_title}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">ID: {log.course_id}</p>
+                           
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -257,15 +248,13 @@ export default function CourseAuditLogsPage() {
                           {log.user_name ? (
                             <div>
                               <p className="text-sm font-semibold text-gray-900 dark:text-white">{log.user_name}</p>
-                              {log.user_id && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">ID: {log.user_id}</p>
-                              )}
+                            
                             </div>
                           ) : (
                             <span className="text-sm text-gray-500 dark:text-gray-400">System</span>
                           )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        {/* <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusColor(log.is_active_status)}`}
                           >
@@ -275,7 +264,7 @@ export default function CourseAuditLogsPage() {
                                 ? 'Active'
                                 : 'Inactive'}
                           </span>
-                        </td>
+                        </td> */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm">
                             <p className="text-gray-900 dark:text-white">
@@ -286,18 +275,7 @@ export default function CourseAuditLogsPage() {
                             </p>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => {
-                              setSelectedLog(log);
-                              setShowDetails(true);
-                            }}
-                            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors"
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </button>
-                        </td>
+                      
                       </tr>
                     );
                   })}
