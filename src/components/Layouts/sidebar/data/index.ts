@@ -61,17 +61,6 @@ export const NAV_DATA = [
         items: [],
         type: "admin",
       },
-      {
-        title: "USER DETAILS",
-        icon: Icons.Alphabet,
-        items: [
-          {
-            title: "User List",
-            url: "/admin/user",
-          },
-        ],
-        type: "admin",
-      },
 
       // Super Admin items (keep existing)
       {

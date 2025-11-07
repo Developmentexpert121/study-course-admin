@@ -3,12 +3,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from '@/store';
-import { 
-  fetchUserById, 
+import {
+  fetchUserById,
   updateUserProfile,
-  clearUpdateError 
+  clearUpdateError
 } from "@/store/slices/profile/profileedit";
-import { 
+import {
   selectCurrentUser,
   selectUserLoading,
   selectUserError,
@@ -23,23 +23,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton1";
 import { ArrowLeft, Mail, Calendar, User, Shield, CheckCircle, XCircle, Save, RotateCcw, Upload, Camera, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getDecryptedItem ,updateEncryptedItem } from "@/utils/storageHelper";
+import { getDecryptedItem, updateEncryptedItem } from "@/utils/storageHelper";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import Editprofile from "../../profile/page";
 
 export default function EditProfilePage({ className }: any) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  
+
   const currentUser = useAppSelector(selectCurrentUser);
   const loading = useAppSelector(selectUserLoading);
   const error = useAppSelector(selectUserError);
   const updateLoading = useAppSelector(selectUpdateLoading);
   const updateError = useAppSelector(selectUpdateError);
-  
+
   // Get user data from correct path
   const userData = currentUser?.data;
-  console.log("object",userData)
+  console.log("object", userData)
   const userId = getDecryptedItem("userId");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,21 +47,14 @@ export default function EditProfilePage({ className }: any) {
   const [formData, setFormData] = useState({
     username: "",
     bio: "",
-    profile:"",
+    profile: "",
   });
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
-console.log("selectedFile",selectedFile)
-console.log("selectedFile",selectedFile)
-console.log("selectedFile",selectedFile)
-console.log("selectedFile",selectedFile)
-console.log("selectedFile",selectedFile)
-console.log("selectedFile",selectedFile)
-console.log("selectedFile",selectedFile)
-console.log("selectedFile",selectedFile)
+
 
   // Fetch user data when component mounts
   useEffect(() => {
@@ -92,7 +85,7 @@ console.log("selectedFile",selectedFile)
       setFormData({
         username: userData.username || "",
         bio: userData.bio || "",
-     profile: selectedFile?.name|| "",
+        profile: selectedFile?.name || "",
       });
       setProfileImage(userData.profileImage || null);
     }
@@ -140,7 +133,7 @@ console.log("selectedFile",selectedFile)
       toasterError("User ID not found", 3000);
       return;
     }
-    
+
     try {
       // Validate inputs
       if (formData.username.trim().length === 0) {
@@ -155,12 +148,12 @@ console.log("selectedFile",selectedFile)
 
       // Prepare update data
       const updateData: any = {};
-      
+
       // Only include fields that have changed
       if (formData.username.trim() !== userData?.username) {
         updateData.username = formData.username.trim();
       }
-      
+
       if (formData.bio !== userData?.bio) {
         updateData.bio = formData.bio;
       }
@@ -184,17 +177,17 @@ console.log("selectedFile",selectedFile)
       })).unwrap();
 
       console.log('✅ Update successful:', result);
-      
+
       toasterSuccess("Profile updated successfully!", 3000);
-       router.push(`/view-profile`,);
-       updateEncryptedItem("name", () => formData.username);
+      router.push(`/view-profile`,);
+      updateEncryptedItem("name", () => formData.username);
       // Reset states
       setIsEditing(false);
       setSelectedFile(null);
-      
+
       // Refresh user data
       dispatch(fetchUserById(Number(userId)));
-      
+
     } catch (error: any) {
       console.error("❌ Update failed:", error);
     }
@@ -218,17 +211,17 @@ console.log("selectedFile",selectedFile)
 
 
   const handleReset = () => {
-  if (userData) {
-    setFormData({
-      username: userData.username || "",
-      bio: userData.bio || "",
-      profile: "" 
-    });
-  }
-  setSelectedFile(null);
-  setIsEditing(false);
-  dispatch(clearUpdateError());
-};
+    if (userData) {
+      setFormData({
+        username: userData.username || "",
+        bio: userData.bio || "",
+        profile: ""
+      });
+    }
+    setSelectedFile(null);
+    setIsEditing(false);
+    dispatch(clearUpdateError());
+  };
 
 
   const getStatusColor = (status: string) => {
@@ -258,7 +251,7 @@ console.log("selectedFile",selectedFile)
           <Skeleton className="h-10 w-10 rounded-full" />
           <Skeleton className="h-6 w-48" />
         </div>
-        
+
         <Card>
           <CardHeader>
             <Skeleton className="h-6 w-32 mb-2" />
@@ -277,22 +270,22 @@ console.log("selectedFile",selectedFile)
   if (error) {
     return (
       <div className={cn("p-6 max-w-4xl mx-auto", className)}>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={handleBack}
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-        
+
         <Card className="border-red-200">
           <CardContent className="pt-6">
             <div className="text-center text-red-600">
               <XCircle className="w-12 h-12 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Error Loading User</h3>
               <p className="mb-4">{error}</p>
-              <Button 
+              <Button
                 onClick={() => userId && dispatch(fetchUserById(Number(userId)))}
                 className="mt-4"
               >
@@ -308,21 +301,21 @@ console.log("selectedFile",selectedFile)
   if (!currentUser || !userData) {
     return (
       <div className={cn("p-6 max-w-4xl mx-auto", className)}>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={handleBack}
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-        
+
         <Card>
           <CardContent className="pt-6 text-center">
             <User className="w-12 h-12 mx-auto mb-4 text-gray-400" />
             <h3 className="text-lg font-semibold mb-2">User Not Found</h3>
             <p className="text-gray-600 mb-4">The requested user could not be found.</p>
-            <Button 
+            <Button
               onClick={() => userId && dispatch(fetchUserById(Number(userId)))}
             >
               Reload Data
@@ -345,15 +338,15 @@ console.log("selectedFile",selectedFile)
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={handleBack}
           className="flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Profile
         </Button>
-        
+
         <div className="flex items-center gap-3">
           {/* <Button 
             variant="outline"
@@ -365,7 +358,7 @@ console.log("selectedFile",selectedFile)
           </Button> */}
 
           {isEditing && (
-            <Button 
+            <Button
               variant="outline"
               onClick={handleReset}
               disabled={updateLoading}
@@ -375,7 +368,7 @@ console.log("selectedFile",selectedFile)
               Reset
             </Button>
           )}
-          <Button 
+          <Button
             onClick={handleSave}
             disabled={(!isEditing && !selectedFile) || updateLoading || imageLoading}
             className="flex items-center gap-2"
@@ -441,73 +434,73 @@ console.log("selectedFile",selectedFile)
       )}
 
 
-      
+
 
       {/* Main Profile Card */}
       <Card className="shadow-lg">
         <CardHeader className="pb-4">
-          
-            <div className="flex justify-between items-center gap-6">
-              {/* Profile Image */}
-              <div className="relative group">
-                <div 
-                  className="w-24 h-24 rounded-full   flex items-center justify-center  "
-               
-                >
-                  {profileImage ? (
-              <Editprofile />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <span className="text-white text-2xl font-bold">
-                        {userData.username?.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <Camera className="w-6 h-6 text-white" />
+
+          <div className="flex justify-between items-center gap-6">
+            {/* Profile Image */}
+            <div className="relative group">
+              <div
+                className="w-24 h-24 rounded-full   flex items-center justify-center  "
+
+              >
+                {profileImage ? (
+                  <Editprofile />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <span className="text-white text-2xl font-bold">
+                      {userData.username?.charAt(0).toUpperCase()}
+                    </span>
                   </div>
+                )}
+
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <Camera className="w-6 h-6 text-white" />
                 </div>
-                
-                {imageLoading && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                  </div>
-                )}
-                
-                {userData.status === 'active' && (
-                  <div className="absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-                )}
-                
-                {selectedFile && !imageLoading && (
-                  <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                    New
-                  </div>
-                )}
               </div>
 
-              {/* User Info */}
-              <div className="flex-1">
-                <div className="mb-4">
-                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                    Username
-                  </label>
-                  <Input
-                    id="username"
-                    value={formData.username}
-                    onChange={(e) => handleInputChange('username', e.target.value)}
-                    className="text-2xl font-bold max-w-md"
-                    placeholder="Enter your username"
-                    disabled={updateLoading}
-                  />
+              {imageLoading && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                 </div>
-                
-                <CardDescription className="flex items-center gap-2 text-lg">
-                  <Mail className="w-4 h-4" />
-                  {userData.email}
-                </CardDescription>
-                
-                {/* <Button
+              )}
+
+              {userData.status === 'active' && (
+                <div className="absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+              )}
+
+              {selectedFile && !imageLoading && (
+                <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  New
+                </div>
+              )}
+            </div>
+
+            {/* User Info */}
+            <div className="flex-1">
+              <div className="mb-4">
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                  Username
+                </label>
+                <Input
+                  id="username"
+                  value={formData.username}
+                  onChange={(e) => handleInputChange('username', e.target.value)}
+                  className="text-2xl font-bold max-w-md"
+                  placeholder="Enter your username"
+                  disabled={updateLoading}
+                />
+              </div>
+
+              <CardDescription className="flex items-center gap-2 text-lg">
+                <Mail className="w-4 h-4" />
+                {userData.email}
+              </CardDescription>
+
+              {/* <Button
                   type="button"
                   variant="outline"
                   size="sm"
@@ -518,10 +511,10 @@ console.log("selectedFile",selectedFile)
                   <Upload className="w-4 h-4" />
                   Change Photo
                 </Button> */}
-              </div>
             </div>
+          </div>
 
-            {/* <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
               <Badge className={getStatusColor(userData.status)}>
                 {userData.status?.charAt(0).toUpperCase() + userData.status?.slice(1)}
               </Badge>
@@ -529,7 +522,7 @@ console.log("selectedFile",selectedFile)
                 {userData.role?.charAt(0).toUpperCase() + userData.role?.slice(1)}
               </Badge>
             </div> */}
-          
+
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -561,7 +554,7 @@ console.log("selectedFile",selectedFile)
                 <Shield className="w-4 h-4" />
                 Account Details
               </h4>
-              
+
               <div className="space-y-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 dark:text-gray-400">Role:</span>
@@ -569,14 +562,14 @@ console.log("selectedFile",selectedFile)
                     {userData.role}
                   </Badge>
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 dark:text-gray-400">Status:</span>
                   <Badge variant="secondary" className={getStatusColor(userData.status)}>
                     {userData.status}
                   </Badge>
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 dark:text-gray-400">Verified:</span>
                   <div className="flex items-center gap-2">
@@ -601,7 +594,7 @@ console.log("selectedFile",selectedFile)
                 <Calendar className="w-4 h-4" />
                 Account Timeline
               </h4>
-              
+
               <div className="space-y-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 dark:text-gray-400">Member since:</span>
@@ -609,14 +602,14 @@ console.log("selectedFile",selectedFile)
                     {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 dark:text-gray-400">Last updated:</span>
                   <span className="text-gray-900 dark:text-gray-100 font-medium">
                     {userData.updatedAt ? new Date(userData.updatedAt).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 dark:text-gray-400">User ID:</span>
                   <span className="text-gray-900 dark:text-gray-100 font-mono text-sm bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">
@@ -655,7 +648,7 @@ console.log("selectedFile",selectedFile)
           {/* Save Button at Bottom */}
           {isEditing && (
             <div className="flex justify-end gap-3 pt-6 border-t">
-              <Button 
+              <Button
                 variant="outline"
                 onClick={handleReset}
                 disabled={updateLoading || imageLoading}
@@ -664,7 +657,7 @@ console.log("selectedFile",selectedFile)
                 <RotateCcw className="w-4 h-4" />
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={handleSave}
                 disabled={updateLoading || imageLoading}
                 className="flex items-center gap-2"

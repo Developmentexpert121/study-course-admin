@@ -20,6 +20,8 @@ import {
   Send,
 } from "lucide-react";
 import { useApiClient } from "@/lib/api";
+import StatCard from "@/app/ui-elements/StatCard";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const CourseUsersManagement: React.FC = () => {
   const api = useApiClient();
@@ -210,11 +212,10 @@ const CourseUsersManagement: React.FC = () => {
       {/* Notification */}
       {notification && (
         <div
-          className={`fixed right-4 top-4 z-50 rounded-lg p-4 shadow-lg ${
-            notification.type === "success"
-              ? "bg-green-500 text-white"
-              : "bg-red-500 text-white"
-          }`}
+          className={`fixed right-4 top-4 z-50 rounded-lg p-4 shadow-lg ${notification.type === "success"
+            ? "bg-green-500 text-white"
+            : "bg-red-500 text-white"
+            }`}
         >
           {notification.message}
         </div>
@@ -259,35 +260,9 @@ const CourseUsersManagement: React.FC = () => {
       </div>
 
       {/* Stats and Filters */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Quick Stats */}
-        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <StatCard
-            icon={<Users className="h-6 w-6 text-blue-600" />}
-            title="Total Enrolled"
-            value={summary.total_enrolled}
-            color="blue"
-          />
-          <StatCard
-            icon={<UserCheck className="h-6 w-6 text-green-600" />}
-            title="Completed"
-            value={summary.completed_course}
-            color="green"
-          />
-          <StatCard
-            icon={<PlayCircle className="h-6 w-6 text-yellow-600" />}
-            title="In Progress"
-            value={summary.in_progress}
-            color="yellow"
-          />
-          <StatCard
-            icon={<Award className="h-6 w-6 text-purple-600" />}
-            title="Certificates"
-            value={summary.certificates_issued}
-            color="purple"
-          />
-        </div>
 
+
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Filters */}
         <div className="mb-6 rounded-lg border bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row">
@@ -316,28 +291,38 @@ const CourseUsersManagement: React.FC = () => {
             </select>
           </div>
         </div>
+        {/* Quick Stats */}
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+          <StatCard title="Total Courses" value={summary.total_enrolled} icon={Users} color="blue" />
+          <StatCard title="Active" value={summary.completed_course} icon={UserCheck} color="green" />
+          <StatCard title="Draft" value={summary.in_progress} icon={PlayCircle} color="yellow" />
+          <StatCard title="Inactive" value={summary.certificates_issued} icon={Award} color="purple" />
+
+        </div>
+
+
 
         {/* Users Table */}
         <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <Table className="min-w-full divide-y divide-gray-200">
+              <TableHeader className="bg-gray-50">
+                <TableRow>
+                  <TableHead className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  </TableHead>
+                  <TableHead className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Progress
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  </TableHead>
+                  <TableHead className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Certificate Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  </TableHead>
+                  <TableHead className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-gray-200 bg-white">
                 {filteredUsers.map((userProgress) => (
                   <UserRow
                     key={userProgress.user.id}
@@ -350,8 +335,8 @@ const CourseUsersManagement: React.FC = () => {
                     getProgressIcon={getProgressIcon}
                   />
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           {filteredUsers.length === 0 && (
@@ -373,31 +358,7 @@ const CourseUsersManagement: React.FC = () => {
   );
 };
 
-const StatCard: React.FC<{
-  icon: React.ReactNode;
-  title: string;
-  value: number;
-  color: string;
-}> = ({ icon, title, value, color }) => {
-  const colorClasses = {
-    blue: "bg-blue-50 border-blue-200",
-    green: "bg-green-50 border-green-200",
-    yellow: "bg-yellow-50 border-yellow-200",
-    purple: "bg-purple-50 border-purple-200",
-  };
 
-  return (
-    <div className={`rounded-lg border p-4 ${colorClasses[color]}`}>
-      <div className="flex items-center">
-        <div className="flex-shrink-0">{icon}</div>
-        <div className="ml-3">
-          <h3 className="text-sm font-medium text-gray-600">{title}</h3>
-          <p className="text-2xl font-semibold text-gray-900">{value}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const UserRow: React.FC<{
   userProgress: any;
@@ -416,134 +377,134 @@ const UserRow: React.FC<{
   getProgressColor,
   getProgressIcon,
 }) => {
-  const { user, progress, certificate, actions } = userProgress;
+    const { user, progress, certificate, actions } = userProgress;
 
-  return (
-    <tr className="transition-colors duration-150 hover:bg-gray-50">
-      {/* User Info */}
-      <td className="whitespace-nowrap px-6 py-4">
-        <div className="flex items-center">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-medium text-white">
-            {user.profileImage ? (
-              <img
-                className="h-10 w-10 rounded-full"
-                src={user.profileImage}
-                alt={user.fullName}
-              />
-            ) : (
-              user.fullName
-                .split(" ")
-                .map((n: any) => n[0])
-                .join("")
-                .toUpperCase()
-                .substring(0, 2)
-            )}
-          </div>
-          <div className="ml-4">
-            <div className="text-sm font-medium text-gray-900">
-              {user.fullName}
-            </div>
-            <div className="text-sm text-gray-500">{user.email}</div>
-          </div>
-        </div>
-      </td>
-
-      {/* Progress */}
-      <td className="whitespace-nowrap px-6 py-4">
-        <div className="flex items-center">
-          {getProgressIcon(progress.overall_progress, progress.is_completed)}
-          <div className="mx-3 h-2 w-32 rounded-full bg-gray-200">
-            <div
-              className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(progress.overall_progress)}`}
-              style={{ width: `${progress.overall_progress}%` }}
-            ></div>
-          </div>
-          <span className="min-w-12 text-sm font-medium text-gray-900">
-            {progress.overall_progress}%
-          </span>
-        </div>
-        <div className="mt-1 text-xs text-gray-500">
-          {progress.completed_chapters}/{progress.total_chapters} chapters
-        </div>
-      </td>
-
-      {/* Certificate Status */}
-      <td className="whitespace-nowrap px-6 py-4">
-        {certificate ? (
+    return (
+      <TableRow className="transition-colors duration-150 hover:bg-gray-50">
+        {/* User Info */}
+        <td className="whitespace-nowrap px-6 py-4">
           <div className="flex items-center">
-            <Award className="mr-2 h-4 w-4 text-green-600" />
-            <div>
-              <div className="text-sm font-medium text-gray-900">Issued</div>
-              <div className="text-xs text-gray-500">
-                {new Date(certificate.issued_date).toLocaleDateString()}
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-medium text-white">
+              {user.profileImage ? (
+                <img
+                  className="h-10 w-10 rounded-full"
+                  src={user.profileImage}
+                  alt={user.fullName}
+                />
+              ) : (
+                user.fullName
+                  .split(" ")
+                  .map((n: any) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .substring(0, 2)
+              )}
+            </div>
+            <div className="ml-4">
+              <div className="text-sm font-medium text-gray-900">
+                {user.fullName}
+              </div>
+              <div className="text-sm text-gray-500">{user.email}</div>
+            </div>
+          </div>
+        </td>
+
+        {/* Progress */}
+        <td className="whitespace-nowrap px-6 py-4">
+          <div className="flex items-center">
+            {getProgressIcon(progress.overall_progress, progress.is_completed)}
+            <div className="mx-3 h-2 w-32 rounded-full bg-gray-200">
+              <div
+                className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(progress.overall_progress)}`}
+                style={{ width: `${progress.overall_progress}%` }}
+              ></div>
+            </div>
+            <span className="min-w-12 text-sm font-medium text-gray-900">
+              {progress.overall_progress}%
+            </span>
+          </div>
+          <div className="mt-1 text-xs text-gray-500">
+            {progress.completed_chapters}/{progress.total_chapters} chapters
+          </div>
+        </td>
+
+        {/* Certificate Status */}
+        <td className="whitespace-nowrap px-6 py-4">
+          {certificate ? (
+            <div className="flex items-center">
+              <Award className="mr-2 h-4 w-4 text-green-600" />
+              <div>
+                <div className="text-sm font-medium text-gray-900">Issued</div>
+                <div className="text-xs text-gray-500">
+                  {new Date(certificate.issued_date).toLocaleDateString()}
+                </div>
               </div>
             </div>
+          ) : progress.is_completed ? (
+            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+              <Award className="mr-1 h-3 w-3" />
+              Ready to Issue
+            </span>
+          ) : (
+            <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+              <Clock className="mr-1 h-3 w-3" />
+              In Progress
+            </span>
+          )}
+        </td>
+
+        {/* Actions */}
+        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
+          <div className="flex items-center space-x-2">
+            {actions.can_generate_certificate && (
+              <button
+                onClick={() => onGenerateCertificate(user.id, user.fullName)}
+                disabled={actionLoading === user.id}
+                className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:opacity-50"
+              >
+                {actionLoading === user.id ? (
+                  <div className="mr-1 h-3 w-3 animate-spin rounded-full border-b-2 border-white"></div>
+                ) : (
+                  <Award className="mr-1 h-3 w-3" />
+                )}
+                Generate
+              </button>
+            )}
+
+            {actions.can_download_certificate && certificate && (
+              <button
+                onClick={() =>
+                  onDownloadCertificate(
+                    certificate.certificate_url,
+                    certificate.certificate_code,
+                    user.fullName,
+                  )
+                }
+                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50"
+              >
+                <Download className="mr-1 h-3 w-3" />
+                Download
+              </button>
+            )}
+
+            {actions.can_send_certificate && certificate && (
+              <button
+                onClick={() => onSendEmail(certificate.id, user.fullName)}
+                disabled={actionLoading === certificate.id}
+                className="inline-flex items-center rounded-md border border-transparent bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-green-700 disabled:opacity-50"
+              >
+                {actionLoading === certificate.id ? (
+                  <div className="mr-1 h-3 w-3 animate-spin rounded-full border-b-2 border-white"></div>
+                ) : (
+                  <Send className="mr-1 h-3 w-3" />
+                )}
+                Email
+              </button>
+            )}
           </div>
-        ) : progress.is_completed ? (
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
-            <Award className="mr-1 h-3 w-3" />
-            Ready to Issue
-          </span>
-        ) : (
-          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-            <Clock className="mr-1 h-3 w-3" />
-            In Progress
-          </span>
-        )}
-      </td>
-
-      {/* Actions */}
-      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-        <div className="flex items-center space-x-2">
-          {actions.can_generate_certificate && (
-            <button
-              onClick={() => onGenerateCertificate(user.id, user.fullName)}
-              disabled={actionLoading === user.id}
-              className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:opacity-50"
-            >
-              {actionLoading === user.id ? (
-                <div className="mr-1 h-3 w-3 animate-spin rounded-full border-b-2 border-white"></div>
-              ) : (
-                <Award className="mr-1 h-3 w-3" />
-              )}
-              Generate
-            </button>
-          )}
-
-          {actions.can_download_certificate && certificate && (
-            <button
-              onClick={() =>
-                onDownloadCertificate(
-                  certificate.certificate_url,
-                  certificate.certificate_code,
-                  user.fullName,
-                )
-              }
-              className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50"
-            >
-              <Download className="mr-1 h-3 w-3" />
-              Download
-            </button>
-          )}
-
-          {actions.can_send_certificate && certificate && (
-            <button
-              onClick={() => onSendEmail(certificate.id, user.fullName)}
-              disabled={actionLoading === certificate.id}
-              className="inline-flex items-center rounded-md border border-transparent bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-green-700 disabled:opacity-50"
-            >
-              {actionLoading === certificate.id ? (
-                <div className="mr-1 h-3 w-3 animate-spin rounded-full border-b-2 border-white"></div>
-              ) : (
-                <Send className="mr-1 h-3 w-3" />
-              )}
-              Email
-            </button>
-          )}
-        </div>
-      </td>
-    </tr>
-  );
-};
+        </td>
+      </TableRow>
+    );
+  };
 
 export default CourseUsersManagement;

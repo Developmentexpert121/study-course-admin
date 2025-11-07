@@ -5,11 +5,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from '@/store';
 import { fetchAllEmails } from "@/store/slices/homepage/emailSlice";
-import { 
-  selectEmails, 
-  selectEmailLoading, 
+import {
+  selectEmails,
+  selectEmailLoading,
   selectEmailError,
- 
+
 } from "@/store/slices/homepage/emailSlice";
 import { Trash2, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -17,15 +17,14 @@ import { useRouter } from "next/navigation";
 export default function EmailListPage({ className }: any) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  
+
   // Get state from Redux store
   const emails = useAppSelector(selectEmails);
   const loading = useAppSelector(selectEmailLoading);
   const error = useAppSelector(selectEmailError);
-//   const totalEmails = useAppSelector(selectTotalEmails);
-  
+  //   const totalEmails = useAppSelector(selectTotalEmails);
 
-console.log("dfcklhlkhfds",emails?.data)
+
   const [deletingEmailId, setDeletingEmailId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -34,7 +33,7 @@ console.log("dfcklhlkhfds",emails?.data)
 
   const handleDeleteEmail = async (e: React.MouseEvent, emailId: number) => {
     e.stopPropagation();
-    
+
     if (window.confirm("Are you sure you want to delete this email?")) {
       setDeletingEmailId(emailId);
       try {
@@ -80,18 +79,18 @@ console.log("dfcklhlkhfds",emails?.data)
           Email Subscribers
         </h2>
         <div className="text-sm text-gray-600 dark:text-gray-400">
-            <button
-//   onClick={(e) => handleDeleteEmail(e, email.id)}
-//   disabled={deletingEmailId === email.id}
-// onClick={()=> router.push("")}
- onClick={() => router.push(`/super-admin/mails/new-mail`)}
-  className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-  title="Send Message"
->
-  <Mail className="w-4 h-4" />
-  {/* {deletingEmailId === email.id ? "Sending..." : "Message"} */}
-  Message
-</button>
+          <button
+            //   onClick={(e) => handleDeleteEmail(e, email.id)}
+            //   disabled={deletingEmailId === email.id}
+            // onClick={()=> router.push("")}
+            onClick={() => router.push(`/super-admin/mails/new-mail`)}
+            className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Send Message"
+          >
+            <Mail className="w-4 h-4" />
+            {/* {deletingEmailId === email.id ? "Sending..." : "Message"} */}
+            Message
+          </button>
         </div>
       </div>
 
@@ -185,7 +184,7 @@ console.log("dfcklhlkhfds",emails?.data)
         >
           {loading ? "Refreshing..." : "Refresh"}
         </button>
-        
+
         <div className="text-sm text-gray-600 dark:text-gray-400">
           {/* Showing {emails.length} of {totalEmails} emails */}
         </div>

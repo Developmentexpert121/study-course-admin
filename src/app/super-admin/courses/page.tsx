@@ -478,18 +478,7 @@ export default function Courses({ className }: any) {
                         <Pencil size={18} />
                       </button>
 
-                      <button
-                        className="text-purple-600 hover:text-purple-800"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(
-                            `/super-admin/rating?course_id=${course.id}&course_title=${encodeURIComponent(course.title)}`,
-                          );
-                        }}
-                        title="Manage Ratings"
-                      >
-                        <BarChart2 size={18} />
-                      </button>
+
 
                       {/* Delete Button */}
                       <button
@@ -501,6 +490,20 @@ export default function Courses({ className }: any) {
                         title="Delete Course"
                       >
                         <Trash2 size={18} />
+                      </button>
+
+
+                      <button
+                        className="text-purple-600 hover:text-purple-800"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(
+                            `/super-admin/rating?course_id=${course.id}&course_title=${encodeURIComponent(course.title)}`,
+                          );
+                        }}
+                        title="Manage Ratings"
+                      >
+                        <BarChart2 size={18} />
                       </button>
                     </div>
                   </TableCell>
