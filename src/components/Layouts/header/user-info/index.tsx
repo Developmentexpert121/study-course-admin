@@ -15,7 +15,7 @@ import { toasterSuccess } from "@/components/core/Toaster";
 import { trackLogoutActivity } from "../../../../store/slices/adminslice/adminlogout";
 import { RootState, AppDispatch } from "../../../../store";
 import { useDispatch, useSelector } from "react-redux";
-import { getDecryptedItem, removeEncryptedItem ,updateEncryptedItem } from "@/utils/storageHelper";
+import { getDecryptedItem, removeEncryptedItem, updateEncryptedItem } from "@/utils/storageHelper";
 import { useApiClient } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
@@ -24,7 +24,7 @@ export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
   const name = getDecryptedItem("name");
   const router = useRouter();
-  
+
   const email = getDecryptedItem("email");
   const [userImage, setUserImage] = useState("/images/user2.png");
   const api = useApiClient();
@@ -88,7 +88,7 @@ export function UserInfo() {
       <DropdownTrigger className="rounded align-middle outline-none ring-primary ring-offset-2 focus-visible:ring-1 dark:ring-offset-gray-dark">
         <span className="sr-only">My Account</span>
 
-        <figure className="flex size-10 items-center  overflow-hidden rounded-full">
+        <figure className="flex items-center gap-3 size-12 rounded-full overflow-hidden">
           <Image
             src={userImage || ""}
             className="size-10"
@@ -121,7 +121,7 @@ export function UserInfo() {
         <figure className="flex items-center gap-2.5 px-5 py-3.5">
           <Image
             src={userImage}
-            className="size-12 overflow-hidden rounded-full"
+            className="size-12 rounded-full overflow-hidden"
             alt={`Avatar for ${USER.name}`}
             role="presentation"
             width={200}
@@ -142,7 +142,7 @@ export function UserInfo() {
         <div className="p-2 text-base text-[#4B5563] dark:text-dark-6 [&>*]:cursor-pointer">
           <Link
             // href={"/profile"}
-             href={"/view-profile"}
+            href={"/view-profile"}
             onClick={() => setIsOpen(false)}
             className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[9px] hover:bg-gray-2 hover:text-dark dark:hover:bg-dark-3 dark:hover:text-white"
           >
@@ -151,10 +151,10 @@ export function UserInfo() {
             <span className="mr-auto text-base font-medium">View profile</span>
           </Link>
 
-            <Link
+          <Link
             // href={"/profile"}
-             href={"/"}
-            onClick={()=>router.push(`/`)}
+            href={"/"}
+            onClick={() => router.push(`/`)}
             className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-[9px] hover:bg-gray-2 hover:text-dark dark:hover:bg-dark-3 dark:hover:text-white"
           >
             <UserIcon />
@@ -193,7 +193,7 @@ export function UserInfo() {
                 removeEncryptedItem("name");
                 removeEncryptedItem("email");
                 removeEncryptedItem("role");
-               
+
 
                 setIsOpen(false);
                 toasterSuccess("Logout Successfully", 2000, "id");
