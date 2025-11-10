@@ -1,13 +1,7 @@
-import "@/css/satoshi.css";
-import "@/css/style.css";
-import 'flatpickr/dist/themes/material_blue.css';
-import "jsvectormap/dist/jsvectormap.css";
+import "../css/style.css";
 import type { Metadata } from "next";
 import type { PropsWithChildren } from "react";
-
-import { Providers } from "./providers";
-import ClientLayoutShell from "../components/ClientLayoutShell";
-import AuthChecker from "../components/AuthChecker";
+import ClientRoot from "./client-root";
 
 export const metadata: Metadata = {
   title: {
@@ -21,12 +15,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
-        <Providers>
-          <AuthChecker>
-            <ClientLayoutShell>{children}</ClientLayoutShell>
-          </AuthChecker>
-        </Providers>
+      <body suppressHydrationWarning>
+        <ClientRoot>{children}</ClientRoot>
       </body>
     </html>
   );

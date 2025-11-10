@@ -1,10 +1,79 @@
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+@import "./satoshi.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
+
 @layer base {
   body {
     @apply bg-gray-2 text-dark-5 dark:bg-[#020D1A] dark:text-dark-6;
+  }
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+     --gray-2: #F3F4F6;
+  --dark-5: #666666;
+  --dark-6: #7A7A7A;
+  --stroke: #E5E7EB;
+  --stroke-dark: #374151;
+  --primary: #3C50E0;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+      --gray-dark: #1F2A37;
+  --dark-2: #2D2D2D;
+  --dark-3: #404040;
   }
 }
 
@@ -19,7 +88,7 @@
     scrollbar-width: none; /* Firefox */
   }
 
-   .custom-scrollbar {
+  .custom-scrollbar {
     @apply overflow-auto;
   }
 
@@ -35,7 +104,6 @@
     @apply relative flex-1 rounded-full bg-neutral-200/40 dark:bg-stroke-dark;
   }
 
-  
   .chat-height {
     @apply h-[calc(100vh_-_8.125rem)] lg:h-[calc(100vh_-_5.625rem)];
   }
@@ -45,7 +113,7 @@
   }
 }
 
-/* third-party libraries CSS */
+
 
 .tableCheckbox:checked ~ div span {
   @apply opacity-100;
@@ -477,4 +545,264 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .custom-gradient-1 {
   background-image: linear-gradient(145deg, #eef 0%, #fff8fc 100%);
+}
+/* ---------------- Improved Corner Moving Border Button ---------------- */
+.btn-corners {
+  position: relative;
+  display: inline-block;
+  padding: 12px 28px;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #02517b; /* main theme color */
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-corners span {
+  position: absolute;
+  display: block;
+  background: #fff; /* new glow color */
+  box-shadow: 0 0 8px #00d4ff;
+}
+
+.btn-corners span:nth-child(1) {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  animation: top-line 2s linear infinite;
+}
+.btn-corners span:nth-child(2) {
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  animation: right-line 2s linear infinite;
+  animation-delay: 0.5s;
+}
+.btn-corners span:nth-child(3) {
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 2px;
+  animation: bottom-line 2s linear infinite;
+  animation-delay: 1s;
+}
+.btn-corners span:nth-child(4) {
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  animation: left-line 2s linear infinite;
+  animation-delay: 1.5s;
+}
+
+/* Keyframes for corner animation */
+@keyframes top-line {
+  0%,
+  100% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+}
+@keyframes right-line {
+  0%,
+  100% {
+    transform: translateY(-100%);
+  }
+  50% {
+    transform: translateY(100%);
+  }
+}
+@keyframes bottom-line {
+  0%,
+  100% {
+    transform: translateX(100%);
+  }
+  50% {
+    transform: translateX(-100%);
+  }
+}
+@keyframes left-line {
+  0%,
+  100% {
+    transform: translateY(100%);
+  }
+  50% {
+    transform: translateY(-100%);
+  }
+}
+
+/* Hover effect: scale + glowing pulse */
+.btn-corners:hover {
+  transform: scale(1.08);
+  box-shadow:
+    0 0 15px rgba(0, 212, 255, 0.6),
+    0 0 25px rgba(0, 212, 255, 0.4);
+}
+/* Gradient animation for text */
+@keyframes text-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.trending-text {
+  background: linear-gradient(90deg, #1d3faa, #fe6a3c, #1d3faa);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-gradient 4s ease infinite;
+  display: inline-block;
+}
+.swiper-button-prev.swiper-button-disabled {
+  display: none !important;
+}
+.swiper-button-next {
+  display: none !important;
+}
+.swiper-wrapper {
+  overflow: visible;
+  padding-bottom: 72px;
+}
+.swiper-button-prev {
+  display: none !important;
+}
+span.swiper-pagination-bullet.swiper-pagination-bullet-active {
+  width: 22px;
+  height: 6px;
+  border-radius: 20px 0 0 27px;
+  background-color: #01121c;
+}
+/* Add this in your CSS file or inside a <style> tag */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px); /* Moves up 10px */
+  }
+}
+
+.float {
+  animation: float 2s ease-in-out infinite;
+}
+/* Custom animations */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-slow {
+  animation: spin-slow 12s linear infinite;
+}
+
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+.spin-circle {
+  animation: spin-slow 8s linear infinite;
+}
+.container {
+  max-width: 1330px;
+  margin: 0 auto;
+}
+@media screen and (max-width: 1024px) {
+  .tab-buttons {
+    flex-direction: column !important;
+  }
+  .spin-circle {
+    display: none;
+  }
+  .mobile {
+    display: none;
+  }
+}
+table.courses-list th:nth-child(5) {
+  min-width: 156px;
+}
+table.courses-list th,
+td {
+  border: 1px solid #60565614;
+  text-align: center;
+}
+.dark table.courses-list th,
+td {
+  border: 1px solid #ffffff36;
+  text-align: center;
+}
+@media screen and (max-width: 1200px) {
+  .list {
+    font-size: 20px;
+  }
+  .courses-list th:nth-child(2) {
+    min-width: 300px;
+  }
+  .chapters h2 {
+    font-size: 20px;
+  }
+  .chapters {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .courses-list th {
+    min-width: 300px;
+  }
+}
+@media screen and (max-width: 991px) {
+  .mobile-buttons {
+    display: block;
+  }
+  .list {
+    margin-bottom: 20px;
+  }
+  .mob-w {
+    min-width: 385px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .mob-w {
+    min-width: 200px;
+  }
+  .tab-buttons h2 {
+    text-align: center;
+  }
+}
+.features > div {
+  width: 100%;
+}
+.Category-input input {
+  font-size: 13px;
+}
+input#_r_1_ {
+  font-size: 13px;
+}
+.courses-list td,
+th {
+  border: 1px solid #f3f2f2;
+}
+
+.dark .courses-list td,
+th {
+  border: 1px solid #60565614;
 }

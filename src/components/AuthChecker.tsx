@@ -1,50 +1,107 @@
-'use client';
+"use client";
 
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
-import Loader from './Loader';
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Loader from "./Loader";
+import { getDecryptedItem } from "@/utils/storageHelper";
+import { useApiClient } from "@/lib/api";
 
-export default function AuthChecker({ children }: { children: React.ReactNode }) {
+export default function AuthChecker({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const pathname = usePathname();
-
-  const [hydrated, setHydrated] = useState(false); 
+  const [isClient, setIsClient] = useState(false);
   const [loading, setLoading] = useState(true);
+  const api = useApiClient();
 
   useEffect(() => {
-    setHydrated(true); 
+    setIsClient(true);
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!isClient) return;
 
-    const token = Cookies.get('token');
-    const role = Cookies.get('role');
-    const isAuthPage = pathname.startsWith('/auth');
-    const isNoAccessPage = pathname.startsWith('/user-access');
+    const checkAuth = async () => {
+      const token = getDecryptedItem("token");
 
-    if (isAuthPage || isNoAccessPage) {
+      const isAuthPage = pathname?.startsWith("/auth") || false;
+
+      const publicRoutes = [
+        "/",
+        "/about",
+        "/contact",
+        "/features",
+        "/pricing",
+        "/faq",
+        "/privacy-policy",
+        "/terms",
+        "/courses",
+        "/courses",
+      ];
+
+      const isCourseDetailPage =
+        pathname?.startsWith("/courses/") && pathname.split("/").length === 3;
+
+      const isPublicPage =
+        publicRoutes.includes(pathname) || isCourseDetailPage;
+      const isAccessDeniedPage = pathname === "access-denied";
+      if (isPublicPage || isAccessDeniedPage) {
+        console.log("✅ Allowing public page access");
+        setLoading(false);
+        return;
+      }
+
+      // 🎯 AUTH PAGES: If user is already logged in, redirect to appropriate dashboard
+      if (token && isAuthPage) {
+        try {
+          const response = await api.get("user/me");
+          if (response.success) {
+            const userRole = response.data.user.role;
+            console.log(
+              "User already logged in, redirecting to dashboard",
+              userRole,
+            );
+
+            if (userRole === "super-admin") {
+              router.replace("/super-admin/dashboard");
+            } else if (userRole === "admin") {
+              router.replace("/admin/dashboard");
+            } else if (userRole === "user") {
+              router.replace("/user/dashboard");
+            } else {
+              router.replace("/");
+            }
+            return;
+          }
+        } catch (error) {
+          // Token is invalid, allow access to auth page
+          console.log("Invalid token, allowing auth page access");
+          setLoading(false);
+        }
+        return;
+      }
+
+      // 🎯 PROTECTED PAGES: If no token, redirect to login
+      if (!token && !isPublicPage && !isAuthPage) {
+        console.log("❌ No token, redirecting to login");
+        router.replace("/auth/login");
+        return;
+      }
+
+      // 🎯 ALL OTHER CASES: Allow access
+
       setLoading(false);
-      return;
-    }
+    };
 
-    if (!token) {
-      router.replace('/auth/login');
-      return;
-    }
+    checkAuth();
+  }, [isClient, pathname, router, api]);
 
-    // if (role !== 'admin') {
-    //   router.replace('/user-access');
-    //   return;
-    // }
-
-    setLoading(false);
-  }, [hydrated, pathname]);
-
-if (!hydrated || loading) {
-  return <Loader />;
-}
+  if (!isClient || loading) {
+    return <Loader />;
+  }
 
   return <>{children}</>;
 }

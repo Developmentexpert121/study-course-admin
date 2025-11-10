@@ -1,40 +1,119 @@
-import { Users } from "@/components/Tables/users";
-import { TopChannelsSkeleton } from "@/components/Tables/users/skeleton";
-import { OverviewCardsGroup } from "./_components/overview-cards";
-import { OverviewCardsSkeleton } from "./_components/overview-cards/skeleton";
-import api from "@/lib/api";
-import { Suspense } from "react";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import ChartPageClient from "../users/ChartPageClient";
-import { createTimeFrameExtractor } from "@/utils/timeframe-extractor";
+// app/home/page.tsx
+"use client";
 
-// Define the expected type for searchParams
-interface SearchParams {
-  selected_time_frame?: string;
-}
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  AppDispatch,
+  RootState,
+  useAppSelector,
+  useAppDispatch,
+} from "@/store";
+import {
+  getAllRatings,
+  selectRatings,
+} from "@/store/slices/adminslice/ratinguser";
+import {
+  fetchActiveCourses,
+  selectAllCourses,
+  selectCoursesLoading,
+  selectCoursesError,
+  selectCoursesCount,
+} from "@/store/slices/homepage/homepage";
 
-// Update the HomePage function to handle searchParams as a Promise
-export default async function HomePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  // Await the searchParams to resolve the Promise
-  const resolvedSearchParams = await searchParams;
-  const { selected_time_frame } = resolvedSearchParams;
+import {
+  storeEmail,
+  clearError,
+  clearSuccess,
+} from "@/store/slices/homepage/emailSlice";
+import { selectEmailSuccess } from "@/store/slices/homepage/emailSlice";
+import { toast } from "react-toastify";
+import { toasterError } from "@/components/core/Toaster";
+import { getDecryptedItem } from "@/utils/storageHelper";
+import Banner from "@/components/Home/Banner";
+import Header from "@/components/Home/Header";
+import AboutSection from "@/components/Home/AboutSection";
+import CoursesSection from "@/components/Home/CoursesSection";
+import CompanyAboutSection from "@/components/Home/CompanyAboutSection";
+import CertificateSection from "@/components/Home/CertificateSection";
+import Testimonial from "@/components/Home/Testimonial";
+import Footer from "@/components/Home/Footer";
 
-  const res = await api.get("user");
-  const users :any= res?.data?.data?.users;
-  const timeFrameKey = createTimeFrameExtractor(selected_time_frame)("used_devices") ?? "used_devices:monthly";
+const Home = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+  const name: any = getDecryptedItem("name");
+  const role: any = getDecryptedItem("role");
+
+  const courses = useSelector(selectAllCourses);
+  const loading = useSelector(selectCoursesLoading);
+  const error = useSelector(selectCoursesError);
+  const count = useSelector(selectCoursesCount);
+  const ratings = useAppSelector(selectRatings);
+
+  const [email, setEmail] = useState("");
+  const success = useAppSelector(selectEmailSuccess);
+  console.log("Raw ratings from Redux:", ratings);
+  console.log("Ratings data:", ratings?.data);
+  console.log("Ratings array:", ratings?.data?.ratings);
+  useEffect(() => {
+    dispatch(fetchActiveCourses());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(getAllRatings());
+  }, [dispatch]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    // Clear previous messages
+    dispatch(clearError());
+    dispatch(clearSuccess());
+
+    try {
+      await dispatch(storeEmail({ email: email.trim() })).unwrap();
+      toast.success(
+        "Thank you for subscribing! You have been added to our mailing list.",
+      );
+      setEmail("");
+    } catch (err) {
+      toast.error("This email is already subscribed!");
+      setEmail("");
+      // Error is already handled in the slice
+    }
+  };
 
   return (
-    <>
-      <Suspense fallback={<OverviewCardsSkeleton />}>
-        <OverviewCardsGroup users={users} />
-      </Suspense>
-
-      <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-9 2xl:gap-7.5">
-        <div className="col-span-12">
-          <Breadcrumb pageName="Chart" />
-          <ChartPageClient timeFrameKey={timeFrameKey} />
-        </div>
+    <div className="bg-gray-50">
+      <Header name={name} role={role} />
+      <Banner />
+      <div className="bg-gray-50">
+        <AboutSection />
+        <CoursesSection courses={courses} />
       </div>
-    </>
+      <CompanyAboutSection />
+      <CertificateSection />
+      <Testimonial ratings={ratings?.ratings || []} />
+      <Footer
+        email={email}
+        setEmail={setEmail}
+        handleSubmit={handleSubmit}
+        loading={loading}
+      />
+    </div>
   );
-}
+};
+
+export default Home;

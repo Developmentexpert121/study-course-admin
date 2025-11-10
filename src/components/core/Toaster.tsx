@@ -1,7 +1,11 @@
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export const toasterSuccess = (message: string, time: number  = 3000, customId?: string | number) => {
+export const toasterSuccess = (
+  message: string,
+  time: number = 3000,
+  customId?: string | number,
+) => {
   toast(message || "process has been done successfully", {
     type: "success",
     toastId: customId,
@@ -12,26 +16,34 @@ export const toasterSuccess = (message: string, time: number  = 3000, customId?:
     pauseOnHover: true,
     draggable: true,
     theme: "colored",
-    className: 'text-sm toaster-white'
+    className: "text-sm toaster-white",
   });
 };
 
-export const toasterError = (message: string , time: number  = 3000, customId?: string | number ) => {
+export const toasterError = (
+  message: string,
+  time: number = 3000,
+  customId?: string | number,
+) => {
   toast(message || "An error has been encountered", {
     type: "error",
     toastId: customId,
     position: "bottom-right",
-    autoClose: time, 
+    autoClose: time,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
     draggable: true,
     theme: "colored",
-    className: 'text-sm toaster-white font-bold'
+    className: "text-sm toaster-white font-bold",
   });
 };
 
-export const toasterInfo = (message: string, time: number = 3000, customId?: string | number ) => {
+export const toasterInfo = (
+  message: string,
+  time: number = 3000,
+  customId?: string | number,
+) => {
   toast(message, {
     type: "info",
     toastId: customId,
@@ -40,22 +52,24 @@ export const toasterInfo = (message: string, time: number = 3000, customId?: str
     hideProgressBar: false,
     closeOnClick: true,
     draggable: true,
-    className: 'text-sm p-2 toaster-black'
+    className: "text-sm p-2 toaster-black",
   });
 };
 
-export const toasterWarning = (message: string ) => {
+export const toasterWarning = (
+  message: string,
+  time: number = 3000,
+  customId?: string | number,
+) => {
   toast(message, {
     type: "warning",
     position: "bottom-right",
-    autoClose: 3000, 
+    autoClose: 3000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
     draggable: true,
     theme: "colored",
-    className: 'text-sm toaster-white'
+    className: "text-sm toaster-white",
   });
 };
-
-

@@ -25,7 +25,7 @@ export function PersonalInfoForm() {
             height="sm"
           />
 
-          <InputGroup
+          {/* <InputGroup
             className="w-full sm:w-1/2"
             type="text"
             name="phoneNumber"
@@ -35,7 +35,7 @@ export function PersonalInfoForm() {
             icon={<CallIcon />}
             iconPosition="left"
             height="sm"
-          />
+          /> */}
         </div>
 
         <InputGroup
@@ -50,7 +50,7 @@ export function PersonalInfoForm() {
           height="sm"
         />
 
-        <InputGroup
+        {/* <InputGroup
           className="mb-5.5"
           type="text"
           name="username"
@@ -60,7 +60,7 @@ export function PersonalInfoForm() {
           icon={<UserIcon />}
           iconPosition="left"
           height="sm"
-        />
+        /> */}
 
         <TextAreaGroup
           className="mb-5.5"
