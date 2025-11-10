@@ -28,8 +28,25 @@ export default function AuthChecker({
       const token = getDecryptedItem("token");
 
       const isAuthPage = pathname?.startsWith("/auth") || false;
-      const isHomePage = pathname === "/" || pathname === "/";
-      const isPublicPage = isHomePage;
+
+      const publicRoutes = [
+        "/",
+        "/about",
+        "/contact",
+        "/features",
+        "/pricing",
+        "/faq",
+        "/privacy-policy",
+        "/terms",
+        "/courses",
+        "/courses",
+      ];
+
+      const isCourseDetailPage =
+        pathname?.startsWith("/courses/") && pathname.split("/").length === 3;
+
+      const isPublicPage =
+        publicRoutes.includes(pathname) || isCourseDetailPage;
       const isAccessDeniedPage = pathname === "access-denied";
       if (isPublicPage || isAccessDeniedPage) {
         console.log("✅ Allowing public page access");
@@ -43,7 +60,10 @@ export default function AuthChecker({
           const response = await api.get("user/me");
           if (response.success) {
             const userRole = response.data.user.role;
-            console.log("User already logged in, redirecting to dashboard" ,userRole);
+            console.log(
+              "User already logged in, redirecting to dashboard",
+              userRole,
+            );
 
             if (userRole === "super-admin") {
               router.replace("/super-admin/dashboard");
@@ -72,7 +92,7 @@ export default function AuthChecker({
       }
 
       // 🎯 ALL OTHER CASES: Allow access
-     
+
       setLoading(false);
     };
 
