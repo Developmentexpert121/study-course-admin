@@ -5,9 +5,6 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
   AppDispatch,
-  RootState,
-  useAppSelector,
-  useAppDispatch,
 } from "@/store";
 import {
   fetchActiveCourses,
@@ -23,7 +20,6 @@ import {
   X,
   Star,
   Clock,
-  Users,
   PlayCircle,
   BookOpen,
   ChevronDown,
@@ -41,7 +37,6 @@ const CoursesPage = () => {
 
   const courses = useSelector(selectAllCourses);
   const loading = useSelector(selectCoursesLoading);
-  const error = useSelector(selectCoursesError);
 
   const [email, setEmail] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,7 +110,7 @@ const CoursesPage = () => {
 
     // Rating filter
     if (ratingFilter > 0) {
-      filtered = filtered.filter((course) => course.ratings >= ratingFilter);
+      filtered = filtered.filter((course) => course.ratings ?? 0 >= ratingFilter);
     }
 
     // Sort courses - FIXED: Using correct field names
@@ -252,11 +247,10 @@ const CoursesPage = () => {
                 <button
                   key={category}
                   onClick={() => handleCategoryToggle(category)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 ${
-                    selectedCategories.includes(category)
-                      ? "bg-white text-blue-700 shadow-md"
-                      : "bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
-                  }`}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 ${selectedCategories.includes(category)
+                    ? "bg-white text-blue-700 shadow-md"
+                    : "bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
+                    }`}
                 >
                   {category}
                 </button>
@@ -429,11 +423,10 @@ const CoursesPage = () => {
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${
-                              i < rating
-                                ? "fill-current text-yellow-400"
-                                : "text-gray-300"
-                            }`}
+                            className={`h-4 w-4 ${i < rating
+                              ? "fill-current text-yellow-400"
+                              : "text-gray-300"
+                              }`}
                           />
                         ))}
                         <span className="ml-1">& Up</span>
@@ -477,21 +470,19 @@ const CoursesPage = () => {
                   <div className="flex rounded-lg border border-gray-300 p-1">
                     <button
                       onClick={() => setViewMode("grid")}
-                      className={`rounded-md p-2 ${
-                        viewMode === "grid"
-                          ? "bg-blue-100 text-blue-600"
-                          : "text-gray-500 hover:text-gray-700"
-                      }`}
+                      className={`rounded-md p-2 ${viewMode === "grid"
+                        ? "bg-blue-100 text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
+                        }`}
                     >
                       <Grid3X3 className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`rounded-md p-2 ${
-                        viewMode === "list"
-                          ? "bg-blue-100 text-blue-600"
-                          : "text-gray-500 hover:text-gray-700"
-                      }`}
+                      className={`rounded-md p-2 ${viewMode === "list"
+                        ? "bg-blue-100 text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
+                        }`}
                     >
                       <List className="h-4 w-4" />
                     </button>
@@ -829,11 +820,10 @@ const CourseCard = ({
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`h-4 w-4 ${
-                          star <= Math.floor(course.ratings || 0)
-                            ? "fill-current text-yellow-400"
-                            : "text-gray-300"
-                        }`}
+                        className={`h-4 w-4 ${star <= Math.floor(course.ratings || 0)
+                          ? "fill-current text-yellow-400"
+                          : "text-gray-300"
+                          }`}
                       />
                     ))}
                   </div>
@@ -925,11 +915,10 @@ const CourseCard = ({
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`h-4 w-4 ${
-                  star <= Math.floor(course.ratings || 0)
-                    ? "fill-current text-yellow-400"
-                    : "text-gray-300"
-                }`}
+                className={`h-4 w-4 ${star <= Math.floor(course.ratings || 0)
+                  ? "fill-current text-yellow-400"
+                  : "text-gray-300"
+                  }`}
               />
             ))}
           </div>
