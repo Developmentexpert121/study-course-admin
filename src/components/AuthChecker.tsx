@@ -39,8 +39,8 @@ export default function AuthChecker({
         "/privacy-policy",
         "/terms",
         "/courses",
-        "/courses",
       ];
+      console.log("dkjshfksdhf", pathname);
 
       const isCourseDetailPage =
         pathname?.startsWith("/courses/") && pathname.split("/").length === 3;

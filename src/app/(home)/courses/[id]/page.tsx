@@ -27,7 +27,6 @@ import { getDecryptedItem } from "@/utils/storageHelper";
 
 // Real API function to fetch course details
 const fetchCourseDetails = async (id: string) => {
-  console.log("33333##################");
   try {
     const userId = getDecryptedItem("user_id"); // Get user ID if logged in
     const token = getDecryptedItem("token"); // Get token if needed for auth
