@@ -74,7 +74,7 @@ const CoursesPage = () => {
 
   // Filter and sort courses - FIXED: Using price_type instead of isFree
   const filteredCourses = useMemo(() => {
-    let filtered = courses || [];
+    let filtered = [...(courses || [])];
 
     // Search filter
     if (searchQuery) {
@@ -137,8 +137,7 @@ const CoursesPage = () => {
         break;
       case "popular":
       default:
-        // You might want to add enrollment count to your model
-        filtered.sort((a, b) => (b.id || 0) - (a.id || 0)); // Fallback to ID sort
+        filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
         break;
     }
 
