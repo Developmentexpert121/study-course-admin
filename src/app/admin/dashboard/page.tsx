@@ -1,35 +1,36 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Book,
-  User,
   Users,
   BarChart3,
   CheckCircle,
-  XCircle,
-  Clock,
-  FileText,
   RefreshCw,
-  Eye,
-  Mail,
-  Star,
   TrendingUp,
   Activity,
-  DollarSign,
-  BookOpen,
   Award,
-  Target,
+  Zap,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
-  fetchInstructorDashboardStats,
-  selectDashboardStats,
-  selectDashboardLoading,
-  selectDashboardError,
+  fetchAdminCourseStats,
+  selectAdminCourseStats,
+  selectAdminCourseStatsLoading,
+  selectAdminCourseStatsError,
+  selectTop3Coursess,
+  selectAverageCompletionRate,
+  selectTotalAdminCourses,
+ selectedtotaluserscompleted,
   clearError,
+  selectedtotalcourses,
+  selectTotalAdminCoursesactive,
+  selectedtotalcoursesactivate,
+  selectedtotalcoursesEnrolled,
+  selectAllCoursesWithStats,
+  
+
 } from "@/store/slices/adminslice/admindashboard";
-import { useRouter } from "next/navigation";
 
 import {
   PieChart,
@@ -43,27 +44,38 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  LineChart,
-  Line,
-  Area,
-  AreaChart,
-  ComposedChart,
 } from "recharts";
+import { getDecryptedItem } from "@/utils/storageHelper";
 
-export default function InstructorDashboardPage() {
+export default function AdminDashboardPage() {
   const dispatch = useAppDispatch();
-  const router = useRouter();
+  const userId: any = getDecryptedItem("userId");
 
   // Redux selectors
-  const stats = useAppSelector(selectDashboardStats);
-  const loading = useAppSelector(selectDashboardLoading);
-  const error = useAppSelector(selectDashboardError);
+  const stats = useAppSelector(selectAdminCourseStats);
+  const loading = useAppSelector(selectAdminCourseStatsLoading);
+  const error = useAppSelector(selectAdminCourseStatsError);
+  const totalCourses = useAppSelector(selectTotalAdminCourses);
+  const totalCoursesactive = useAppSelector(selectTotalAdminCoursesactive);
+  const completionRate = useAppSelector(selectAverageCompletionRate);
+  
+  
+  const totalcourse = useAppSelector(selectedtotalcourses);
+  const totalactivarecourse = useAppSelector(selectedtotalcoursesactivate)
+  const totalEnrollments = useAppSelector(selectedtotalcoursesEnrolled);
+  const totalCompleted = useAppSelector(selectedtotaluserscompleted);
+  const top3Courses = useAppSelector(selectTop3Coursess);
+  const allcourse = useAppSelector(selectAllCoursesWithStats);
 
-  console.log("Instructor Dashboard Stats Data:", stats);
+
+console.log("welcome to the page", allcourse)
+
 
   useEffect(() => {
-    dispatch(fetchInstructorDashboardStats());
-  }, [dispatch]);
+    if (userId) {
+      dispatch(fetchAdminCourseStats(userId));
+    }
+  }, [dispatch, userId]);
 
   useEffect(() => {
     if (error) {
@@ -75,130 +87,68 @@ export default function InstructorDashboardPage() {
   }, [error, dispatch]);
 
   const handleRefresh = () => {
-    dispatch(fetchInstructorDashboardStats());
+    dispatch(fetchAdminCourseStats(userId));
   };
 
-  // Prepare chart data from API
-  const courseStatusData = [
-    {
-      name: "Active",
-      value: stats?.courses?.active || 0,
-      color: "#10b981",
-    },
-    {
-      name: "Inactive",
-      value: stats?.courses?.inactive || 0,
-      color: "#ef4444",
-    },
-    {
-      name: "Draft",
-      value: stats?.courses?.draft || 0,
-      color: "#3b82f6",
-    },
-  ];
+  // Prepare chart data
+  const topCoursesChartData = top3Courses.map((course: any) => ({
+    name: course.title?.substring(0, 15) || "Course",
+    enrollments: course.enrollment_count || 0,
+    completions: course.completion_count || 0,
+  }));
 
-  const enrollmentStatusData = [
+  const enrollmentDistributionData = [
     {
-      name: "Active",
-      value: stats?.enrollments?.active || 0,
-      fill: "#10b981",
+      name: "Enrolled",
+      value: (totalEnrollments || 0) - (totalCompleted || 0),
+      color: "#3b82f6",
     },
     {
       name: "Completed",
-      value: stats?.enrollments?.completed || 0,
-      fill: "#3b82f6",
-    },
-    {
-      name: "Total",
-      value: stats?.enrollments?.total || 0,
-      fill: "#8b5cf6",
+      value: totalCompleted || 0,
+      color: "#10b981",
     },
   ];
 
-  const revenuePerformanceData = [
-    {
-      name: "Total Revenue",
-      value: parseFloat(stats?.performance?.totalRevenue || "0"),
-      fill: "#10b981",
-    },
-    {
-      name: "Avg Rating",
-      value: parseFloat(stats?.performance?.averageRating?.toString() || "0"),
-      fill: "#f59e0b",
-    },
-  ];
-
-  const studentMetricsData = [
-    {
-      name: "Total Students",
-      count: stats?.students?.total || 0,
-    },
-    {
-      name: "Avg Per Course",
-      count: parseFloat(stats?.students?.averagePerCourse?.toString() || "0"),
-    },
-  ];
-
-  const coursePerformanceData = [
-    {
-      name: "Courses",
-      total: stats?.courses?.total || 0,
-      active: stats?.courses?.active || 0,
-      draft: stats?.courses?.draft || 0,
-    },
-  ];
-
-  const enrollmentTrendData = [
-    {
-      name: "Enrollments",
-      total: stats?.enrollments?.total || 0,
-      active: stats?.enrollments?.active || 0,
-      completed: stats?.enrollments?.completed || 0,
-      completionRate: parseFloat(stats?.enrollments?.completionRate?.replace('%', '') || "0"),
-    },
-  ];
-
-  const certificateStatsData = [
-    {
-      name: "Certificates",
-      issued: stats?.certificates?.total || 0,
-      completionRate: parseFloat(stats?.enrollments?.completionRate?.replace('%', '') || "0"),
-    },
-  ];
-
-  // Calculate growth percentages
   const calculateTrend = (current: any, previous = 0) => {
     if (!previous) return "+0%";
     const growth = ((current - previous) / previous) * 100;
     return growth > 0 ? `+${growth.toFixed(1)}%` : `${growth.toFixed(1)}%`;
   };
 
-  // Custom tooltip for charts
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-          <p className="font-semibold text-gray-900 dark:text-white">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }} className="text-sm">
-              {entry.name}: {entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Loading state
-  if (loading && !stats) {
+  // Loading state - Show skeleton loaders
+  if (loading && !stats?.total_courses) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-b-4 border-t-4 border-blue-600"></div>
-          <p className="font-medium text-gray-600 dark:text-gray-300">
-            Loading instructor dashboard statistics...
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="mx-auto max-w-7xl">
+          {/* Header Skeleton */}
+          <div className="mb-8 rounded-2xl bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-600 p-8 shadow-2xl h-32 animate-pulse"></div>
+
+          {/* Cards Skeleton */}
+          <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800 animate-pulse"
+              >
+                <div className="h-4 bg-gray-300 rounded dark:bg-gray-600 mb-4 w-1/2"></div>
+                <div className="h-8 bg-gray-300 rounded dark:bg-gray-600 mb-4 w-3/4"></div>
+                <div className="h-3 bg-gray-300 rounded dark:bg-gray-600 w-1/2"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Charts Skeleton */}
+          <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:col-span-2 animate-pulse">
+              <div className="h-6 bg-gray-300 rounded dark:bg-gray-600 mb-4 w-1/3"></div>
+              <div className="h-72 bg-gray-300 rounded dark:bg-gray-600"></div>
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800 animate-pulse">
+              <div className="h-6 bg-gray-300 rounded dark:bg-gray-600 mb-4 w-1/3"></div>
+              <div className="h-72 bg-gray-300 rounded dark:bg-gray-600"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -239,10 +189,10 @@ export default function InstructorDashboardPage() {
             <div>
               <h1 className="flex items-center text-3xl font-bold text-white">
                 <BarChart3 className="mr-3 h-10 w-10" />
-                Instructor Dashboard
+                Course Performance Dashboard
               </h1>
               <p className="mt-2 text-blue-100">
-                Comprehensive statistics and insights about your courses and students
+                Track your course enrollments, completions, and performance metrics
               </p>
             </div>
             <button
@@ -261,39 +211,39 @@ export default function InstructorDashboardPage() {
           {[
             {
               title: "Total Courses",
-              value: stats?.courses?.total || 0,
+              value: totalcourse,
               icon: <Book className="h-8 w-8" />,
               gradient: "from-blue-500 to-blue-600",
               iconBg: "bg-blue-500",
-              sub: `${stats?.courses?.active || 0} active`,
-              trend: calculateTrend(stats?.courses?.total),
-            },
-            {
-              title: "Total Students",
-              value: stats?.students?.total || 0,
-              icon: <Users className="h-8 w-8" />,
-              gradient: "from-green-500 to-green-600",
-              iconBg: "bg-green-500",
-              sub: `${stats?.students?.averagePerCourse || 0} avg/course`,
-              trend: calculateTrend(stats?.students?.total),
+              sub: ` ${totalactivarecourse} Active course`,
+              trend: calculateTrend(totalCourses),
             },
             {
               title: "Total Enrollments",
-              value: stats?.enrollments?.total || 0,
-              icon: <User className="h-8 w-8" />,
-              gradient: "from-purple-500 to-purple-600",
-              iconBg: "bg-purple-500",
-              sub: `${stats?.enrollments?.completed || 0} completed`,
-              trend: calculateTrend(stats?.enrollments?.total),
+              value: totalEnrollments,
+              icon: <Users className="h-8 w-8" />,
+              gradient: "from-green-500 to-green-600",
+              iconBg: "bg-green-500",
+              sub: `Avg ${totalCompleted} per course`,
+              trend: calculateTrend(totalEnrollments),
             },
             {
-              title: "Total Revenue",
-              value: `$${stats?.performance?.totalRevenue || "0"}`,
-              icon: <DollarSign className="h-8 w-8" />,
+              title: "Completed",
+              value: totalCompleted,
+              icon: <CheckCircle className="h-8 w-8" />,
               gradient: "from-orange-500 to-orange-600",
               iconBg: "bg-orange-500",
-              sub: `Avg rating: ${stats?.performance?.averageRating || 0}`,
-              trend: calculateTrend(parseFloat(stats?.performance?.totalRevenue || "0")),
+              sub: `${completionRate}% completion rate`,
+              trend: calculateTrend(totalCompleted),
+            },
+            {
+              title: "Top Course",
+              value: top3Courses[0]?.enrollment_count || 0,
+              icon: <Award className="h-8 w-8" />,
+              gradient: "from-purple-500 to-purple-600",
+              iconBg: "bg-purple-500",
+              sub: top3Courses[0]?.title?.substring(0, 20) || "No courses",
+              trend: "+0%",
             },
           ].map((card, i) => (
             <div
@@ -334,215 +284,166 @@ export default function InstructorDashboardPage() {
 
         {/* Charts Section */}
         <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-          {/* Course Status Pie Chart */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          {/* Top 3 Courses Bar Chart */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
             <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-              <Book className="mr-2 h-5 w-5 text-blue-600" />
-              Course Status Distribution
+              <Zap className="mr-2 h-5 w-5 text-yellow-600" />
+              Top 3 Performing Courses
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={courseStatusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }: { name?: string; percent?: number }) =>
-                    `${name}: ${((percent || 0) * 100).toFixed(0)}%`
-                  }
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {courseStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+            {topCoursesChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topCoursesChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="name" stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="enrollments" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="completions" fill="#10b981" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-[300px] items-center justify-center text-gray-500">
+                No course data available
+              </div>
+            )}
           </div>
 
-          {/* Enrollment Status Bar Chart */}
+          {/* Enrollment Distribution Pie Chart */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-              <Users className="mr-2 h-5 w-5 text-green-600" />
-              Enrollment Status
+              <Activity className="mr-2 h-5 w-5 text-blue-600" />
+              Enrollment Distribution
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={enrollmentStatusData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="name" stroke="#6b7280" />
-                <YAxis stroke="#6b7280" />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                  {enrollmentStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Revenue & Rating Composed Chart */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-              <DollarSign className="mr-2 h-5 w-5 text-orange-600" />
-              Revenue & Rating
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={revenuePerformanceData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="name" stroke="#6b7280" />
-                <YAxis stroke="#6b7280" />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Bar dataKey="value" fill="#10b981" radius={[8, 8, 0, 0]} />
-                <Line type="monotone" dataKey="value" stroke="#f59e0b" strokeWidth={3} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Student Metrics Area Chart */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-              <TrendingUp className="mr-2 h-5 w-5 text-purple-600" />
-              Student Metrics
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={studentMetricsData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="name" stroke="#6b7280" />
-                <YAxis stroke="#6b7280" />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="count"
-                  stroke="#8b5cf6"
-                  fill="#8b5cf6"
-                  fillOpacity={0.6}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Course Performance Bar Chart */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-              <Activity className="mr-2 h-5 w-5 text-red-600" />
-              Course Performance
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={coursePerformanceData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="name" stroke="#6b7280" />
-                <YAxis stroke="#6b7280" />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Bar dataKey="total" fill="#3b82f6" radius={[8, 8, 0, 0]} name="Total Courses" />
-                <Bar dataKey="active" fill="#10b981" radius={[8, 8, 0, 0]} name="Active Courses" />
-                <Bar dataKey="draft" fill="#f59e0b" radius={[8, 8, 0, 0]} name="Draft Courses" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Certificate Stats Pie Chart */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-              <Award className="mr-2 h-5 w-5 text-yellow-600" />
-              Certificate Statistics
-            </h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={[
-                    { name: 'Certificates Issued', value: stats?.certificates?.total || 0, color: '#10b981' },
-                    { name: 'Completion Rate', value: parseFloat(stats?.enrollments?.completionRate?.replace('%', '') || "0"), color: '#3b82f6' },
-                  ]}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }: { name?: string; percent?: number }) =>
-                    `${name}: ${((percent || 0) * 100).toFixed(0)}%`
-                  }
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  <Cell key="cell-0" fill="#10b981" />
-                  <Cell key="cell-1" fill="#3b82f6" />
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+            {enrollmentDistributionData[0].value > 0 || enrollmentDistributionData[1].value > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={enrollmentDistributionData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }: { name?: string; percent?: number }) =>
+                      `${name}: ${((percent || 0) * 100).toFixed(0)}%`
+                    }
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {enrollmentDistributionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-[300px] items-center justify-center text-gray-500">
+                No enrollment data available
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Additional Metrics Section */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {/* Completion Rate */}
+        {/* Top 3 Courses Details Table */}
+        {top3Courses.length > 0 && (
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Completion Rate
-                </h3>
-                <p className="text-3xl font-bold text-green-600">
-                  {stats?.enrollments?.completionRate || "0%"}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Course completion success
-                </p>
-              </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-500 text-white">
-                <Target className="h-8 w-8" />
-              </div>
+            <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+              <Book className="mr-2 h-5 w-5 text-indigo-600" />
+              Top 3 Courses Details
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Course Title
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Enrollments
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Completions
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Completion Rate
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Rating
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {top3Courses.map((course: any, index: number) => (
+                    <tr
+                      key={index}
+                      className="border-b border-gray-100 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
+                    >
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                        <div className="font-medium line-clamp-2">{course.title}</div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                          {course.enrollment_count}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                          {course.completion_count}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <div className="flex items-center">
+                          <div className="mr-2 h-2 w-24 rounded-full bg-gray-200 dark:bg-gray-600">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-green-500 to-blue-500"
+                              style={{
+                                width: `${
+                                  course.enrollment_count > 0
+                                    ? (course.completion_count / course.enrollment_count) * 100
+                                    : 0
+                                }%`,
+                              }}
+                            ></div>
+                          </div>
+                          <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                            {course.enrollment_count > 0
+                              ? (
+                                  (course.completion_count / course.enrollment_count) *
+                                  100
+                                ).toFixed(1)
+                              : 0}
+                            %
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        <div className="flex items-center">
+                          <span className="text-yellow-500">★</span>
+                          <span className="ml-1 font-medium">{course.ratings || "N/A"}</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
+        )}
 
-          {/* Average Chapters per Course */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Avg Chapters/Course
-                </h3>
-                <p className="text-3xl font-bold text-blue-600">
-                  {stats?.chapters?.averagePerCourse || 0}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Content distribution
-                </p>
-              </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-500 text-white">
-                <BookOpen className="h-8 w-8" />
-              </div>
-            </div>
+        {/* No Data State */}
+        {!loading && top3Courses.length === 0 && (
+          <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center dark:border-gray-600 dark:bg-gray-800/50">
+            <BarChart3 className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <h3 className="mb-2 text-lg font-semibold text-gray-600 dark:text-gray-400">
+              No courses found
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400">
+              You haven't created any courses yet. Start creating courses to see your performance metrics.
+            </p>
           </div>
-
-          {/* Student Engagement */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Student Engagement
-                </h3>
-                <p className="text-3xl font-bold text-purple-600">
-                  {stats?.performance?.averageRating || 0}/5
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Average course rating
-                </p>
-              </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-purple-500 text-white">
-                <Star className="h-8 w-8" />
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

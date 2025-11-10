@@ -28,7 +28,59 @@ export default function OverviewTab({
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   };
 
-  const totalDuration = statistics.total_duration || 0;
+  const totalDuration = statistics.total_duration_display || "Not specified";
+
+  // Helper function to safely get progress values from the actual API structure
+  const getProgressData = () => {
+    if (!isEnrolled || !userData) {
+      return {
+        chaptersCompleted: 0,
+        lessonsCompleted: 0,
+        overallProgress: 0,
+      };
+    }
+
+    // Calculate progress from chapters data
+    let chaptersCompleted = 0;
+    let lessonsCompleted = 0;
+    let totalLessons = 0;
+
+    if (courseData.chapters && Array.isArray(courseData.chapters)) {
+      courseData.chapters.forEach((chapter: any) => {
+        if (chapter.user_progress?.completed) {
+          chaptersCompleted++;
+        }
+
+        // Count lessons in this chapter
+        if (chapter.lessons && Array.isArray(chapter.lessons)) {
+          totalLessons += chapter.lessons.length;
+
+          // Count completed lessons in this chapter
+          chapter.lessons.forEach((lesson: any) => {
+            if (lesson.completed) {
+              lessonsCompleted++;
+            }
+          });
+        }
+      });
+    }
+
+    // Calculate overall progress percentage
+    const totalChapters = statistics.total_chapters || 0;
+    const overallProgress =
+      totalChapters > 0
+        ? Math.round((chaptersCompleted / totalChapters) * 100)
+        : userData.progress || 0; // Fallback to userData.progress if available
+
+    return {
+      chaptersCompleted,
+      lessonsCompleted,
+      overallProgress,
+      totalLessons,
+    };
+  };
+
+  const progressData = getProgressData();
 
   return (
     <div className="space-y-6">
@@ -41,7 +93,7 @@ export default function OverviewTab({
           <BookOpen className="mr-3 h-5 w-5 text-blue-500" />
           <div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Chapters
+              Total Chapters
             </div>
             <div className="font-medium text-gray-900 dark:text-white">
               {statistics.total_chapters || 0}
@@ -53,7 +105,7 @@ export default function OverviewTab({
           <Video className="mr-3 h-5 w-5 text-green-500" />
           <div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Lessons
+              Total Lessons
             </div>
             <div className="font-medium text-gray-900 dark:text-white">
               {statistics.total_lessons || 0}
@@ -64,7 +116,9 @@ export default function OverviewTab({
         <div className="flex items-center rounded-lg border border-gray-200 p-4 dark:border-gray-700">
           <FileQuestion className="mr-3 h-5 w-5 text-purple-500" />
           <div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">MCQs</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Total MCQs
+            </div>
             <div className="font-medium text-gray-900 dark:text-white">
               {statistics.total_mcqs || 0}
             </div>
@@ -78,7 +132,7 @@ export default function OverviewTab({
               Duration
             </div>
             <div className="font-medium text-gray-900 dark:text-white">
-              {formatDuration(totalDuration)}
+              {totalDuration}
             </div>
           </div>
         </div>
@@ -104,14 +158,14 @@ export default function OverviewTab({
             <div className="font-medium text-gray-900 dark:text-white">
               {courseData.price_type === "free"
                 ? "Free"
-                : `$${courseData.price}`}
+                : `$${parseFloat(courseData.price).toFixed(2)}`}
             </div>
           </div>
         </div>
       </div>
 
       {/* Enhanced User Progress for Enrolled Users */}
-      {isEnrolled && userData.progress && (
+      {isEnrolled && (
         <div className="rounded-lg border border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-900/20">
           <h4 className="mb-4 flex items-center gap-2 text-lg font-semibold text-green-900 dark:text-green-100">
             <Trophy className="h-5 w-5" />
@@ -120,7 +174,7 @@ export default function OverviewTab({
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-green-700 dark:text-green-300">
-                {userData.progress.chapters_completed}
+                {progressData.chaptersCompleted}
               </div>
               <div className="text-sm text-green-600 dark:text-green-400">
                 Chapters Done
@@ -128,7 +182,7 @@ export default function OverviewTab({
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-700 dark:text-green-300">
-                {userData.progress.lessons_completed}
+                {progressData.lessonsCompleted}
               </div>
               <div className="text-sm text-green-600 dark:text-green-400">
                 Lessons Completed
@@ -136,7 +190,7 @@ export default function OverviewTab({
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-700 dark:text-green-300">
-                {Math.round(userData.progress.overall_progress)}%
+                {progressData.overallProgress}%
               </div>
               <div className="text-sm text-green-600 dark:text-green-400">
                 Overall Progress
@@ -144,12 +198,53 @@ export default function OverviewTab({
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-700 dark:text-green-300">
-                {formatDuration(totalDuration)}
+                {totalDuration}
               </div>
               <div className="text-sm text-green-600 dark:text-green-400">
                 Total Duration
               </div>
             </div>
+          </div>
+
+          {/* Progress bar for visual representation */}
+          <div className="mt-4">
+            <div className="mb-2 flex justify-between text-sm text-green-700 dark:text-green-300">
+              <span>Course Progress</span>
+              <span>{progressData.overallProgress}%</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-green-200 dark:bg-green-700">
+              <div
+                className="h-full rounded-full bg-green-500 transition-all duration-300"
+                style={{ width: `${progressData.overallProgress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Course Description */}
+      {courseData.description && (
+        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <h4 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+            Course Description
+          </h4>
+          <div
+            className="prose max-w-none text-gray-600 dark:text-gray-300"
+            dangerouslySetInnerHTML={{ __html: courseData.description }}
+          />
+        </div>
+      )}
+
+      {/* Course Features */}
+      {courseData.features && courseData.features.length > 0 && (
+        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <h4 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+            What You'll Get
+          </h4>
+          <div className="prose max-w-none text-gray-600 dark:text-gray-300">
+            {courseData.features.map((feature: string, index: number) => (
+              <div key={index} dangerouslySetInnerHTML={{ __html: feature }} />
+            ))}
           </div>
         </div>
       )}

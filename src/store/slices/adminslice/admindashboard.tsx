@@ -1,162 +1,164 @@
-// slices/instructorDashboardSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { reduxApiClient } from '@/lib/redux-api';
 
 // Types
 interface CourseStats {
-  total: number;
-  active: number;
-  inactive: number;
-  draft: number;
+  id: number;
+  title: string;
+  subtitle: string;
+  category: string;
+  price: number;
+  image: string;
+  ratings: number;
+  status: string;
+  is_active: boolean;
+  enrollment_count: number;
+  completion_count: number;
 }
 
-interface ChapterStats {
-  total: number;
-  averagePerCourse: number;
+
+
+interface AdminCourseStats {
+  total_courses: number;
+  total_active_courses: number;
+  total_enrollments: number;
+  total_users_completed: number;
+  top_3_courses: CourseStats[];
+  all_courses: CourseStats[];
 }
 
-interface EnrollmentStats {
-  total: number;
-  active: number;
-  completed: number;
-  completionRate: string;
-}
-
-interface StudentStats {
-  total: number;
-  averagePerCourse: number;
-}
-
-interface PerformanceStats {
-  averageRating: number;
-  totalRevenue: string;
-}
-
-interface SummaryStats {
-  totalCourses: number;
-  activeCourses: number;
-  totalChapters: number;
-  totalEnrollments: number;
-  totalStudents: number;
-  totalCertificatesIssued: number;
-  averageRating: number;
-  totalRevenue: string;
-}
-
-interface DashboardStats {
-  courses: CourseStats;
-  chapters: ChapterStats;
-  enrollments: EnrollmentStats;
-  students: StudentStats;
-  certificates: {
-    total: number;
-  };
-  performance: PerformanceStats;
-  summary: SummaryStats;
-}
-
-interface DashboardState {
-  stats: DashboardStats | null;
+interface AdminStatsState {
+  data: AdminCourseStats | null;
   loading: boolean;
   error: string | null;
-  lastUpdated: string | null;
 }
 
 // Initial state
-const initialState: DashboardState = {
-  stats: null,
+const initialState: AdminStatsState = {
+  data: null,
   loading: false,
   error: null,
-  lastUpdated: null,
 };
 
-// Async thunk for fetching dashboard stats
-export const fetchInstructorDashboardStats = createAsyncThunk(
-  'instructorDashboard/fetchStats',
-  async (_, { rejectWithValue }) => {
+// Async thunk for fetching admin course stats
+export const fetchAdminCourseStats = createAsyncThunk(
+  'adminDashboard/fetchAdminCourseStats',
+  async (adminId: string, { rejectWithValue }) => {
     try {
-      const response = await reduxApiClient.get('user/dashboard-stats/admin');
+      const response = await reduxApiClient.get(`user/admin/${adminId}`);
       
       if (!response.success) {
-        return rejectWithValue(response.error?.message || 'Failed to fetch dashboard statistics');
+        return rejectWithValue(response.error?.message || 'Failed to fetch admin course stats');
       }
 
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'An error occurred while fetching dashboard statistics');
+      return rejectWithValue(error.message || 'Failed to fetch admin course stats');
     }
   }
 );
 
 // Slice
-const instructorDashboardSlice = createSlice({
-  name: 'instructorDashboard',
+const adminDashboardSlice = createSlice({
+  name: 'adminDashboard',
   initialState,
   reducers: {
-    clearStats: (state) => {
-      state.stats = null;
-      state.error = null;
-      state.lastUpdated = null;
-    },
     clearError: (state) => {
       state.error = null;
     },
-    updateStats: (state, action: PayloadAction<Partial<DashboardStats>>) => {
-      if (state.stats) {
-        state.stats = {
-          ...state.stats,
-          ...action.payload,
-        };
-      }
+    clearAdminStats: (state) => {
+      state.data = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch stats
-      .addCase(fetchInstructorDashboardStats.pending, (state) => {
+      .addCase(fetchAdminCourseStats.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchInstructorDashboardStats.fulfilled, (state, action) => {
+      .addCase(fetchAdminCourseStats.fulfilled, (state, action) => {
         state.loading = false;
-        state.stats = action.payload;
-        state.lastUpdated = new Date().toISOString();
+        state.data = action.payload;
         state.error = null;
       })
-      .addCase(fetchInstructorDashboardStats.rejected, (state, action) => {
+      .addCase(fetchAdminCourseStats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        state.stats = null;
+        state.data = null;
       });
   },
 });
 
-// Export actions and reducer
-export const { clearStats, clearError, updateStats } = instructorDashboardSlice.actions;
-export default instructorDashboardSlice.reducer;
+// Export actions
+export const { clearError, clearAdminStats } = adminDashboardSlice.actions;
 
 // Selectors
-export const selectDashboardStats = (state: { instructorDashboard: DashboardState }) => 
-  state.instructorDashboard.stats;
+export const selectAdminCourseStats = (state: { adminDashboard: AdminStatsState }) => 
+  // state?.instructorDashboard?.data;
+{console.log("welcome to state ",  state?.instructorDashboard?.data?.data?.all_courses)}
 
-export const selectDashboardLoading = (state: { instructorDashboard: DashboardState }) => 
-  state.instructorDashboard.loading;
+export const selectAdminCourseStatsLoading = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.loading;
 
-export const selectDashboardError = (state: { instructorDashboard: DashboardState }) => 
-  state.instructorDashboard.error;
+export const selectAdminCourseStatsError = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.data.error;
 
-export const selectDashboardLastUpdated = (state: { instructorDashboard: DashboardState }) => 
-  state.instructorDashboard.lastUpdated;
+// Derived selectors for specific data
+export const selectTotalAdminCourses = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.datatotal_courses || 0;
 
-// Derived selectors
-export const selectCourseStats = (state: { instructorDashboard: DashboardState }) => 
-  state.instructorDashboard.stats?.courses;
+export const selectTotalAdminCoursesactive = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.datatotal_active_courses || 0;
 
-export const selectEnrollmentStats = (state: { instructorDashboard: DashboardState }) => 
-  state.instructorDashboard.stats?.enrollments;
+export const selecttotalenrollments = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.datatotal_enrollments || 0;
 
-export const selectPerformanceStats = (state: { instructorDashboard: DashboardState }) => 
-  state.instructorDashboard.stats?.performance;
+export const selectTotalUsersCompleted = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.datatotal_users_completed || 0;
 
-export const selectSummaryStats = (state: { instructorDashboard: DashboardState }) => 
-  state.instructorDashboard.stats?.summary;
+export const selectTop3Courses = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.datatop_3_courses || [];
+
+export const selectAverageEnrollmentPerCourse = (state: { adminDashboard: AdminStatsState }) => {
+  const data = state?.instructorDashboard?.data;
+  if (!data || data.total_courses === 0) return 0;
+  return Math.round(data.total_enrollments / data.total_courses);
+};
+
+export const selectAverageCompletionRate = (state: { adminDashboard: AdminStatsState }) => {
+  const data = state?.instructorDashboard?.data;
+  if (!data || data.total_enrollments === 0) return 0;
+  return Math.round((data.total_users_completed / data.total_enrollments) * 100);
+};
+
+
+
+
+
+
+
+//my data 
+
+export const selectedtotalcourses = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.data?.total_courses;
+
+export const selectedtotalcoursesactivate = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.data?.total_active_courses;
+
+
+export const selectedtotalcoursesEnrolled = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.data?.total_enrollments;
+
+export const selectedtotaluserscompleted = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.data?.total_users_completed;
+
+
+export const selectTop3Coursess = (state: { adminDashboard: AdminStatsState }) => 
+  state?.instructorDashboard?.data?.data?.top_3_courses || [];
+
+
+
+export const selectAllCoursesWithStats = (state: { adminDashboard: AdminStatsState }) => 
+    state?.instructorDashboard?.data?.data?.all_courses || [];
+// Export reducer
+export default adminDashboardSlice.reducer;

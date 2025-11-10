@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import SafeHtmlRenderer from "@/components/SafeHtmlRenderer";
 
 const Wishlist = () => {
   const { wishlist, loading, error, removeFromWishlist, fetchWishlist } =
@@ -157,30 +158,6 @@ const Wishlist = () => {
                 </div>
               </div>
             </div>
-
-            {wishlist.length > 0 && (
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                {/* Sort Dropdown */}
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                >
-                  <option value="newest">Sort by: Newest</option>
-                  <option value="title">Sort by: Title</option>
-                  <option value="rating">Sort by: Rating</option>
-                </select>
-
-                <Link
-                  href="/user/courses"
-                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
-                >
-                  <BookOpen className="h-5 w-5" />
-                  Explore More Courses
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            )}
           </div>
         </div>
 
@@ -207,20 +184,20 @@ const Wishlist = () => {
               </p>
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                 <Link
-                  href="/user/courses"
+                  href="/user/dashboard"
                   className="inline-flex items-center gap-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
                 >
                   <BookOpen className="h-6 w-6" />
                   Start Exploring Courses
                   <ArrowRight className="h-5 w-5" />
                 </Link>
-                <Link
+                {/* <Link
                   href="/user/courses?filter=popular"
                   className="inline-flex items-center gap-3 rounded-xl border border-gray-300 bg-white px-8 py-4 text-lg font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
                 >
                   <Star className="h-6 w-6 text-yellow-500" />
                   View Popular Courses
-                </Link>
+                </Link> */}
               </div>
             </div>
           </div>
@@ -388,9 +365,15 @@ const Wishlist = () => {
                       {item.course.title}
                     </h3>
 
-                    <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                      {item.course.description || "No description available"}
-                    </p>
+                    <div className="mb-4 line-clamp-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                      {/* {item.course.description || "No description available"} */}
+                      <SafeHtmlRenderer
+                        html={item?.course.description}
+                        maxLength={100}
+                        className="text-sm leading-6"
+                        showMoreButton={false}
+                      />
+                    </div>
 
                     {/* Course Meta */}
                     <div className="mb-4 space-y-3">

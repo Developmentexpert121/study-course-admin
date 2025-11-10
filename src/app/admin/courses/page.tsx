@@ -196,7 +196,7 @@ export default function Courses({ className }: any) {
   return (
     <div
       className={cn(
-        "grid overflow-auto rounded-[10px] px-7.5 pb-4 pt-7.5 dark:bg-gray-dark ",
+        "grid overflow-auto rounded-[10px] px-7.5 pb-4 pt-7.5 dark:bg-gray-dark",
         className,
       )}
     >
@@ -232,7 +232,7 @@ export default function Courses({ className }: any) {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     fetchCourses();
                   }
                 }}
@@ -261,11 +261,11 @@ export default function Courses({ className }: any) {
           {/* Action Buttons */}
           <div className="flex">
 
-            {(search || statusFilter !== 'all') && (
+            {(search || statusFilter !== "all") && (
               <button
                 onClick={() => {
-                  setSearch('');
-                  setStatusFilter('all');
+                  setSearch("");
+                  setStatusFilter("all");
                 }}
                 className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
               >
@@ -273,12 +273,10 @@ export default function Courses({ className }: any) {
               </button>
             )}
           </div>
-
-
         </div>
 
         {/* Active Filters Display */}
-        {(search || statusFilter !== 'all') && (
+        {(search || statusFilter !== "all") && (
           <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>Active filters:</span>
             {search && (
@@ -286,7 +284,7 @@ export default function Courses({ className }: any) {
                 Search: "{search}"
               </span>
             )}
-            {statusFilter !== 'all' && (
+            {statusFilter !== "all" && (
               <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
                 Status: {statusFilter}
               </span>
@@ -302,8 +300,12 @@ export default function Courses({ className }: any) {
               <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Courses</h3>
-              <p className="text-xl font-semibold text-gray-900 dark:text-white">{courses.length}</p>
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Total Courses
+              </h3>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                {courses.length}
+              </p>
             </div>
           </div>
         </div>
@@ -314,9 +316,15 @@ export default function Courses({ className }: any) {
               <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Active</h3>
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Active
+              </h3>
               <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {courses.filter((course: { status: string }) => course.status === 'active').length}
+                {
+                  courses.filter(
+                    (course: { status: string }) => course.status === "active",
+                  ).length
+                }
               </p>
             </div>
           </div>
@@ -328,9 +336,15 @@ export default function Courses({ className }: any) {
               <FileText className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Draft</h3>
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Draft
+              </h3>
               <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {courses.filter((course: { status: string }) => course.status === 'draft').length}
+                {
+                  courses.filter(
+                    (course: { status: string }) => course.status === "draft",
+                  ).length
+                }
               </p>
             </div>
           </div>
@@ -342,9 +356,16 @@ export default function Courses({ className }: any) {
               <EyeOff className="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
             <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Inactive</h3>
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Inactive
+              </h3>
               <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {courses.filter((course: { status: string }) => course.status === 'inactive').length}
+                {
+                  courses.filter(
+                    (course: { status: string }) =>
+                      course.status === "inactive",
+                  ).length
+                }
               </p>
             </div>
           </div>

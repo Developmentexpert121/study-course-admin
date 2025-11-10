@@ -458,14 +458,18 @@ export default function DashboardStatsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white  shadow-lg dark:border-gray-700 dark:bg-gray-800">
+
+<div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-2 lg:grid-cols-2">
+          <div className="">
 
           <CourseAuditLogsPage />
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white  shadow-lg dark:border-gray-700 dark:bg-gray-800">
+        <div className="">
 
           <RatingsManagementPage />
         </div>
+</div>
+
 
       </div>
     </div >

@@ -270,18 +270,8 @@ export default function RatingsManagementPage() {
   }
 
   return (
-    <div className="min-h-screen ">
+    <div className="">
       <div className="mx-auto ">
-        {/* Header */}
-    
-
-        {/* Stats Cards */}
-     
-
-        {/* Filters */}
-      
-
-        {/* Table */}
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
