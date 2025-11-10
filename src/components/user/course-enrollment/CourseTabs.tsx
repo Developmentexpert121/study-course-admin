@@ -81,11 +81,15 @@ export default function CourseTabs({
         )}
 
         {activeTab === "progress" && isEnrolled && (
-          <ProgressTab
-            userData={userData}
-            chapters={courseData.chapters || []}
-            statistics={statistics}
-          />
+          <div id="progress-section" className="scroll-mt-20">
+            {" "}
+            {/* Add ID here */}
+            <ProgressTab
+              userData={userData}
+              chapters={courseData.chapters || []}
+              statistics={statistics}
+            />
+          </div>
         )}
       </div>
     </>

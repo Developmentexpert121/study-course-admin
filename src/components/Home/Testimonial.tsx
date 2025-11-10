@@ -1,11 +1,7 @@
 // components/Testimonial.tsx
 "use client";
 
-import React from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
+import React, { useState, useEffect, useCallback } from "react";
 
 interface Rating {
   id: number;
@@ -38,6 +34,9 @@ interface TestimonialProps {
 }
 
 const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
   const getRatingsArray = (): Rating[] => {
     if (Array.isArray(ratings)) return ratings;
     if (
@@ -71,6 +70,55 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
   };
 
   const visibleRatings = ratingsArray;
+
+  // Calculate slides per view based on screen size
+  const getSlidesPerView = () => {
+    if (typeof window === "undefined") return 3;
+    if (window.innerWidth < 768) return 1;
+    if (window.innerWidth < 1024) return 2;
+    return 3;
+  };
+
+  const [slidesPerView, setSlidesPerView] = useState(3);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setSlidesPerView(getSlidesPerView());
+    };
+
+    handleResize(); // Set initial value
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (!isAutoPlaying || visibleRatings.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) =>
+        prev >= visibleRatings.length - slidesPerView ? 0 : prev + 1,
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [currentSlide, isAutoPlaying, visibleRatings.length, slidesPerView]);
+
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) =>
+      prev >= visibleRatings.length - slidesPerView ? 0 : prev + 1,
+    );
+  }, [visibleRatings.length, slidesPerView]);
+
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) =>
+      prev === 0 ? visibleRatings.length - slidesPerView : prev - 1,
+    );
+  }, [visibleRatings.length, slidesPerView]);
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
 
   if (visibleRatings.length === 0) {
     return (
@@ -112,104 +160,184 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
           </p>
         </div>
 
-        {/* Testimonials Grid */}
-        <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {visibleRatings.map((rating: any) => (
-            <div
-              key={rating.id}
-              className="group relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+        {/* Testimonials Slider */}
+        <div className="relative mb-12">
+          {/* Navigation Arrows */}
+          <button
+            onClick={prevSlide}
+            onMouseEnter={() => setIsAutoPlaying(false)}
+            onMouseLeave={() => setIsAutoPlaying(true)}
+            className="absolute -left-12 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-gray-50 hover:shadow-xl"
+            aria-label="Previous testimonials"
+          >
+            <svg
+              className="h-5 w-5 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              {/* Header with user info and rating */}
-              <div className="mb-4 flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-semibold text-white">
-                    {rating.user?.username?.charAt(0).toUpperCase() || "U"}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">
-                      {rating.user?.username}
-                    </p>
-                    <p className="text-sm text-gray-500">Student</p>
-                  </div>
-                </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
 
-                {/* Rating badge */}
-                <div className="flex items-center gap-1 rounded-full bg-green-50 px-3 py-1">
-                  <span className="text-lg text-yellow-400">★</span>
-                  <span className="text-sm font-semibold text-green-700">
-                    {rating.score}.0
-                  </span>
-                </div>
-              </div>
+          <button
+            onClick={nextSlide}
+            onMouseEnter={() => setIsAutoPlaying(false)}
+            onMouseLeave={() => setIsAutoPlaying(true)}
+            className="absolute -right-12 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-gray-50 hover:shadow-xl"
+            aria-label="Next testimonials"
+          >
+            <svg
+              className="h-5 w-5 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
 
-              {/* Course info */}
-              <div className="mb-4">
-                <p className="line-clamp-1 text-sm font-medium text-gray-900">
-                  {rating.course?.title}
-                </p>
-                <p className="text-xs text-gray-500">
-                  By {rating.course?.creator?.username}
-                </p>
-              </div>
+          {/* Slider Container */}
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{
+                transform: `translateX(-${currentSlide * (100 / slidesPerView)}%)`,
+                width: `${(visibleRatings.length / slidesPerView) * 100}%`,
+              }}
+            >
+              {visibleRatings.map((rating: any) => (
+                <div
+                  key={rating.id}
+                  className="flex-shrink-0 px-3"
+                  style={{ width: `${100 / slidesPerView}%` }}
+                >
+                  <div className="group relative h-full rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                    {/* Header with user info and rating */}
+                    <div className="mb-4 flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-semibold text-white">
+                          {rating.user?.username?.charAt(0).toUpperCase() ||
+                            "U"}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">
+                            {rating.user?.username}
+                          </p>
+                          <p className="text-sm text-gray-500">Student</p>
+                        </div>
+                      </div>
 
-              {/* Review content */}
-              {hasReview(rating) ? (
-                <div className="mb-6">
-                  <p className="line-clamp-4 text-sm leading-relaxed text-gray-700 transition-all group-hover:line-clamp-none">
-                    "{rating.review}"
-                  </p>
-                </div>
-              ) : (
-                <div className="mb-6 py-4 text-center">
-                  <div className="mb-3 flex justify-center">
-                    {[...Array(5)].map((_, index) => (
-                      <span
-                        key={index}
-                        className={`text-2xl ${
-                          index < rating.score
-                            ? "text-yellow-400"
-                            : "text-gray-200"
-                        }`}
-                      >
-                        ★
+                      {/* Rating badge */}
+                      <div className="flex items-center gap-1 rounded-full bg-green-50 px-3 py-1">
+                        <span className="text-lg text-yellow-400">★</span>
+                        <span className="text-sm font-semibold text-green-700">
+                          {rating.score}.0
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Course info */}
+                    <div className="mb-4">
+                      <p className="line-clamp-1 text-sm font-medium text-gray-900">
+                        {rating.course?.title}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        By {rating.course?.creator?.username}
+                      </p>
+                    </div>
+
+                    {/* Review content */}
+                    {hasReview(rating) ? (
+                      <div className="mb-6">
+                        <p className="line-clamp-4 text-sm leading-relaxed text-gray-700 transition-all group-hover:line-clamp-none">
+                          "{rating.review}"
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mb-6 py-4 text-center">
+                        <div className="mb-3 flex justify-center">
+                          {[...Array(5)].map((_, index) => (
+                            <span
+                              key={index}
+                              className={`text-2xl ${
+                                index < rating.score
+                                  ? "text-yellow-400"
+                                  : "text-gray-200"
+                              }`}
+                            >
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Rated this course {rating.score} out of 5
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Footer with date and verification */}
+                    <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+                      <span className="text-xs text-gray-500">
+                        {rating.createdAt || rating.created_at
+                          ? formatDate(rating.createdAt || rating.created_at)
+                          : "Recently"}
                       </span>
-                    ))}
+                      <div className="flex items-center gap-1 text-xs text-green-600">
+                        <svg
+                          className="h-3 w-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Verified
+                      </div>
+                    </div>
+
+                    {/* Decorative corner */}
+                    <div className="absolute right-0 top-0 h-8 w-8 overflow-hidden">
+                      <div className="absolute right-0 top-0 h-16 w-16 -translate-y-1/2 translate-x-1/2 rotate-45 transform bg-gradient-to-br from-blue-500/10 to-purple-600/10"></div>
+                    </div>
                   </div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Rated this course {rating.score} out of 5
-                  </p>
                 </div>
-              )}
-
-              {/* Footer with date and verification */}
-              <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                <span className="text-xs text-gray-500">
-                  {rating.createdAt || rating.created_at
-                    ? formatDate(rating.createdAt || rating.created_at)
-                    : "Recently"}
-                </span>
-                <div className="flex items-center gap-1 text-xs text-green-600">
-                  <svg
-                    className="h-3 w-3"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Verified
-                </div>
-              </div>
-
-              {/* Decorative corner */}
-              <div className="absolute right-0 top-0 h-8 w-8 overflow-hidden">
-                <div className="absolute right-0 top-0 h-16 w-16 -translate-y-1/2 translate-x-1/2 rotate-45 transform bg-gradient-to-br from-blue-500/10 to-purple-600/10"></div>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* Dots Indicator */}
+          <div className="mt-8 flex justify-center space-x-2">
+            {Array.from({
+              length: Math.max(1, visibleRatings.length - slidesPerView + 1),
+            }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                onMouseEnter={() => setIsAutoPlaying(false)}
+                onMouseLeave={() => setIsAutoPlaying(true)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide
+                    ? "w-6 bg-blue-500"
+                    : "w-2 bg-gray-300 hover:bg-gray-400"
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Statistics with modern design */}
