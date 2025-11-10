@@ -17,8 +17,18 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
   const [token, setToken] = useState<any>();
   const [role, setRole] = useState<any>();
   const isAuthPage = pathname.startsWith("/auth");
-  const isHomePage = pathname === "/" || pathname === "/";
-  const isPublicPage = isHomePage;
+  const publicRoutes = [
+    "/",
+    "/about",
+    "/contact",
+    "/features",
+    "/pricing",
+    "/faq",
+    "/privacy-policy",
+    "/terms",
+    "/courseses",
+  ];
+  const isPublicPage = publicRoutes.includes(pathname);
 
   useEffect(() => {
     const t = getDecryptedItem("token");

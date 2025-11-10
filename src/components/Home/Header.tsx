@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
+import Link from "next/link";
 
 interface HeaderProps {
   name: string | null;
@@ -40,20 +41,29 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
           </span>
         </div>
 
-        {/* Desktop Nav */}
+        {/* Desktop Nav - FIXED: Using Link instead of anchor tags */}
         <nav className="hidden items-center gap-8 font-medium text-gray-700 md:flex">
-          <a href="/" className="transition-colors hover:text-blue-600">
+          <Link href="/" className="transition-colors hover:text-blue-600">
             Home
-          </a>
-          <a href="/#courses" className="transition-colors hover:text-blue-600">
+          </Link>
+          <Link
+            href="/courses"
+            className="transition-colors hover:text-blue-600"
+          >
             Courses
-          </a>
-          <a href="/#about" className="transition-colors hover:text-blue-600">
+          </Link>
+          <Link
+            href="/#about"
+            className="transition-colors hover:text-blue-600"
+          >
             About
-          </a>
-          <a href="/#contact" className="transition-colors hover:text-blue-600">
+          </Link>
+          <Link
+            href="/#contact"
+            className="transition-colors hover:text-blue-600"
+          >
             Contact
-          </a>
+          </Link>
         </nav>
 
         {/* Login / Profile Section */}
@@ -146,32 +156,54 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - FIXED: Using Link instead of anchor tags */}
       {menuOpen && (
         <div className="animate-fadeIn border-t bg-white shadow-inner md:hidden">
           <nav className="flex flex-col space-y-3 px-6 py-4 font-medium text-gray-700">
-            <a href="/" className="transition hover:text-blue-600">
+            <Link
+              href="/"
+              className="transition hover:text-blue-600"
+              onClick={() => setMenuOpen(false)}
+            >
               Home
-            </a>
-            <a href="/#courses" className="transition hover:text-blue-600">
+            </Link>
+            <Link
+              href="/courses"
+              className="transition hover:text-blue-600"
+              onClick={() => setMenuOpen(false)}
+            >
               Courses
-            </a>
-            <a href="/#about" className="transition hover:text-blue-600">
+            </Link>
+            <Link
+              href="/#about"
+              className="transition hover:text-blue-600"
+              onClick={() => setMenuOpen(false)}
+            >
               About
-            </a>
-            <a href="/#contact" className="transition hover:text-blue-600">
+            </Link>
+            <Link
+              href="/#contact"
+              className="transition hover:text-blue-600"
+              onClick={() => setMenuOpen(false)}
+            >
               Contact
-            </a>
+            </Link>
 
             <div className="mt-4 flex gap-3">
               <button
-                onClick={() => router.push("/auth/login")}
+                onClick={() => {
+                  router.push("/auth/login");
+                  setMenuOpen(false);
+                }}
                 className="flex-1 rounded-full border border-blue-600 px-5 py-2 font-semibold text-blue-600 transition hover:bg-blue-600 hover:text-white"
               >
                 Login
               </button>
               <button
-                onClick={() => router.push("/auth/register")}
+                onClick={() => {
+                  router.push("/auth/register");
+                  setMenuOpen(false);
+                }}
                 className="flex-1 rounded-full bg-blue-600 px-5 py-2 font-semibold text-white transition hover:bg-blue-700"
               >
                 Sign Up

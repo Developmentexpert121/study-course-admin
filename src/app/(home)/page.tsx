@@ -99,16 +99,13 @@ const Home = () => {
     <div className="bg-gray-50">
       <Header name={name} role={role} />
       <Banner />
-
       <div className="bg-gray-50">
         <AboutSection />
         <CoursesSection courses={courses} />
       </div>
-
       <CompanyAboutSection />
       <CertificateSection />
       <Testimonial ratings={ratings?.ratings || []} />
-
       <Footer
         email={email}
         setEmail={setEmail}
