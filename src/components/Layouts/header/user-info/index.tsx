@@ -15,10 +15,13 @@ import { toasterSuccess } from "@/components/core/Toaster";
 import { trackLogoutActivity } from "../../../../store/slices/adminslice/adminlogout";
 import { RootState, AppDispatch } from "../../../../store";
 import { useDispatch, useSelector } from "react-redux";
-import { getDecryptedItem, removeEncryptedItem, updateEncryptedItem } from "@/utils/storageHelper";
+import {
+  getDecryptedItem,
+  removeEncryptedItem,
+  updateEncryptedItem,
+} from "@/utils/storageHelper";
 import { useApiClient } from "@/lib/api";
 import { useRouter } from "next/navigation";
-
 
 export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
@@ -88,7 +91,7 @@ export function UserInfo() {
       <DropdownTrigger className="rounded align-middle outline-none ring-primary ring-offset-2 focus-visible:ring-1 dark:ring-offset-gray-dark">
         <span className="sr-only">My Account</span>
 
-        <figure className="flex items-center gap-3 size-12 rounded-full overflow-hidden">
+        <figure className="flex size-12 items-center gap-3 overflow-hidden rounded-full">
           <Image
             src={userImage || ""}
             className="size-10"
@@ -121,7 +124,7 @@ export function UserInfo() {
         <figure className="flex items-center gap-2.5 px-5 py-3.5">
           <Image
             src={userImage}
-            className="size-12 rounded-full overflow-hidden"
+            className="size-12 overflow-hidden rounded-full"
             alt={`Avatar for ${USER.name}`}
             role="presentation"
             width={200}
@@ -193,7 +196,6 @@ export function UserInfo() {
                 removeEncryptedItem("name");
                 removeEncryptedItem("email");
                 removeEncryptedItem("role");
-
 
                 setIsOpen(false);
                 toasterSuccess("Logout Successfully", 2000, "id");
