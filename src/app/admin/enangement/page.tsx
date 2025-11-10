@@ -208,11 +208,11 @@ const CourseManagementDashboard: React.FC = () => {
 
       {/* Search and Filter Section */}
       <div
-        className={`bg-white-800 shadow-gray-900/50bg-white mb-8 rounded-2xl p-6 shadow-sm shadow-gray-200/60 transition-colors duration-200`}
+        className={` mb-8 rounded-2xl  shadow-gray-200/60 transition-colors duration-200`}
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
           {/* Search Input */}
-          <div className="flex-1">
+          <div className="flex-1 ">
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Search Courses
             </label>
@@ -229,7 +229,7 @@ const CourseManagementDashboard: React.FC = () => {
                     fetchCourses();
                   }
                 }}
-                className="w-full rounded-xl border border-gray-300 bg-gray-50 py-3 pl-12 pr-4 text-sm text-gray-900 shadow-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-12 pr-4 text-sm text-gray-900 shadow-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
               />
             </div>
           </div>
@@ -247,7 +247,7 @@ const CourseManagementDashboard: React.FC = () => {
                 );
                 setPagination((prev) => ({ ...prev, currentPage: 1 }));
               }}
-              className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 shadow-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-700 shadow-sm outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value="all">All Courses</option>
               <option value="active">Active</option>
@@ -313,28 +313,27 @@ const CourseManagementDashboard: React.FC = () => {
           value={pagination.totalItems}
           icon={BookOpen}
           color="blue"
-          gradient="from-blue-500 to-blue-600"
+
         />
         <StatCard
           title="Active Courses"
           value={courses.filter((c) => c.status === "active").length}
           icon={CheckCircle}
           color="green"
-          gradient="from-green-500 to-green-600"
+
         />
         <StatCard
           title="Draft Courses"
           value={courses.filter((c) => c.status === "draft").length}
           icon={FileText}
           color="yellow"
-          gradient="from-amber-500 to-amber-600"
+
         />
         <StatCard
           title="Inactive Courses"
           value={courses.filter((c) => c.status === "inactive").length}
           icon={EyeOff}
           color="red"
-          gradient="from-red-500 to-red-600"
         />
       </div>
 
@@ -413,11 +412,10 @@ const CourseManagementDashboard: React.FC = () => {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-medium transition-all duration-200 ${
-                  page === pagination.currentPage
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
-                }`}
+                className={`flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-medium transition-all duration-200 ${page === pagination.currentPage
+                  ? "border-blue-600 bg-blue-600 text-white"
+                  : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+                  }`}
               >
                 {page}
               </button>
@@ -447,109 +445,92 @@ const CourseManagementDashboard: React.FC = () => {
   );
 };
 
+
+
 const CourseCard: React.FC<{ course: Course }> = ({ course }) => {
-  const [showMenu, setShowMenu] = useState(false);
-
-  const statusColors = {
-    active: {
-      light: "bg-green-100 text-green-800 border-green-200",
-      dark: "bg-green-900/30 text-green-400 border-green-800",
-    },
-    inactive: {
-      light: "bg-red-100 text-red-800 border-red-200",
-      dark: "bg-red-900/30 text-red-400 border-red-800",
-    },
-    draft: {
-      light: "bg-amber-100 text-amber-800 border-amber-200",
-      dark: "bg-amber-900/30 text-amber-400 border-amber-800",
-    },
-  };
-
   const handleViewUsers = () => {
     window.location.href = `/admin/enangement/users?id=${course.id}`;
   };
 
-  const handleViewCertificates = () => {
-    window.location.href = `/admin/enangement/certificates?id=${course.id}`;
+  const statusColors = {
+    active: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800",
+    inactive: "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
+    draft: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800",
   };
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border-2 border-gray-700 shadow-lg transition-all duration-300 hover:border-gray-600 hover:shadow-2xl dark:bg-gray-800`}
+      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-800"
     >
-      {/* Gradient Top Border */}
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500" />
 
-      <div className="p-6">
-        <div className="mb-4 flex items-start justify-between">
-          <div className="flex-1 pr-4">
-            <h3 className="line-clamp-2 text-xl font-bold text-gray-900 transition-colors duration-200 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-              {course.title}
-            </h3>
-          </div>
-          <div className="relative"></div>
+
+      <div className="p-6 space-y-4">
+        {/* Title and status */}
+        <div className="flex items-start justify-between">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            {course.title}
+          </h3>
         </div>
 
-        <div className="mb-4">
-          <span
-            className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold`}
-          >
-            <div
-              className={`mr-2 h-2 w-2 rounded-full ${course.status === "active" ? "bg-green-500" : course.status === "inactive" ? "bg-red-500" : "bg-amber-500"}`}
-            />
-            {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
-          </span>
-        </div>
-
-        <div
-          className={`mb-6 line-clamp-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300`}
+        {/* Status badge */}
+        <span
+          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${statusColors[course.status]}`}
         >
+          <span
+            className={`h-2 w-2 rounded-full ${course.status === "active"
+              ? "bg-green-500"
+              : course.status === "inactive"
+                ? "bg-red-500"
+                : "bg-amber-500"
+              }`}
+          />
+          {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
+        </span>
+
+        {/* Description */}
+        <div className="line-clamp-3 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
           <SafeHtmlRenderer
             html={course.description}
-            maxLength={100}
-            className="text-sm leading-6"
+            maxLength={120}
+            className="text-sm"
             showMoreButton={false}
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <span
-            className={`flex items-center text-sm font-medium text-gray-500 dark:text-gray-400`}
-          >
-            <Users className="mr-2 h-4 w-4" />
+        {/* Bottom info row */}
+        <div className="flex items-center justify-between pt-2">
+          <span className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400">
+            <Users className="mr-2 h-4 w-4 text-blue-500" />
             {course.enrollment_count} enrolled
           </span>
-          <span
-            className={`text-black-300 rounded-xl bg-gray-200 px-3 py-1 text-xs font-medium dark:bg-gray-700 dark:text-gray-700`}
-          >
+          <span className="rounded-lg bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
             {course.category}
           </span>
         </div>
       </div>
 
-      <div
-        className={`border-t border-gray-100 bg-gray-50 bg-gray-800/50 px-6 py-4 transition-colors duration-200 dark:border-gray-700`}
-      >
-        <div className="flex gap-3">
-          <button
-            onClick={handleViewUsers}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-105 hover:bg-blue-700 hover:shadow-lg active:scale-95"
-          >
-            <Users className="h-4 w-4" />
-            Users
-          </button>
+      {/* Footer */}
+      <div className="border-t border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-900/50 px-6 py-4 flex gap-3">
+        <button
+          onClick={handleViewUsers}
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
+        >
+          <Users className="h-4 w-4" />
+          View Users
+        </button>
 
-          {/* <button
-            onClick={handleViewCertificates}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
-          >
-            <Award className="h-4 w-4" />
-            Certificates
-          </button> */}
-        </div>
+        {/* Optionally enable certificates */}
+        {/* <button
+          onClick={handleViewCertificates}
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
+        >
+          <Award className="h-4 w-4" />
+          Certificates
+        </button> */}
       </div>
     </div>
   );
 };
+
 
 export default CourseManagementDashboard;

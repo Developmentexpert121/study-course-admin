@@ -219,7 +219,7 @@ export default function Courses({ className }: any) {
           + Add Course
         </button>
       </div>
-      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
+      <div className="mb-2 rounded-lg py-4 ">
 
         {/* Search and Filter Section */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
@@ -259,14 +259,7 @@ export default function Courses({ className }: any) {
           </select>
 
           {/* Action Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={fetchCourses}
-              className="inline-flex items-center justify-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#43bf79] dark:hover:bg-[#43bf7999]"
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </button>
+          <div className="flex">
 
             {(search || statusFilter !== 'all') && (
               <button
