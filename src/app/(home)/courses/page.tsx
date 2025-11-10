@@ -785,88 +785,57 @@ const CourseCard = ({
     course.price_type === "free" || Number(course.price) === 0;
 
   // Get course image or use placeholder
-  const courseImage = course.image || "/images/course-placeholder.jpg";
+  const courseImage = course.image || "/images/courses.png";
 
   // Get instructor name - using creator field from your data
   const instructorName = course.creator || "Unknown Instructor";
 
   if (view === "list") {
     return (
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
         <div className="flex flex-col md:flex-row">
-          <div className="flex-shrink-0 md:w-48 lg:w-56">
+          <div className="md:w-1/3">
             <img
-              src={courseImage}
+              src={courseImage || "/images/courses.jpg"}
               alt={course.title}
               className="h-48 w-full object-cover md:h-full"
             />
           </div>
           <div className="flex-1 p-6">
-            <div className="flex h-full flex-col">
+            <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="mb-2 cursor-pointer text-xl font-semibold text-gray-900 hover:text-blue-600">
+                <h3 className="text-xl font-semibold text-gray-900">
                   {course.title}
                 </h3>
-                <p className="mb-3 line-clamp-2 text-sm text-gray-600">
-                  {course.description || "No description available"}
+                <p className="mt-1 text-sm text-gray-600">
+                  By {course.creator}
                 </p>
-
-                <div className="mb-3 flex items-center gap-4 text-sm text-gray-600">
+                <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
-                    <BookOpen className="h-4 w-4" />
-                    <span>{course.category || "Uncategorized"}</span>
+                    <Star className="h-4 w-4 fill-current text-yellow-400" />
+                    <span>{course.rating}</span>
+                    <span>({course.rating_count})</span>
                   </div>
-                  {course.duration && (
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{course.duration}</span>
-                    </div>
-                  )}
+                  <div>{course.duration}</div>
+                  <div>{course.level}</div>
                 </div>
-
-                <div className="mb-3 flex items-center gap-2">
-                  <div className="flex items-center">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`h-4 w-4 ${
-                          star <= Math.floor(course.ratings || 0)
-                            ? "fill-current text-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-600">
-                    ({course.ratings ? course.ratings.toFixed(1) : "No"}{" "}
-                    ratings)
-                  </span>
-                </div>
+                <p className="mt-4 line-clamp-2 text-gray-700">
+                  {course.description}
+                </p>
               </div>
+            </div>
 
-              <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                <div className="flex items-center gap-3">
-                  <img
-                    src="/images/user2.png"
-                    alt={instructorName}
-                    className="h-8 w-8 rounded-full"
-                  />
-                  <span className="text-sm text-gray-700">
-                    {instructorName}
-                  </span>
-                </div>
-                <div className="text-right">
-                  {isFreeCourse ? (
-                    <span className="text-lg font-bold text-green-600">
-                      Free
-                    </span>
-                  ) : (
-                    <span className="text-lg font-bold text-gray-900">
-                      ${Number(course.price).toFixed(2)}
-                    </span>
-                  )}
-                </div>
+            {/* Add Enroll Button in List View */}
+            <div className="mt-4 flex items-center justify-between">
+              <div className="text-lg font-semibold text-gray-900">
+                {course.price_type === "free" ? "Free" : `$${course.price}`}
               </div>
+              <button
+                onClick={() => router.push(`/auth/courses/${course.id}`)}
+                className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                Enroll Now
+              </button>
             </div>
           </div>
         </div>
@@ -879,7 +848,7 @@ const CourseCard = ({
     <div className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg">
       <div className="relative">
         <img
-          src={courseImage}
+          src={courseImage || "/images/courses.png"}
           alt={course.title}
           className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
