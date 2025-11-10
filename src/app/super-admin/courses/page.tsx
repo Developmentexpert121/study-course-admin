@@ -40,7 +40,7 @@ export default function Courses({ className }: any) {
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(5);
   const api = useApiClient();
-console.log("course of co", courses.has_chapters)
+  console.log("course of co", courses.has_chapters)
   useEffect(() => {
     setPage(1);
   }, [search, statusFilter]);
@@ -414,52 +414,45 @@ console.log("course of co", courses.has_chapters)
                   </TableCell>
 
                   {/* Status Badge with Toggle Button */}
-                 <TableCell className="py-2">
-  {(courses.has_chapters && courses.has_content) ? (
-    <div className="flex items-center justify-center gap-2">
-      {/* Status Badge */}
-      <span
-        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadge.color}`}
-      >
-        {statusBadge.icon}
-        {statusBadge.label}
-      </span>
+                  <TableCell className="py-2">
+                    {(courses.has_chapters && courses.has_lessons && courses.has_mcqs) ? (
+                       <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleStatus(course.id);
+                        }}
+                        className={`rounded-full p-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${toggleButton.color}`}
+                        title={toggleButton.title}
+                      >
+                        {toggleButton.icon}
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500 cursor-not-allowed opacity-75"
+                        title="Cannot activate - missing chapters or content"
+                      >
+                        <svg
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                          />
+                        </svg>
+                        Inactive
+                      </button>
+                    )}
 
-      {/* Toggle Button */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleToggleStatus(course.id);
-        }}
-        className={`rounded-full p-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${toggleButton.color}`}
-        title={toggleButton.title}
-      >
-        {toggleButton.icon}
-      </button>
-    </div>
-  ) : (
-    <button
-      disabled
-      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500 cursor-not-allowed opacity-75"
-      title="Cannot activate - missing chapters or content"
-    >
-      <svg
-        className="h-3.5 w-3.5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-        />
-      </svg>
-      Inactive
-    </button>
-  )}
-</TableCell>
+
+                    
+                    
+                  </TableCell>
 
                   {/* Creator */}
                   <TableCell className="py-2">
