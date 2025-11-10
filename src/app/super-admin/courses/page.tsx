@@ -40,11 +40,12 @@ export default function Courses({ className }: any) {
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(5);
   const api = useApiClient();
-  console.log("course of co", courses.has_chapters)
+
   useEffect(() => {
     setPage(1);
   }, [search, statusFilter]);
 
+  // console.log(courses.map((item:any)=>item.course_readiness.has_chapters),"==courses")
   useEffect(() => {
     fetchCourses();
   }, [page, search, statusFilter]);
@@ -189,7 +190,6 @@ export default function Courses({ className }: any) {
         };
     }
   };
-
   return (
     <div
       className={cn(
@@ -210,7 +210,7 @@ export default function Courses({ className }: any) {
 
         {/* Add Course Button */}
         <button
-          onClick={() => router.push("/admin/courses/add-courses")}
+          onClick={() => router.push("/super-admin/courses/add-courses")}
           className="rounded-lg bg-[#02517b] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#013d5b] sm:w-auto"
         >
           + Add Course
@@ -414,45 +414,114 @@ export default function Courses({ className }: any) {
                   </TableCell>
 
                   {/* Status Badge with Toggle Button */}
-                  <TableCell className="py-2">
-                    {(courses.has_chapters && courses.has_lessons && courses.has_mcqs) ? (
-                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleStatus(course.id);
-                        }}
-                        className={`rounded-full p-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${toggleButton.color}`}
-                        title={toggleButton.title}
-                      >
-                        {toggleButton.icon}
-                      </button>
-                    ) : (
-                      <button
-                        disabled
-                        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500 cursor-not-allowed opacity-75"
-                        title="Cannot activate - missing chapters or content"
-                      >
-                        <svg
-                          className="h-3.5 w-3.5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                  <TableCell className="py">
+
+                    <div className="flex  justify-center">
+
+                      {(course.course_readiness.has_chapters && course.course_readiness.has_lessons && course.course_readiness.has_mcqs) ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleStatus(course.id);
+                          }}
+                          className={`rounded-full p-1.5 flex transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${toggleButton.color}`}
+                          title={toggleButton.title}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-                          />
-                        </svg>
-                        Inactive
-                      </button>
-                    )}
+                          {toggleButton.icon} {statusBadge.label}
+                        </button>
+                      ) : (
+                        <div className="flex flex-col items-center gap-1">
+                          <div
+                            className={cn(
+                              "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium",
+                              "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+                              "border border-gray-200 dark:border-gray-700"
+                            )}
+                          >
+                            <svg
+                              className="h-3.5 w-3.5 flex-shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
+                              />
+                            </svg>
+                            <span>Incomplete</span>
+                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 max-w-[120px] text-center leading-tight">
+                            {!course.course_readiness.has_chapters ? "Add chapters to activate" :
+                              !course.course_readiness.has_lessons ? "Add lessons to activate" :
+                                !course.course_readiness.has_mcqs ? "Add MCQs to activate" :
+                                  "Ready to activate"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
 
-                    
-                    
+
                   </TableCell>
+
+
+                  {/* <TableCell className="py-2">
+  <div className="flex items-center justify-center">
+    {(course.course_readiness.has_chapters && course.course_readiness.has_chapters && course.course_readiness.has_chapters)  ? (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleToggleStatus(course.id);
+        }}
+        className={cn(
+          "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-all",
+          "hover:scale-105 hover:shadow-md active:scale-95",
+          statusBadge.color,
+          "hover:bg-opacity-80 dark:hover:bg-opacity-80",
+          "border border-transparent hover:border-gray-300 dark:hover:border-gray-600"
+        )}
+        title={toggleButton.title}
+      >
+        <span className="flex items-center gap-1.5">
+          {toggleButton.icon}
+          {statusBadge.label}
+        </span>
+      </button>
+    ) : (
+      <div className="flex flex-col items-center gap-1">
+        <div
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium",
+            "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+            "border border-gray-200 dark:border-gray-700"
+          )}
+        >
+          <svg
+            className="h-3.5 w-3.5 flex-shrink-0"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
+          </svg>
+          <span>Incomplete</span>
+        </div>
+        <span className="text-xs text-gray-500 dark:text-gray-400 max-w-[120px] text-center leading-tight">
+          Add chapters to activate
+        </span>
+      </div>
+    )}
+  </div>
+</TableCell> */}
+
 
                   {/* Creator */}
                   <TableCell className="py-2">

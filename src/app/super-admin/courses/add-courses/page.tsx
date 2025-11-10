@@ -9,7 +9,7 @@ import { ShowcaseSection } from "@/components/Layouts/showcase-section";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
 import { PencilSquareIcon, UserIcon } from "@/assets/icons";
-import RichTextEditor from "@/components/RichTextEditor"; // Import the RichTextEditor
+import RichTextEditor from "@/components/RichTextEditor";
 
 import {
   DollarSign,
@@ -22,6 +22,7 @@ import {
   PlayCircle,
   ChevronDown,
   X,
+  Loader2,
 } from "lucide-react";
 import { getDecryptedItem } from "@/utils/storageHelper";
 import { useApiClient } from "@/lib/api";
@@ -49,11 +50,10 @@ const AddCourse = () => {
     priceType: "free",
     duration: "",
     status: "draft",
-    image: null as File | null,
-    introVideo: null as File | null,
+    image: null as File | string | null,
+    introVideo: null as File | string | null,
   });
   const [courseFeatures, setCourseFeatures] = useState<string[]>([]);
-  const [currentFeature, setCurrentFeature] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isVideoUploading, setIsVideoUploading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -71,11 +71,9 @@ const AddCourse = () => {
       setIsLoadingCategories(true);
       const response = await api.get("categories");
 
-      // Fix: Check the correct response structure
       if (response.data?.data?.categories) {
         setCategories(response.data.data.categories);
       } else if (response.data?.categories) {
-        // Fallback in case the structure is different
         setCategories(response.data.categories);
       } else {
         console.warn(
@@ -98,7 +96,6 @@ const AddCourse = () => {
       return;
     }
 
-    // Check if category already exists in the list
     const categoryExists = categories.some(
       (cat) =>
         cat.name.toLowerCase() === formData.category.trim().toLowerCase(),
@@ -116,17 +113,14 @@ const AddCourse = () => {
         description: `Category for ${formData.category.trim()} courses`,
       });
 
-      // Fix: Check the correct response structure
       const createdCategory =
         response.data?.data?.category || response.data?.category;
 
       if (createdCategory) {
         setCategories((prev) => [...prev, createdCategory]);
-        // Clear the search input to show all categories
         setFormData((prev: any) => ({ ...prev, category: "" }));
-        setShowCategoryDropdown(true); // Keep dropdown open
+        setShowCategoryDropdown(true);
         toasterSuccess("Category created successfully");
-        // Optionally refetch categories to ensure we have the latest data
         await fetchCategories();
       } else {
         toasterError("Failed to create category - invalid response");
@@ -152,7 +146,6 @@ const AddCourse = () => {
     const value = e.target.value;
     setFormData((prev: any) => ({ ...prev, category: value }));
 
-    // Show dropdown when user starts typing
     if (value.trim() && !showCategoryDropdown) {
       setShowCategoryDropdown(true);
     }
@@ -168,7 +161,6 @@ const AddCourse = () => {
     if ((name === "image" || name === "introVideo") && files && files[0]) {
       await handleFileUpload(name, files[0]);
     } else if (name !== "category") {
-      // Skip category handling here as we have separate handler
       setFormData((prev: any) => ({ ...prev, [name]: value }));
     }
   };
@@ -227,16 +219,6 @@ const AddCourse = () => {
     setCourseFeatures(updatedFeatures);
   };
 
-  const addFeature = () => {
-    if (
-      currentFeature.trim() &&
-      !courseFeatures.includes(currentFeature.trim())
-    ) {
-      setCourseFeatures([...courseFeatures, currentFeature.trim()]);
-      setCurrentFeature("");
-    }
-  };
-
   // Add rich text feature
   const addRichTextFeature = () => {
     setCourseFeatures([...courseFeatures, ""]);
@@ -264,14 +246,10 @@ const AddCourse = () => {
     } = formData;
 
     if (
-      !title ||
-      !description ||
-      !category ||
-      !creator ||
-      !duration ||
-      !status
+      !title
+     
     ) {
-      toasterError("Please fill all the required fields ❌", 2000, "id");
+      toasterError("Please fill all the title fields ❌", 2000, "id");
       return;
     }
 
@@ -289,6 +267,11 @@ const AddCourse = () => {
       return;
     }
 
+    if (!formData.image) {
+      toasterError("Please upload a thumbnail image ❌", 2000, "id");
+      return;
+    }
+
     try {
       const payload = {
         title,
@@ -301,14 +284,14 @@ const AddCourse = () => {
         duration,
         status,
         features: courseFeatures,
-        image: formData.image || "",
+        image: formData.image,
         introVideo: formData.introVideo || "",
       };
 
       const data = await api.post("course/create-course", payload);
       if (data.success) {
         toasterSuccess("Course created successfully", 2000, "id");
-        router.push("/super-admin/courses");
+        router.push("/admin/courses");
       } else {
         toasterError(data.error?.code || "Failed to create course", 2000, "id");
       }
@@ -321,8 +304,8 @@ const AddCourse = () => {
   // Filter categories based on search input - show all when no search term
   const filteredCategories = formData.category.trim()
     ? categories.filter((category) =>
-      category.name.toLowerCase().includes(formData.category.toLowerCase()),
-    )
+        category.name.toLowerCase().includes(formData.category.toLowerCase()),
+      )
     : categories;
 
   return (
@@ -427,7 +410,7 @@ const AddCourse = () => {
                     type="button"
                     onClick={handleCreateCategory}
                     disabled={isCreatingCategory || !formData.category.trim()}
-                    className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-lg bg-[#02517b82] px-4 py-3 text-white hover:bg-[#02517bc9] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isCreatingCategory ? "Creating..." : "Create New"}
                   </button>
@@ -526,7 +509,7 @@ const AddCourse = () => {
           </div>
 
           {/* Status */}
-          <div className="mb-5.5">
+          {/* <div className="mb-5.5">
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
               Status *
             </label>
@@ -537,48 +520,45 @@ const AddCourse = () => {
               className="w-full rounded-lg border border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
               required
             >
-              <option value="draft">Draft</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
+              <option value="draft">Draft</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Course Features with Rich Text Editor */}
           <div className="mb-5.5">
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
+            <div className="mb-4 flex items-center justify-between">
+              <label className="block text-sm font-medium text-gray-700 dark:text-white">
                 Course Features/Highlights *
               </label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={addRichTextFeature}
-                  className="flex items-center gap-2 rounded-lg bg-[#02517b] px-4 py-2 text-white hover:bg-[#6a97af]"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Feature
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={addRichTextFeature}
+                className="flex items-center gap-2 rounded-lg bg-[#02517b] px-4 py-2 text-white hover:bg-[#55afdf]"
+              >
+                <Plus className="h-4 w-4" />
+                Add Feature
+              </button>
             </div>
-
-            {/* Simple Feature Input */}
 
             {/* Rich Text Features */}
             {courseFeatures.map((feature, index) => (
               <div
                 key={index}
-                className="mb-4 rounded-lg border border-gray-200 p-4"
+                className="mb-4 rounded-lg border border-gray-200 p-4 dark:border-dark-3"
               >
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-white">
                     Feature {index + 1}
                   </span>
                   <button
                     type="button"
                     onClick={() => removeFeature(index)}
-                    className="rounded p-1 text-red-600 hover:bg-red-50"
+                    className="flex items-center gap-1 rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
                     <Trash2 className="h-4 w-4" />
+                    <span>Remove</span>
                   </button>
                 </div>
                 <RichTextEditor
@@ -586,54 +566,81 @@ const AddCourse = () => {
                   onChange={(htmlContent) =>
                     handleFeatureChange(htmlContent, index)
                   }
-                  placeholder="Describe this course feature in detail..."
-                  minHeight="150px"
+                  placeholder="Describe this course feature in detail... (e.g., Certificate included, Lifetime access, Interactive quizzes, etc.)"
+                  minHeight="200px"
                 />
               </div>
             ))}
 
             {courseFeatures.length === 0 && (
-              <div className="rounded-lg bg-gray-50 p-4 text-center text-gray-500">
-                No features added yet. Click "Add Feature" to create detailed
-                features with formatting.
+              <div className="rounded-lg bg-gray-50 p-6 text-center text-gray-500 dark:bg-dark-3 dark:text-gray-400">
+                <ListIcon className="mx-auto mb-2 h-8 w-8" />
+                <p>No features added yet.</p>
+                <p className="text-sm">
+                  Click "Add Feature" to create detailed features with rich text
+                  formatting.
+                </p>
               </div>
             )}
           </div>
 
           {/* Thumbnail/Cover Image */}
           <div className="mb-5.5">
-            <InputGroup
-              type="file"
-              name="image"
-              fileStyleVariant="style1"
-              label="Upload Thumbnail/Cover Image *"
-              placeholder="Upload Image"
-              accept="image/*"
-              onChange={handleChange}
-              required
-            />
-            {typeof formData.image === "string" && (
-              <div className="relative mb-5.5 mt-2 w-max">
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
-                  Image Preview:
-                </label>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFormData((prev: any) => ({ ...prev, image: null }))
-                  }
-                  className="absolute right-2 top-2 z-10 rounded-full border bg-white p-1 text-black transition hover:bg-red-500 hover:text-white dark:bg-dark-3 dark:text-white"
-                  title="Remove image"
-                >
-                  ×
-                </button>
-                <img
-                  src={formData.image}
-                  alt="Course"
-                  className="h-32 w-48 rounded border object-cover"
-                />
+            <div className="mb-3">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
+                Upload Thumbnail/Cover Image *
+              </label>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleChange}
+                className="w-full rounded-lg border border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
+                required
+                disabled={isUploading}
+              />
+            </div>
+
+            {/* Image Upload Loader */}
+            {isUploading && (
+              <div className="mb-4 flex items-center gap-3 rounded-lg border border-stroke bg-gray-50 p-4 dark:border-dark-3 dark:bg-dark-2">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <div>
+                  <p className="font-medium text-dark dark:text-white">
+                    Uploading image...
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Please wait while we upload your image
+                  </p>
+                </div>
               </div>
             )}
+
+            {/* Image Preview */}
+            {typeof formData.image === "string" &&
+              formData.image &&
+              !isUploading && (
+                <div className="relative mb-5.5 mt-2 w-max">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
+                    Image Preview:
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormData((prev: any) => ({ ...prev, image: null }))
+                    }
+                    className="absolute right-2 top-2 z-10 rounded-full border bg-white p-1 text-black transition hover:bg-red-500 hover:text-white dark:bg-dark-3 dark:text-white"
+                    title="Remove image"
+                  >
+                    ×
+                  </button>
+                  <img
+                    src={formData.image}
+                    alt="Course"
+                    className="h-32 w-48 rounded border object-cover"
+                  />
+                </div>
+              )}
           </div>
 
           {/* Intro Video */}
@@ -680,9 +687,9 @@ const AddCourse = () => {
               onChange={handleDescriptionChange}
               placeholder="Write detailed description about the course..."
               minHeight="300px"
-              error={
-                !formData.description ? "Description is required" : undefined
-              }
+              // error={
+              //   !formData.description ? "Description is required" : undefined
+              // }
             />
           </div>
 
@@ -698,9 +705,12 @@ const AddCourse = () => {
             <button
               className="rounded-lg bg-primary px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               type="submit"
-              disabled={
-                isUploading || isVideoUploading || courseFeatures.length === 0
-              }
+              // disabled={
+              //   isUploading ||
+              //   isVideoUploading ||
+              //   courseFeatures.length === 0 ||
+              //   !formData.image
+              // }
             >
               {isUploading || isVideoUploading ? "Uploading..." : "ADD COURSE"}
             </button>

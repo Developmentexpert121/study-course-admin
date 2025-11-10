@@ -113,7 +113,7 @@ const AddChapter = () => {
 
     const { title, content, course_id, order } = formData;
 
-    if (!title.trim() || !content.trim() || !course_id || !order) {
+    if (!title.trim() || !content.trim() || !course_id || !order || !content) {
       toasterError("Please fill in all required fields ❌");
       return;
     }
@@ -207,7 +207,7 @@ const AddChapter = () => {
             value={formData.content}
             onChange={handleChange}
           />
-          <div className="mb-10">
+          {/* <div className="mb-10">
             <label className="mb-3 block text-lg font-semibold text-gray-800 dark:text-white">
               📷 Upload Chapter Images
             </label>
@@ -336,7 +336,7 @@ const AddChapter = () => {
             >
               ➕ Add Video
             </button>
-          </div>
+          </div> */}
 
           <div className="flex justify-end gap-3">
             <button

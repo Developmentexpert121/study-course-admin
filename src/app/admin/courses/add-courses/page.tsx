@@ -246,14 +246,10 @@ const AddCourse = () => {
     } = formData;
 
     if (
-      !title ||
-      !description ||
-      !category ||
-      !creator ||
-      !duration ||
-      !status
+      !title
+     
     ) {
-      toasterError("Please fill all the required fields ❌", 2000, "id");
+      toasterError("Please fill all the title fields ❌", 2000, "id");
       return;
     }
 
@@ -513,7 +509,7 @@ const AddCourse = () => {
           </div>
 
           {/* Status */}
-          <div className="mb-5.5">
+          {/* <div className="mb-5.5">
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
               Status *
             </label>
@@ -528,7 +524,7 @@ const AddCourse = () => {
               <option value="inactive">Inactive</option>
               <option value="draft">Draft</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Course Features with Rich Text Editor */}
           <div className="mb-5.5">
@@ -691,9 +687,9 @@ const AddCourse = () => {
               onChange={handleDescriptionChange}
               placeholder="Write detailed description about the course..."
               minHeight="300px"
-              error={
-                !formData.description ? "Description is required" : undefined
-              }
+              // error={
+              //   !formData.description ? "Description is required" : undefined
+              // }
             />
           </div>
 
@@ -709,12 +705,12 @@ const AddCourse = () => {
             <button
               className="rounded-lg bg-primary px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               type="submit"
-              disabled={
-                isUploading ||
-                isVideoUploading ||
-                courseFeatures.length === 0 ||
-                !formData.image
-              }
+              // disabled={
+              //   isUploading ||
+              //   isVideoUploading ||
+              //   courseFeatures.length === 0 ||
+              //   !formData.image
+              // }
             >
               {isUploading || isVideoUploading ? "Uploading..." : "ADD COURSE"}
             </button>

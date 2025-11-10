@@ -240,9 +240,10 @@ const CreateLessons = () => {
     if (
       !uploadedImageUrls.length &&
       !uploadedVideoUrls.length &&
-      !formData.video_url
+      !formData.video_url&&
+      !formData.content
     ) {
-      toasterError("Please add at least one image, video, or video URL");
+      toasterError("Please add at least one image, video, or video URL or Content");
       return;
     }
 

@@ -270,8 +270,8 @@ export default function Chapters({ className }: any) {
               <TableHead className="!text-left">Title</TableHead>
               <TableHead>Content</TableHead>
               <TableHead>Course Name</TableHead>
-              <TableHead>Images</TableHead>
-              <TableHead>Videos</TableHead>
+              {/* <TableHead>Images</TableHead>
+              <TableHead>Videos</TableHead> */}
               <TableHead>Created At</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -324,7 +324,7 @@ export default function Chapters({ className }: any) {
                   >
                     {chapter.title}
                   </TableCell>
-                  <TableCell className="text-center">
+                  {/* <TableCell className="text-center">
                     {chapter.images?.length > 0 ? (
                       <button
                         onClick={(e) => {
@@ -361,7 +361,7 @@ export default function Chapters({ className }: any) {
                     ) : (
                       <span>---</span>
                     )}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell
                     className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                     onClick={() =>
