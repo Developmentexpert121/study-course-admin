@@ -324,7 +324,7 @@ export default function RatingsManagementPage() {
                             {rating.user?.profileImage ? (
                               <img
                                 className="h-12 w-12 rounded-full border-2 border-gray-200 object-cover dark:border-gray-600"
-                                src={rating.user.profileImage}
+                                src={rating.rating_user.profileImage}
                                 alt={rating.user.username}
                               />
                             ) : (
@@ -335,22 +335,19 @@ export default function RatingsManagementPage() {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {rating.user?.username || "Unknown User"}
+                              {rating.rating_user?.username || "Unknown User"}
                             </div>
                             <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                               <Mail className="h-3 w-3" />
                               <span className="truncate">
-                                {rating.user?.email || "No email"}
+                                {rating.rating_user?.email || "No email"}
                               </span>
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
-                        <div className="flex items-center text-sm text-gray-900 dark:text-gray-300">
-                          <BookOpen className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400 dark:text-white" />
-                          <span>{rating.course.title}</span>
-                        </div>
+
                         <div className="mt-2 flex items-center">
                           {[...Array(5)].map((_, i) => (
                             <Star

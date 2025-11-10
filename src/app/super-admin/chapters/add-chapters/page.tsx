@@ -124,8 +124,8 @@ const AddChapter = () => {
         content: content.trim(),
         course_id: Number(course_id),
         order: Number(order),
-        images: uploadedImageUrls,
-        videos: uploadedVideoUrls,
+        // images: uploadedImageUrls,
+        // videos: uploadedVideoUrls,
       };
 
       const res = await api.post("chapter", payload);
@@ -207,7 +207,7 @@ const AddChapter = () => {
             value={formData.content}
             onChange={handleChange}
           />
-          <div className="mb-10">
+          {/* <div className="mb-10">
             <label className="mb-3 block text-lg font-semibold text-gray-800 dark:text-white">
               📷 Upload Chapter Images
             </label>
@@ -336,7 +336,7 @@ const AddChapter = () => {
             >
               ➕ Add Video
             </button>
-          </div>
+          </div> */}
 
           <div className="flex justify-end gap-3">
             <button

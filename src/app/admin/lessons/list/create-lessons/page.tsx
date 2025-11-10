@@ -219,7 +219,7 @@ const CreateLessons = () => {
     e.preventDefault();
     const { title, content, chapter_id, order } = formData;
 
-    if (!title.trim() || !content.trim() || !chapter_id || !order) {
+    if (!title.trim() || !content.trim() || !chapter_id || !order || !content) {
       toasterError("Please fill in all required fields ❌");
       return;
     }
@@ -240,7 +240,8 @@ const CreateLessons = () => {
     if (
       !uploadedImageUrls.length &&
       !uploadedVideoUrls.length &&
-      !formData.video_url
+      !formData.video_url && 
+      !formData.content
     ) {
       toasterError("Please add at least one image, video, or video URL");
       return;

@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { removeEncryptedItem } from "@/utils/storageHelper";
+import { toasterSuccess } from "../core/Toaster";
 
 interface HeaderProps {
   name: string | null;
@@ -21,8 +23,11 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
       router.push("/super-admin/dashboard");
     } else if (role === "admin") {
       router.push("/admin/dashboard");
-    } else {
+    } else if (role === "user"){
       router.push("/user/dashboard");
+    }
+     else {
+      router.push("/");
     }
     setProfileOpen(false);
   };
@@ -99,6 +104,14 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
                 <button
                   onClick={() => {
                     // Handle logout logic
+                    removeEncryptedItem("token");
+                    removeEncryptedItem("refreshToken");
+                    removeEncryptedItem("userId");
+                    removeEncryptedItem("name");
+                    removeEncryptedItem("email");
+                    removeEncryptedItem("role");
+                    toasterSuccess("Logout Successfully", 2000, "id");
+                    window.location.href = "/";
                     setProfileOpen(false);
                   }}
                   className="block w-full px-4 py-2 text-left text-red-500 hover:bg-red-50"

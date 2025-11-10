@@ -111,6 +111,30 @@ export default function CourseDetailsPage() {
     }
   };
 
+  const scrollToProgress = () => {
+    // First switch to the progress tab
+    setActiveTab("progress");
+
+    // Then scroll to the progress section after a small delay to ensure tab is rendered
+    setTimeout(() => {
+      const progressSection = document.getElementById("progress-section");
+      if (progressSection) {
+        progressSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+
+        // Optional: Add a highlight effect
+        progressSection.style.transition = "all 0.3s ease";
+        progressSection.style.backgroundColor = "rgba(59, 130, 246, 0.05)";
+
+        setTimeout(() => {
+          progressSection.style.backgroundColor = "transparent";
+        }, 2000);
+      }
+    }, 100);
+  };
+
   const handleEnroll = async () => {
     if (!userId) {
       setEnrollmentStatus("Please log in to enroll in this course");
@@ -208,7 +232,7 @@ export default function CourseDetailsPage() {
             onContinueLearning={() =>
               router.push(`/user/courses/learn?id=${courseId}`)
             }
-            onViewProgress={() => setActiveTab("progress")}
+            onViewProgress={scrollToProgress} // Updated to use scroll function
             courseId={courseId}
           />
         </div>

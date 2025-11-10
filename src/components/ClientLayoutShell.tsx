@@ -7,7 +7,7 @@ import NextTopLoader from "nextjs-toploader";
 import { Sidebar } from "@/components/Layouts/sidebar";
 import { Header } from "@/components/Layouts/header";
 import ToastProvider from "@/components/core/ToasterProvider";
-import UserCoursesDashboard from "@/components/UserCoursesDashboard";
+// import UserCoursesDashboard from "@/components/UserCoursesDashboard";
 
 import type { PropsWithChildren } from "react";
 import { getDecryptedItem } from "@/utils/storageHelper";
@@ -64,8 +64,10 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
           {/* Only show header for authenticated users on protected pages */}
           {/* {isAuthenticated && !isPublicPage && <Header />} */}
 
-          <main className="bg-banner isolate mx-auto w-full mt-16 md:mt-0">
-            {showUserDashboard ? <UserCoursesDashboard /> : children}
+          <main className="bg-banner isolate mx-auto mt-16 w-full md:mt-0">
+            {/* {showUserDashboard ? <UserCoursesDashboard /> : children} */}
+
+            {children}
           </main>
         </div>
       </div>
