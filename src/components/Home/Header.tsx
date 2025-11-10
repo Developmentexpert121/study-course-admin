@@ -21,8 +21,11 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
       router.push("/super-admin/dashboard");
     } else if (role === "admin") {
       router.push("/admin/dashboard");
-    } else {
+    } else if (role === "user"){
       router.push("/user/dashboard");
+    }
+     else {
+      router.push("/");
     }
     setProfileOpen(false);
   };
