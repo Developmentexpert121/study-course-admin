@@ -423,7 +423,7 @@ const Wishlist = () => {
                     )}
 
                     {/* Progress Info */}
-                    {item.course.course_readiness && (
+                    {/* {item.course.course_readiness && (
                       <div className="mb-4">
                         <div className="mb-2 flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
                           <span>Course Completion</span>
@@ -442,7 +442,7 @@ const Wishlist = () => {
                           />
                         </div>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </div>
               ))}
