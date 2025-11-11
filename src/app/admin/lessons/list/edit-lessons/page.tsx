@@ -10,6 +10,7 @@ import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
 import { PencilSquareIcon } from "@/assets/icons";
 import { BookOpen, ListOrdered, Image, Video, FileText } from "lucide-react";
 import { useApiClient } from "@/lib/api";
+import RichTextEditor from "@/components/RichTextEditor";
 
 const EditLesson = () => {
   const router = useRouter();
@@ -297,9 +298,9 @@ const EditLesson = () => {
     if (
       !uploadedImageUrls.length &&
       !uploadedVideoUrls.length &&
-      !formData.video_url
+      !formData.video_url && !formData.content.trim()
     ) {
-      toasterError("Please add at least one image, video, or video URL");
+      toasterError("Please add at least one content, image, video, or video URL");
       return;
     }
 
@@ -545,17 +546,16 @@ const EditLesson = () => {
             </p>
           </div>
 
-          <TextAreaGroup
-            className="mb-5.5"
-            label="Lesson Content *"
-            name="content"
-            placeholder="Enter Lesson Content"
-            icon={<PencilSquareIcon />}
-            value={formData.content}
-            onChange={handleChange}
-            rows={6}
-            required
-          />
+          <div className="mb-5.5">
+
+            <RichTextEditor
+              label="Lesson Content *"
+              value={formData.content}
+              onChange={(value) => handleChange({ target: { name: 'content', value: value } } as any)}
+              placeholder="Write Lesson content..."
+              minHeight="300px"
+            />
+          </div>
 
           {/* Resources Section */}
           <div className="mb-5.5">

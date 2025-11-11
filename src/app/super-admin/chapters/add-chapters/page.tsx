@@ -10,6 +10,7 @@ import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
 import { PencilSquareIcon } from "@/assets/icons";
 import { BookOpen, ListOrdered } from "lucide-react";
 import { useApiClient } from "@/lib/api";
+import RichTextEditor from "@/components/RichTextEditor";
 
 const AddChapter = () => {
   const router = useRouter();
@@ -197,15 +198,12 @@ const AddChapter = () => {
               ))}
             </select>
           </div>
-
-          <TextAreaGroup
-            className="mb-5.5 mt-5"
-            label="Content"
-            name="content"
-            placeholder="Enter Chapter Content"
-            icon={<PencilSquareIcon />}
+          <RichTextEditor
+            label="Course Description *"
             value={formData.content}
-            onChange={handleChange}
+            onChange={(value) => handleChange({ target: { name: 'content', value: value } } as any)}
+            placeholder="Write chapter content..."
+            minHeight="300px"
           />
           {/* <div className="mb-10">
             <label className="mb-3 block text-lg font-semibold text-gray-800 dark:text-white">

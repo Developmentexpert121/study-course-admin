@@ -91,7 +91,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       setTimeout(() => {
         try {
           editor.chain().focus().run();
-        } catch (err) {}
+        } catch (err) { }
       }, 50);
     }
   }, [editor, autoFocus, isMounted]);
@@ -139,11 +139,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       )}
 
       <div
-        className={`w-full rounded-lg border transition-all duration-200 ${
-          error
+        className={`w-full rounded-lg border transition-all duration-200 ${error
             ? "border-red-500 shadow-sm shadow-red-100"
             : "border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 hover:border-gray-400"
-        }`}
+          }`}
       >
         <div className="flex flex-wrap items-center gap-1 rounded-t-lg border-b border-gray-200 bg-gray-50 px-3 py-2">
           <div className="mr-2 flex items-center gap-1">
@@ -151,11 +150,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               type="button"
               title="Bold"
               onClick={() => editor?.chain().focus().toggleBold().run()}
-              className={`rounded p-2 text-sm ${
-                editor?.isActive("bold")
+              className={`rounded p-2 text-sm ${editor?.isActive("bold")
                   ? "bg-blue-100 text-blue-700"
                   : "text-gray-600 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <FaBold />
             </button>
@@ -164,11 +162,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               type="button"
               title="Italic"
               onClick={() => editor?.chain().focus().toggleItalic().run()}
-              className={`rounded p-2 text-sm ${
-                editor?.isActive("italic")
+              className={`rounded p-2 text-sm ${editor?.isActive("italic")
                   ? "bg-blue-100 text-blue-700"
                   : "text-gray-600 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <FaItalic />
             </button>
@@ -177,11 +174,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               type="button"
               title="Strikethrough"
               onClick={() => editor?.chain().focus().toggleStrike().run()}
-              className={`rounded p-2 text-sm ${
-                editor?.isActive("strike")
+              className={`rounded p-2 text-sm ${editor?.isActive("strike")
                   ? "bg-blue-100 text-blue-700"
                   : "text-gray-600 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <FaStrikethrough />
             </button>
@@ -190,11 +186,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               type="button"
               title="Code"
               onClick={() => editor?.chain().focus().toggleCode().run()}
-              className={`rounded p-2 text-sm ${
-                editor?.isActive("code")
+              className={`rounded p-2 text-sm ${editor?.isActive("code")
                   ? "bg-blue-100 text-blue-700"
                   : "text-gray-600 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <FaCode />
             </button>
@@ -207,11 +202,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               type="button"
               title="Bullet List"
               onClick={() => editor?.chain().focus().toggleBulletList().run()}
-              className={`rounded p-2 text-sm ${
-                editor?.isActive("bulletList")
+              className={`rounded p-2 text-sm ${editor?.isActive("bulletList")
                   ? "bg-blue-100 text-blue-700"
                   : "text-gray-600 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <FaListUl />
             </button>
@@ -220,11 +214,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               type="button"
               title="Ordered List"
               onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-              className={`rounded p-2 text-sm ${
-                editor?.isActive("orderedList")
+              className={`rounded p-2 text-sm ${editor?.isActive("orderedList")
                   ? "bg-blue-100 text-blue-700"
                   : "text-gray-600 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <FaListOl />
             </button>
@@ -233,11 +226,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               type="button"
               title="Blockquote"
               onClick={() => editor?.chain().focus().toggleBlockquote().run()}
-              className={`rounded p-2 text-sm ${
-                editor?.isActive("blockquote")
+              className={`rounded p-2 text-sm ${editor?.isActive("blockquote")
                   ? "bg-blue-100 text-blue-700"
                   : "text-gray-600 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <FaQuoteRight />
             </button>

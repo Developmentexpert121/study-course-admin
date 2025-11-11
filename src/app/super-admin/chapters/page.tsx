@@ -21,6 +21,7 @@ import {
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApiClient } from "@/lib/api";
+import SafeHtmlRenderer from "@/components/SafeHtmlRenderer";
 
 export default function Chapters({ className }: any) {
   const router = useRouter();
@@ -312,7 +313,12 @@ export default function Chapters({ className }: any) {
                       )
                     }
                   >
-                    {chapter.content?.slice(0, 50)}...
+                    <SafeHtmlRenderer
+                      html={chapter.content}
+                      maxLength={100}
+                      className="text-sm leading-6"
+                      showMoreButton={false}
+                    />
                   </TableCell>
                   <TableCell
                     className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"

@@ -9,6 +9,7 @@ import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
 import { PencilSquareIcon, CallIcon, EmailIcon } from "@/assets/icons";
 import { useApiClient } from "@/lib/api";
+import RichTextEditor from "@/components/RichTextEditor";
 
 const EditChapter = () => {
   const router = useRouter();
@@ -242,14 +243,13 @@ const EditChapter = () => {
             </select>
           </div>
 
-          <TextAreaGroup
-            className="mb-5.5 mt-4"
-            label="Content"
-            name="content"
-            placeholder="Enter Chapter Content"
-            icon={<PencilSquareIcon />}
+
+          <RichTextEditor
+            label="Course Description *"
             value={formData.content}
-            onChange={handleChange}
+            onChange={(value) => handleChange({ target: { name: 'content', value: value } } as any)}
+            placeholder="Write chapter content..."
+            minHeight="300px"
           />
           {/* <div className="mb-10">
             <label className="mb-3 block text-lg font-semibold text-gray-800 dark:text-white">
