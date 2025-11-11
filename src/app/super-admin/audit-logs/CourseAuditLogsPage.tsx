@@ -24,6 +24,8 @@ import {
   X,
   BookOpen,
   Eye,
+  CalendarDays,
+  Clock,
 } from 'lucide-react';
 
 export default function CourseAuditLogsPage() {
@@ -42,7 +44,7 @@ export default function CourseAuditLogsPage() {
     course_name: '',
     is_active_status: '',
   });
-  
+
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -72,10 +74,10 @@ export default function CourseAuditLogsPage() {
   // Filter audit logs by course name and limit to 5
   const filteredAuditLogs = localFilters.course_name
     ? auditLogs
-        .filter((log) =>
-          log.course_title.toLowerCase().includes(localFilters.course_name.toLowerCase())
-        )
-        .slice(0, 5)
+      .filter((log) =>
+        log.course_title.toLowerCase().includes(localFilters.course_name.toLowerCase())
+      )
+      .slice(0, 5)
     : auditLogs.slice(0, 5);
 
   const handleClearFilters = () => {
@@ -173,7 +175,7 @@ export default function CourseAuditLogsPage() {
     <div className=" ">
       <div className=" mx-auto">
         {/* Header */}
-      
+
         {/* Error Message */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-500/50 rounded-xl">
@@ -183,11 +185,11 @@ export default function CourseAuditLogsPage() {
           </div>
         )}
 
-        
-       
+
+
         {/* Audit Logs Table */}
         <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Latest 5 Course Audit Logs
             </h2>
@@ -199,88 +201,57 @@ export default function CourseAuditLogsPage() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
               </div>
             ) : filteredAuditLogs.length > 0 ? (
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-900/50">
-                  <tr>
-                  
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      Course
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      Action
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      User
-                    </th>
-                    {/* <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      Status
-                    </th> */}
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      Timestamp
-                    </th>
-                   
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-transparent divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredAuditLogs.map((log: any , index: number) => {
-                    const actionColor = getActionColor(log.action);
-                    return (
-                      <tr key={index}
-                        onClick={() => {
-                              setSelectedLog(log);
-                              setShowDetails(true);
-                            }} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                       
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{log.course_title}</p>
-                           
+              <div className="p-4 space-y-3">
+                {filteredAuditLogs.map((log: any, index: number) => {
+                  const actionColor = getActionColor(log.action);
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => {
+                        setSelectedLog(log);
+                        setShowDetails(true);
+                      }}
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800/60 dark:to-gray-900/30 p-4 hover:shadow-lg hover:scale-[1.01] transition-all duration-300 cursor-pointer"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="rounded-lg bg-blue-100 dark:bg-blue-900/40 p-2">
+                          <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">
+                            {log.course_title}
+                          </h3>
+                          <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 flex flex-wrap gap-2">
+                            {log.user_name ? (
+                              <span>
+                                <User className="inline w-3 h-3 mr-1 text-gray-400" />
+                                {log.user_name}
+                              </span>
+                            ) : (
+                              <span>System</span>
+                            )}
+                            <span className="flex items-center gap-1">
+                              <CalendarDays className="w-3 h-3 text-gray-400" />
+                              {format(new Date(log.action_timestamp), "PPP")}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-gray-400" />
+                              {format(new Date(log.action_timestamp), "p")}
+                            </span>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border capitalize ${actionColor.bg} ${actionColor.text} ${actionColor.border}`}
-                          >
-                            {log.action}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          {log.user_name ? (
-                            <div>
-                              <p className="text-sm font-semibold text-gray-900 dark:text-white">{log.user_name}</p>
-                            
-                            </div>
-                          ) : (
-                            <span className="text-sm text-gray-500 dark:text-gray-400">System</span>
-                          )}
-                        </td>
-                        {/* <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusColor(log.is_active_status)}`}
-                          >
-                            {log.is_active_status === null
-                              ? 'N/A'
-                              : log.is_active_status
-                                ? 'Active'
-                                : 'Inactive'}
-                          </span>
-                        </td> */}
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm">
-                            <p className="text-gray-900 dark:text-white">
-                              {format(new Date(log.action_timestamp), 'PPP')}
-                            </p>
-                            <p className="text-gray-500 dark:text-gray-400">
-                              {format(new Date(log.action_timestamp), 'p')}
-                            </p>
-                          </div>
-                        </td>
-                      
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                        </div>
+                      </div>
+
+                      <span
+                        className={`mt-3 sm:mt-0 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border capitalize ${actionColor.bg} ${actionColor.text} ${actionColor.border}`}
+                      >
+                        {log.action}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
             ) : (
               <div className="text-center py-12">
                 <BookOpen className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
