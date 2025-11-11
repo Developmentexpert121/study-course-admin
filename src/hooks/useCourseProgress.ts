@@ -103,11 +103,10 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
         }
     }, [courseId, getUserId, api, setCourse]);
 
-    // Fixed submitMCQTest function
     const submitMCQTest = useCallback(async () => {
         if (!currentMCQChapter || !courseId) {
             console.error('No MCQ chapter selected or course ID missing');
-            return;
+            return null; // Return null on error
         }
 
         try {
@@ -133,9 +132,9 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
             if (response.success) {
                 console.log('MCQ submitted successfully:', response.data);
 
-                const mcqResult = response.data.data; // This contains the actual result
+                const mcqResult = response.data.data;
 
-                // ✅ FIX: Use the actual passed status from API response
+                // Update local state
                 setCourse((prev: any) => {
                     if (!prev) return prev;
                     return {
@@ -144,8 +143,8 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
                             chapter.id === currentMCQChapter.id
                                 ? {
                                     ...chapter,
-                                    mcq_passed: mcqResult.passed, // Use actual result
-                                    mcq_results: mcqResult // Store the full results
+                                    mcq_passed: mcqResult.passed,
+                                    mcq_results: mcqResult
                                 }
                                 : chapter
                         )
@@ -157,24 +156,25 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
                     setCourseProgress(mcqResult);
                 }
 
-                // Show appropriate message based on result
+                // Show appropriate message
                 if (mcqResult.passed) {
                     alert('🎉 Congratulations! You passed the MCQ test!');
                 } else {
                     alert(`❌ You scored ${mcqResult.score}% but need ${mcqResult.passing_threshold}% to pass. You can reattempt the test.`);
                 }
 
-                // Close modal and reset
-                setCurrentMCQChapter(null);
-                setUserAnswers({});
+                // Return the result for immediate UI update
+                return mcqResult;
 
             } else {
                 console.error('Failed to submit MCQ:', response.error);
                 alert(response.error?.message || 'Failed to submit MCQ');
+                return null;
             }
         } catch (error) {
             console.error('[submitMCQTest] Error:', error);
             alert('Error submitting MCQ. Please try again.');
+            return null;
         } finally {
             setSubmittingMCQ(false);
         }

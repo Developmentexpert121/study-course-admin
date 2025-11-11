@@ -22,7 +22,6 @@ export default function CourseLearnPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
-  const [forceReload, setForceReload] = useState(0);
 
   const [selectedLesson, setSelectedLesson] = useState<{
     chapter: any;
@@ -42,6 +41,7 @@ export default function CourseLearnPage() {
     handleCloseMCQ,
     initializeProgress,
     getUserId,
+    loadProgressData, // Add this function
   } = useCourseProgress(courseId, setCourse);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function CourseLearnPage() {
       setError("Course ID is missing");
       setLoading(false);
     }
-  }, [courseId, forceReload]);
+  }, [courseId]);
 
   const loadCourseData = async () => {
     try {
@@ -94,7 +94,18 @@ export default function CourseLearnPage() {
         setCourse(updatedCourse);
       } else {
         console.log("📊 [FRONTEND] No progress data found, initializing...");
-        await initializeProgress();
+        // Fix: Call initializeProgress with proper data or modify the hook
+        await initializeProgress({
+          course_id: courseId,
+          user_id: userId,
+          overall_progress: 0,
+          chapters: courseData.chapters.map((chapter: any) => ({
+            id: chapter.id,
+            completed: false,
+            mcq_passed: false,
+            completed_lessons: 0,
+          })),
+        });
         setCourse(courseData);
       }
 
@@ -192,8 +203,27 @@ export default function CourseLearnPage() {
 
       if (success) {
         console.log("✅ [FRONTEND] Lesson completion process finished");
-        // Refresh course data to reflect changes
-        setForceReload((prev) => prev + 1);
+        // Refresh course data to reflect changes - FIXED: Use loadProgressData instead of setForceReload
+        await loadProgressData();
+
+        // Also update the course state to reflect lesson completion
+        setCourse((prev: any) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            chapters: prev.chapters.map((ch: any) => {
+              if (ch.id === chapter.id) {
+                return {
+                  ...ch,
+                  lessons: ch.lessons.map((l: any) =>
+                    l.id === lesson.id ? { ...l, completed: true } : l,
+                  ),
+                };
+              }
+              return ch;
+            }),
+          };
+        });
       } else {
         console.error("❌ [FRONTEND] Failed to mark lesson as completed");
         alert("Failed to mark lesson as completed. Please try again.");
@@ -203,19 +233,19 @@ export default function CourseLearnPage() {
     }
   };
 
-  // Enhanced MCQ submission handler - IMMEDIATE UNLOCK
+  // Enhanced MCQ submission handler - IMMEDIATE UNLOCK WITHOUT RELOAD
   const enhancedSubmitMCQTest = async () => {
     console.log("🔄 [FRONTEND] Starting enhanced MCQ submission...");
 
     try {
-      const result = await submitMCQTest();
+      const result: any = await submitMCQTest();
 
       if (result && currentMCQChapter) {
         console.log(
           "✅ [FRONTEND] MCQ submitted successfully, immediately unlocking next chapter...",
         );
 
-        // IMMEDIATELY update the frontend state to unlock next chapter
+        // IMMEDIATELY update the frontend state to unlock next chapter WITHOUT RELOAD
         if (course && currentMCQChapter) {
           const updatedCourse = JSON.parse(JSON.stringify(course));
 
@@ -224,8 +254,21 @@ export default function CourseLearnPage() {
             (ch: any) => ch.id === currentMCQChapter.id,
           );
 
-          // Unlock the next chapter if it exists
+          // Update current chapter MCQ status
+          if (currentChapterIndex !== -1) {
+            const currentChapter = updatedCourse.chapters[currentChapterIndex];
+            currentChapter.mcq_passed = result.passed;
+            currentChapter.mcq_results = result;
+
+            console.log(
+              `✅ [FRONTEND] Chapter ${currentChapter.order} MCQ status updated:`,
+              result.passed,
+            );
+          }
+
+          // Unlock the next chapter if it exists and MCQ was passed
           if (
+            result.passed &&
             currentChapterIndex !== -1 &&
             currentChapterIndex + 1 < updatedCourse.chapters.length
           ) {
@@ -236,14 +279,18 @@ export default function CourseLearnPage() {
             );
           }
 
-          // Update course state immediately
+          // Update course state immediately - NO PAGE RELOAD
           setCourse(updatedCourse);
         }
 
-        // Also reload data from backend to ensure consistency
-        setTimeout(() => {
-          setForceReload((prev) => prev + 1);
-        }, 500);
+        // Also update progress state
+        if (result) {
+          setCourseProgress(result);
+        }
+
+        console.log(
+          "✅ [FRONTEND] UI updated successfully without page reload",
+        );
       }
     } catch (error) {
       console.error("❌ [FRONTEND] MCQ submission failed:", error);
@@ -254,10 +301,6 @@ export default function CourseLearnPage() {
   const enhancedHandleCloseMCQ = () => {
     console.log("🔄 [FRONTEND] Closing MCQ, refreshing data...");
     handleCloseMCQ();
-    // Refresh data when MCQ modal closes (in case there were updates)
-    setTimeout(() => {
-      setForceReload((prev) => prev + 1);
-    }, 300);
   };
 
   const getCurrentLessonIndices = () => {
