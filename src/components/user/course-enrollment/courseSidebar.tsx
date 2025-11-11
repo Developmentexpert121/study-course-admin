@@ -243,7 +243,9 @@ export default function CourseSidebar({
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
               <span className="font-medium text-gray-900 dark:text-white">
-                {courseData.ratings ? courseData.ratings.toFixed(1) : "0.0"}
+                {courseData.ratings
+                  ? courseData.ratings?.average_rating.toFixed(1)
+                  : "0.0"}
               </span>
             </div>
           </div>

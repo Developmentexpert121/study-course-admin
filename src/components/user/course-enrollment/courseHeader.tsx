@@ -101,7 +101,7 @@ export default function CourseHeader({
             </div>
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span>{courseData.ratings || 0}</span>
+              <span>{courseData.ratings?.average_rating || 0}</span>
             </div>
           </div>
         </div>

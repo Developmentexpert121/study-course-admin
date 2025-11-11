@@ -44,7 +44,7 @@ export default function Mcq({ className }: any) {
 
       const mcqs = res.data?.data?.data || [];
       const total = res.data?.data?.pagination?.total || 0;
-      setChapterName(res.data.data.data[0].chapter.title);
+      setChapterName(res?.data?.data?.data[0]?.chapter.title);
 
       setMcq(mcqs);
       setTotal(total);

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { useApiClient } from "@/lib/api";
@@ -17,6 +17,7 @@ export default function CourseLearnPage() {
   const searchParams = useSearchParams();
   const courseId = searchParams.get("id");
   const api = useApiClient();
+  const reviewsSectionRef = useRef<HTMLDivElement>(null);
 
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -46,6 +47,28 @@ export default function CourseLearnPage() {
 
   const [forceUpdate, setForceUpdate] = useState(0);
 
+  const handleRateClick = () => {
+    setActiveTab("reviews");
+
+    setTimeout(() => {
+      if (reviewsSectionRef.current) {
+        reviewsSectionRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      } else {
+        console.log("❌ [FRONTEND] Reviews section ref not found");
+
+        const reviewsElement = document.getElementById("reviews-section");
+        if (reviewsElement) {
+          reviewsElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+      }
+    }, 100);
+  };
   useEffect(() => {
     if (courseId) {
       loadCourseData();
@@ -622,6 +645,7 @@ export default function CourseLearnPage() {
         title={course.title}
         progress={courseProgress?.overall_progress}
         courseId={courseId}
+        onRateClick={handleRateClick}
       />
 
       <div className="flex flex-1 flex-col lg:flex-row">
@@ -676,7 +700,11 @@ export default function CourseLearnPage() {
           <div className="border-t border-slate-200 bg-white/80 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
             <CourseTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            <div className="p-8">
+            <div
+              className="p-8"
+              ref={activeTab === "reviews" ? reviewsSectionRef : null}
+              id="reviews-section"
+            >
               <CourseTabs.Content
                 activeTab={activeTab}
                 course={course}
