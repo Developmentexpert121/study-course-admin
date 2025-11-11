@@ -55,10 +55,10 @@ export default function UserCourseDashboard({ className }: any) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [loading, setLoading] = useState(true);
   const [userStats, setUserStats] = useState({
-    totalEnrolled: 12,
-    completedCourses: 3,
-    learningTime: 1250,
-    currentStreak: 7,
+    totalEnrolled: 0,
+    completedCourses: 0,
+    totalLearningHours: 0,
+    averageProgress: 0,
   });
 
   const api = useApiClient();
@@ -153,12 +153,57 @@ export default function UserCourseDashboard({ className }: any) {
           ),
         ] as string[];
         setCategories(uniqueCategories);
+
+        // Calculate user stats from real data
+        calculateUserStats(filteredCourses);
       }
     } catch (err) {
       console.error("Failed to fetch courses:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const calculateUserStats = (coursesData: any[]) => {
+    if (!loggedInuserId) return;
+
+    const userEnrollments = coursesData.filter((course) =>
+      course.enrolled_users?.some(
+        (enrollment: any) => enrollment.user_id === parseInt(loggedInuserId),
+      ),
+    );
+
+    const totalEnrolled = userEnrollments.length;
+
+    // Calculate completed courses based on course readiness
+    const completedCourses = userEnrollments.filter((course) => {
+      const progress = course.course_readiness?.completion_percentage || 0;
+      return progress >= 100 && course.is_course_complete;
+    }).length;
+
+    // Calculate total learning hours from enrolled courses (convert minutes to hours)
+    const totalLearningMinutes = userEnrollments.reduce((total, course) => {
+      return total + (course.totalDuration || 0);
+    }, 0);
+
+    const totalLearningHours = Math.round(totalLearningMinutes / 60);
+
+    // Calculate average progress across all enrolled courses
+    const totalProgress = userEnrollments.reduce((total, course) => {
+      return total + (course.course_readiness?.completion_percentage || 0);
+    }, 0);
+
+    const averageProgress =
+      userEnrollments.length > 0
+        ? Math.round(totalProgress / userEnrollments.length)
+        : 0;
+
+    setUserStats({
+      totalEnrolled,
+      completedCourses,
+      totalLearningHours,
+      averageProgress,
+    });
   };
 
   useEffect(() => {
@@ -190,7 +235,7 @@ export default function UserCourseDashboard({ className }: any) {
   };
 
   const getCourseProgress = (course: any) => {
-    return 0;
+    return course.course_readiness?.completion_percentage || 0;
   };
 
   const isUser = role === "user";
@@ -239,7 +284,7 @@ export default function UserCourseDashboard({ className }: any) {
     return buttons;
   };
 
-  // Enhanced User Stats Section
+  // Enhanced User Stats Section with real data from your API
   const userStatsData = [
     {
       title: "Enrolled Courses",
@@ -248,6 +293,7 @@ export default function UserCourseDashboard({ className }: any) {
       color: "blue",
       gradient: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-50 to-cyan-50",
+      description: "Courses you're taking",
     },
     {
       title: "Completed",
@@ -256,22 +302,25 @@ export default function UserCourseDashboard({ className }: any) {
       color: "green",
       gradient: "from-green-500 to-emerald-500",
       bgGradient: "from-green-50 to-emerald-50",
+      description: "Courses finished",
     },
     {
       title: "Learning Hours",
-      value: `${Math.floor(userStats.learningTime / 60)}h`,
+      value: `${userStats.totalLearningHours}h`,
       icon: Clock,
       color: "purple",
       gradient: "from-purple-500 to-violet-500",
       bgGradient: "from-purple-50 to-violet-50",
+      description: "Total time invested",
     },
     {
-      title: "Day Streak",
-      value: userStats.currentStreak,
-      icon: Target,
+      title: "Avg Progress",
+      value: `${userStats.averageProgress}%`,
+      icon: TrendingUp,
       color: "orange",
       gradient: "from-orange-500 to-red-500",
       bgGradient: "from-orange-50 to-red-50",
+      description: "Across all courses",
     },
   ];
 
@@ -319,28 +368,55 @@ export default function UserCourseDashboard({ className }: any) {
                   key={index}
                   className={`relative overflow-hidden rounded-2xl bg-gradient-to-r p-6 shadow-sm transition-all duration-300 hover:shadow-lg ${stat.bgGradient} dark:from-gray-900 dark:to-black`}
                 >
-                  <div className="relative z-10 flex items-center justify-between">
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {stat.value}
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-gray-600 dark:text-gray-400">
-                        {stat.title}
-                      </p>
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                          {stat.value}
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-gray-600 dark:text-gray-400">
+                          {stat.title}
+                        </p>
+                      </div>
+                      <div
+                        className={`rounded-2xl bg-white/80 p-3 shadow-sm dark:bg-gray-700/50`}
+                      >
+                        <stat.icon
+                          className={`h-6 w-6 text-${stat.color}-600 dark:text-${stat.color}-400`}
+                        />
+                      </div>
                     </div>
-                    <div
-                      className={`rounded-2xl bg-white/80 p-3 shadow-sm dark:bg-gray-700/50`}
-                    >
-                      <stat.icon
-                        className={`h-6 w-6 text-${stat.color}-600 dark:text-${stat.color}-400`}
-                      />
-                    </div>
+                    {stat.description && (
+                      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        {stat.description}
+                      </p>
+                    )}
                   </div>
                   <div
                     className={`absolute -right-4 -top-4 h-20 w-20 rounded-full bg-gradient-to-r ${stat.gradient} opacity-10`}
                   ></div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Welcome message for new users */}
+          {!loading && isUser && userStats.totalEnrolled === 0 && (
+            <div className="mt-8 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 p-8 dark:from-blue-900/20 dark:to-indigo-900/20">
+              <div className="flex items-center gap-4">
+                <div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-800">
+                  <Sparkles className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Start Your Learning Journey
+                  </h3>
+                  <p className="mt-1 text-gray-600 dark:text-gray-400">
+                    Explore our courses and enroll to begin tracking your
+                    progress and achievements.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -639,74 +715,8 @@ export default function UserCourseDashboard({ className }: any) {
   );
 }
 
-// Enhanced Course Card Skeleton Component
-const CourseCardSkeleton = () => (
-  <div className="animate-pulse overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <div className="h-48 w-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"></div>
-    <div className="p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="h-6 w-24 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-        <div className="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-      </div>
-      <div className="mb-3 h-6 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
-      <div className="mb-4 h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
-      <div className="mb-4 h-4 w-2/3 rounded bg-gray-200 dark:bg-gray-700"></div>
-      <div className="mb-4 grid grid-cols-2 gap-3">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-3 rounded bg-gray-200 dark:bg-gray-700"
-          ></div>
-        ))}
-      </div>
-      <div className="flex items-center justify-between">
-        <div className="h-11 w-32 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
-        <div className="h-9 w-14 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
-      </div>
-    </div>
-  </div>
-);
-
-// Enhanced Course List Item Skeleton Component
-const CourseListItemSkeleton = () => (
-  <div className="animate-pulse rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-    <div className="flex items-start gap-6">
-      <div className="h-24 w-24 flex-shrink-0 rounded-xl bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"></div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="h-6 w-24 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-              <div className="h-6 w-28 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-              <div className="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-            </div>
-            <div className="mb-2 h-6 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
-            <div className="mb-4 h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
-            <div className="mb-3 flex flex-wrap items-center gap-4">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700"
-                ></div>
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-col gap-3">
-            <div className="h-11 w-36 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
-            <div className="h-11 w-44 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
-          </div>
-        </div>
-        <div className="mt-4">
-          <div className="mb-2 flex justify-between">
-            <div className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700"></div>
-            <div className="h-4 w-12 rounded bg-gray-200 dark:bg-gray-700"></div>
-          </div>
-          <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+// The CourseCard, CourseListItem, CourseCardSkeleton, CourseListItemSkeleton, and EmptyState components remain exactly the same as in the previous implementation
+// [Include all the same helper components here...]
 
 // Enhanced Course Card Component
 const CourseCard = ({
@@ -1065,7 +1075,6 @@ const CourseListItem = ({
               </span>
               {isInactive && (
                 <span className="flex items-center gap-1 rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                  {/* <Loader2 className="h-3 w-3" /> */}
                   Coming Soon
                 </span>
               )}
@@ -1198,6 +1207,75 @@ const CourseListItem = ({
     </div>
   );
 };
+
+// Enhanced Course Card Skeleton Component
+const CourseCardSkeleton = () => (
+  <div className="animate-pulse overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="h-48 w-full bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"></div>
+    <div className="p-6">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="h-6 w-24 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+        <div className="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+      <div className="mb-3 h-6 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
+      <div className="mb-4 h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
+      <div className="mb-4 h-4 w-2/3 rounded bg-gray-200 dark:bg-gray-700"></div>
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-3 rounded bg-gray-200 dark:bg-gray-700"
+          ></div>
+        ))}
+      </div>
+      <div className="flex items-center justify-between">
+        <div className="h-11 w-32 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+        <div className="h-9 w-14 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+    </div>
+  </div>
+);
+
+// Enhanced Course List Item Skeleton Component
+const CourseListItemSkeleton = () => (
+  <div className="animate-pulse rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="flex items-start gap-6">
+      <div className="h-24 w-24 flex-shrink-0 rounded-xl bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"></div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="h-6 w-24 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+              <div className="h-6 w-28 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+              <div className="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+            </div>
+            <div className="mb-2 h-6 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
+            <div className="mb-4 h-4 w-full rounded bg-gray-200 dark:bg-gray-700"></div>
+            <div className="mb-3 flex flex-wrap items-center gap-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700"
+                ></div>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            <div className="h-11 w-36 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-11 w-44 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+          </div>
+        </div>
+        <div className="mt-4">
+          <div className="mb-2 flex justify-between">
+            <div className="h-4 w-20 rounded bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-4 w-12 rounded bg-gray-200 dark:bg-gray-700"></div>
+          </div>
+          <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 // Enhanced Empty State Component
 const EmptyState = ({ search }: any) => (
