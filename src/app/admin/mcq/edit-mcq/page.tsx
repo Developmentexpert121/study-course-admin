@@ -42,6 +42,7 @@ const EditMcq = () => {
   });
 
   // Fetch courses and initial data
+  // Fetch courses and initial data
   useEffect(() => {
     const fetchInitialData = async () => {
       if (!mcqId) {
@@ -67,17 +68,23 @@ const EditMcq = () => {
           return;
         }
 
-        console.log("MCQ Data:", mcqData); // Debug log
+        console.log("MCQ Data from API:", mcqData);
 
-        // ✅ FIXED: Handle both answer and correct_answer fields
-        const correctAnswer =
-          mcqData.correct_answer_text ?? mcqData.correct_answer_text;
+        // ✅ FIXED: Get the correct answer from the API response
+        const correctAnswer = mcqData.correct_answer;
+
+        console.log(
+          "Correct answer value:",
+          correctAnswer,
+          "Type:",
+          typeof correctAnswer,
+        );
 
         // Set form data from API response
         setFormData({
           question: mcqData.question || "",
           options: mcqData.options || ["", "", "", ""],
-          answer: correctAnswer?.toString() || "", // Convert to string for select
+          answer: correctAnswer !== undefined ? correctAnswer.toString() : "", // Convert number to string
           course_id: mcqData.course_id?.toString() || courseId || "",
           chapter_id: mcqData.chapter_id?.toString() || chapterId || "",
         });
@@ -97,7 +104,6 @@ const EditMcq = () => {
 
     fetchInitialData();
   }, [mcqId, courseId, chapterId, router]);
-
   const fetchChapters = async (courseId: string) => {
     if (!courseId) {
       setChapters([]);
@@ -217,11 +223,11 @@ const EditMcq = () => {
     setLoading(true);
 
     try {
-      // ✅ FIXED: Convert answer to number (index) and use correct field names
+      // ✅ FIXED: Use 'answer' field to match your backend createMcq function
       const payload = {
         question: formData.question.trim(),
         options: formData.options.map((opt) => opt.trim()),
-        correct_answer: parseInt(formData.answer), // Convert to number and use correct field name
+        answer: parseInt(formData.answer), // Use 'answer' not 'correct_answer'
         course_id: parseInt(formData.course_id),
         chapter_id: parseInt(formData.chapter_id),
       };
