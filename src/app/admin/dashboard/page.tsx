@@ -21,14 +21,14 @@ import {
   selectTop3Coursess,
   selectAverageCompletionRate,
   selectTotalAdminCourses,
- selectedtotaluserscompleted,
+  selectedtotaluserscompleted,
   clearError,
   selectedtotalcourses,
   selectTotalAdminCoursesactive,
   selectedtotalcoursesactivate,
   selectedtotalcoursesEnrolled,
   selectAllCoursesWithStats,
-  
+
 
 } from "@/store/slices/adminslice/admindashboard";
 
@@ -58,8 +58,8 @@ export default function AdminDashboardPage() {
   const totalCourses = useAppSelector(selectTotalAdminCourses);
   const totalCoursesactive = useAppSelector(selectTotalAdminCoursesactive);
   const completionRate = useAppSelector(selectAverageCompletionRate);
-  
-  
+
+
   const totalcourse = useAppSelector(selectedtotalcourses);
   const totalactivarecourse = useAppSelector(selectedtotalcoursesactivate)
   const totalEnrollments = useAppSelector(selectedtotalcoursesEnrolled);
@@ -68,7 +68,7 @@ export default function AdminDashboardPage() {
   const allcourse = useAppSelector(selectAllCoursesWithStats);
 
 
-console.log("welcome to the page", allcourse)
+  console.log("welcome to the page", allcourse)
 
 
   useEffect(() => {
@@ -117,7 +117,7 @@ console.log("welcome to the page", allcourse)
   };
 
   // Loading state - Show skeleton loaders
-  if (loading && !stats?.total_courses) {
+  if (loading && !(stats as any).total_courses) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="mx-auto max-w-7xl">
@@ -399,20 +399,19 @@ console.log("welcome to the page", allcourse)
                             <div
                               className="h-full rounded-full bg-gradient-to-r from-green-500 to-blue-500"
                               style={{
-                                width: `${
-                                  course.enrollment_count > 0
+                                width: `${course.enrollment_count > 0
                                     ? (course.completion_count / course.enrollment_count) * 100
                                     : 0
-                                }%`,
+                                  }%`,
                               }}
                             ></div>
                           </div>
                           <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
                             {course.enrollment_count > 0
                               ? (
-                                  (course.completion_count / course.enrollment_count) *
-                                  100
-                                ).toFixed(1)
+                                (course.completion_count / course.enrollment_count) *
+                                100
+                              ).toFixed(1)
                               : 0}
                             %
                           </span>

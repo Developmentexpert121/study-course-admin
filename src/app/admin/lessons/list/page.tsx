@@ -6,6 +6,7 @@ import { PlusCircleIcon, SearchIcon, ImageIcon, VideoIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { useApiClient } from "@/lib/api";
+import SafeHtmlRenderer from "@/components/SafeHtmlRenderer";
 
 export default function Lessons({ className }: any) {
   const api = useApiClient();
@@ -203,7 +204,12 @@ export default function Lessons({ className }: any) {
                   {lesson.title}
                 </h3>
                 <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
-                  {lesson.content?.slice(0, 100)}...
+                  <SafeHtmlRenderer
+                    html={lesson.content}
+                    maxLength={100}
+                    className="text-sm leading-6"
+                    showMoreButton={false}
+                  />
                 </p>
 
                 <div className="flex flex-wrap justify-between gap-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">

@@ -26,7 +26,7 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
     "/faq",
     "/privacy-policy",
     "/terms",
-    "/courseses",
+    "/courses",
   ];
   const isPublicPage = publicRoutes.includes(pathname);
 

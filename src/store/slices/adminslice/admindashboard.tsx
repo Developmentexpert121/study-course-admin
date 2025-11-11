@@ -46,7 +46,7 @@ export const fetchAdminCourseStats = createAsyncThunk(
   async (adminId: string, { rejectWithValue }) => {
     try {
       const response = await reduxApiClient.get(`user/admin/${adminId}`);
-      
+
       if (!response.success) {
         return rejectWithValue(response.error?.message || 'Failed to fetch admin course stats');
       }
@@ -93,39 +93,39 @@ const adminDashboardSlice = createSlice({
 export const { clearError, clearAdminStats } = adminDashboardSlice.actions;
 
 // Selectors
-export const selectAdminCourseStats = (state: { adminDashboard: AdminStatsState }) => 
-  // state?.instructorDashboard?.data;
-{console.log("welcome to state ",  state?.instructorDashboard?.data?.data?.all_courses)}
+export const selectAdminCourseStats = (state: any) =>
+// state?.instructorDashboard?.data;
+{ console.log("welcome to state ", state?.instructorDashboard?.data?.data?.all_courses) }
 
-export const selectAdminCourseStatsLoading = (state: { adminDashboard: AdminStatsState }) => 
+export const selectAdminCourseStatsLoading = (state: any) =>
   state?.instructorDashboard?.data?.loading;
 
-export const selectAdminCourseStatsError = (state: { adminDashboard: AdminStatsState }) => 
+export const selectAdminCourseStatsError = (state: any) =>
   state?.instructorDashboard?.data?.data.error;
 
 // Derived selectors for specific data
-export const selectTotalAdminCourses = (state: { adminDashboard: AdminStatsState }) => 
+export const selectTotalAdminCourses = (state: any) =>
   state?.instructorDashboard?.data?.datatotal_courses || 0;
 
-export const selectTotalAdminCoursesactive = (state: { adminDashboard: AdminStatsState }) => 
+export const selectTotalAdminCoursesactive = (state: any) =>
   state?.instructorDashboard?.data?.datatotal_active_courses || 0;
 
-export const selecttotalenrollments = (state: { adminDashboard: AdminStatsState }) => 
+export const selecttotalenrollments = (state: any) =>
   state?.instructorDashboard?.data?.datatotal_enrollments || 0;
 
-export const selectTotalUsersCompleted = (state: { adminDashboard: AdminStatsState }) => 
+export const selectTotalUsersCompleted = (state: any) =>
   state?.instructorDashboard?.data?.datatotal_users_completed || 0;
 
-export const selectTop3Courses = (state: { adminDashboard: AdminStatsState }) => 
+export const selectTop3Courses = (state: any) =>
   state?.instructorDashboard?.data?.datatop_3_courses || [];
 
-export const selectAverageEnrollmentPerCourse = (state: { adminDashboard: AdminStatsState }) => {
+export const selectAverageEnrollmentPerCourse = (state: any) => {
   const data = state?.instructorDashboard?.data;
   if (!data || data.total_courses === 0) return 0;
   return Math.round(data.total_enrollments / data.total_courses);
 };
 
-export const selectAverageCompletionRate = (state: { adminDashboard: AdminStatsState }) => {
+export const selectAverageCompletionRate = (state: any) => {
   const data = state?.instructorDashboard?.data;
   if (!data || data.total_enrollments === 0) return 0;
   return Math.round((data.total_users_completed / data.total_enrollments) * 100);
@@ -139,26 +139,26 @@ export const selectAverageCompletionRate = (state: { adminDashboard: AdminStatsS
 
 //my data 
 
-export const selectedtotalcourses = (state: { adminDashboard: AdminStatsState }) => 
+export const selectedtotalcourses = (state: any) =>
   state?.instructorDashboard?.data?.data?.total_courses;
 
-export const selectedtotalcoursesactivate = (state: { adminDashboard: AdminStatsState }) => 
+export const selectedtotalcoursesactivate = (state: any) =>
   state?.instructorDashboard?.data?.data?.total_active_courses;
 
 
-export const selectedtotalcoursesEnrolled = (state: { adminDashboard: AdminStatsState }) => 
+export const selectedtotalcoursesEnrolled = (state: any) =>
   state?.instructorDashboard?.data?.data?.total_enrollments;
 
-export const selectedtotaluserscompleted = (state: { adminDashboard: AdminStatsState }) => 
+export const selectedtotaluserscompleted = (state: any) =>
   state?.instructorDashboard?.data?.data?.total_users_completed;
 
 
-export const selectTop3Coursess = (state: { adminDashboard: AdminStatsState }) => 
+export const selectTop3Coursess = (state: any) =>
   state?.instructorDashboard?.data?.data?.top_3_courses || [];
 
 
 
-export const selectAllCoursesWithStats = (state: { adminDashboard: AdminStatsState }) => 
-    state?.instructorDashboard?.data?.data?.all_courses || [];
+export const selectAllCoursesWithStats = (state: any) =>
+  state?.instructorDashboard?.data?.data?.all_courses || [];
 // Export reducer
 export default adminDashboardSlice.reducer;

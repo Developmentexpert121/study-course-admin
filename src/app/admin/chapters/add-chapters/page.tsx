@@ -10,6 +10,7 @@ import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
 import { PencilSquareIcon } from "@/assets/icons";
 import { BookOpen, ListOrdered } from "lucide-react";
 import { useApiClient } from "@/lib/api";
+import RichTextEditor from "@/components/RichTextEditor";
 
 const AddChapter = () => {
   const router = useRouter();
@@ -113,7 +114,7 @@ const AddChapter = () => {
 
     const { title, content, course_id, order } = formData;
 
-    if (!title.trim() || !content.trim() || !course_id || !order) {
+    if (!title.trim() || !content.trim() || !course_id || !order || !content) {
       toasterError("Please fill in all required fields ❌");
       return;
     }
@@ -197,7 +198,7 @@ const AddChapter = () => {
               ))}
             </select>
           </div>
-
+          {/* 
           <TextAreaGroup
             className="mb-5.5 mt-5"
             label="Content"
@@ -206,8 +207,17 @@ const AddChapter = () => {
             icon={<PencilSquareIcon />}
             value={formData.content}
             onChange={handleChange}
+          /> */}
+
+
+          <RichTextEditor
+            label="Course Description *"
+            value={formData.content}
+            onChange={(value) => handleChange({ target: { name: 'content', value: value } } as any)}
+            placeholder="Write chapter content..."
+            minHeight="300px"
           />
-          <div className="mb-10">
+          {/* <div className="mb-10">
             <label className="mb-3 block text-lg font-semibold text-gray-800 dark:text-white">
               📷 Upload Chapter Images
             </label>
@@ -336,7 +346,7 @@ const AddChapter = () => {
             >
               ➕ Add Video
             </button>
-          </div>
+          </div> */}
 
           <div className="flex justify-end gap-3">
             <button

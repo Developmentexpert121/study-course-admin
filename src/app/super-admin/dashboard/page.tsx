@@ -313,7 +313,7 @@ export default function DashboardStatsPage() {
         </div>
 
         {/* Charts Section with Real API Data */}
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 ">
           {/* User Verification Pie Chart */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
@@ -360,7 +360,7 @@ export default function DashboardStatsPage() {
                 <XAxis dataKey="name" stroke="#6b7280" />
                 <YAxis stroke="#6b7280" />
                 <Tooltip />
-                <Legend />
+                {/* <Legend /> */}
                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                   {adminStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -382,7 +382,7 @@ export default function DashboardStatsPage() {
                 <XAxis type="number" stroke="#6b7280" />
                 <YAxis dataKey="name" type="category" stroke="#6b7280" />
                 <Tooltip />
-                <Legend />
+                {/* <Legend /> */}
                 <Bar dataKey="value" radius={[0, 8, 8, 0]}>
                   {courseStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -392,7 +392,7 @@ export default function DashboardStatsPage() {
             </ResponsiveContainer>
           </div>
 
-          {/* User Roles Area Chart */}
+          {/* User Roles Area Chart
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
               <Users className="mr-2 h-5 w-5 text-orange-600" />
@@ -413,7 +413,7 @@ export default function DashboardStatsPage() {
                 />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </div> */}
 
           {/* Enrollment Metrics Pie Chart */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:col-span-2 xl:col-span-1">
@@ -459,16 +459,16 @@ export default function DashboardStatsPage() {
         </div>
 
 
-<div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-2 lg:grid-cols-2">
+        <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-2 lg:grid-cols-2">
           <div className="">
 
-          <CourseAuditLogsPage />
-        </div>
-        <div className="">
+            <CourseAuditLogsPage />
+          </div>
+          <div className="">
 
-          <RatingsManagementPage />
+            <RatingsManagementPage />
+          </div>
         </div>
-</div>
 
 
       </div>

@@ -9,6 +9,7 @@ import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { TextAreaGroup } from "@/components/FormElements/InputGroup/text-area";
 import { PencilSquareIcon, CallIcon, EmailIcon } from "@/assets/icons";
 import { useApiClient } from "@/lib/api";
+import RichTextEditor from "@/components/RichTextEditor";
 
 const EditChapter = () => {
   const router = useRouter();
@@ -242,7 +243,15 @@ const EditChapter = () => {
             </select>
           </div>
 
-          <TextAreaGroup
+
+          <RichTextEditor
+            label="Course Description *"
+            value={formData.content}
+            onChange={(value) => handleChange({ target: { name: 'content', value: value } } as any)}
+            placeholder="Write chapter content..."
+            minHeight="300px"
+          />
+          {/* <TextAreaGroup
             className="mb-5.5 mt-4"
             label="Content"
             name="content"
@@ -250,8 +259,8 @@ const EditChapter = () => {
             icon={<PencilSquareIcon />}
             value={formData.content}
             onChange={handleChange}
-          />
-          <div className="mb-10">
+          /> */}
+          {/* <div className="mb-10">
             <label className="mb-3 block text-lg font-semibold text-gray-800 dark:text-white">
               📷 Upload Chapter Images
             </label>
@@ -416,7 +425,7 @@ const EditChapter = () => {
             >
               ➕ Add Video
             </button>
-          </div>
+          </div> */}
           <div className="flex justify-end gap-3">
             <button
               className="rounded-lg border border-stroke px-6 py-[7px] font-medium text-dark hover:shadow-1 dark:border-dark-3 dark:text-white"

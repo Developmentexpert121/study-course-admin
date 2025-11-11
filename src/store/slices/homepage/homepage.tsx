@@ -20,6 +20,7 @@ export interface Course {
   ratings?: number;
   createdAt: string;
   updatedAt: string;
+  level: string;
 }
 
 interface CoursesResponse {
@@ -49,11 +50,11 @@ export const fetchActiveCourses = createAsyncThunk(
     try {
       // Adjust the endpoint to match your backend route
       const response = await reduxApiClient.get('course/courses/active');
-      
+
       if (!response.success) {
         return rejectWithValue(response.error?.message || 'Failed to fetch courses');
       }
-      
+
       return response.data as CoursesResponse;
     } catch (error: any) {
       return rejectWithValue(error.message || 'An error occurred while fetching courses');
