@@ -41,8 +41,11 @@ export default function CourseLearnPage() {
     handleCloseMCQ,
     initializeProgress,
     getUserId,
-    loadProgressData, // Add this function
+    loadProgressData,
   } = useCourseProgress(courseId, setCourse);
+
+  // FIX: Add forceUpdate state and use it properly
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   useEffect(() => {
     if (courseId) {
@@ -52,6 +55,22 @@ export default function CourseLearnPage() {
       setLoading(false);
     }
   }, [courseId]);
+
+  // NEW: Helper function to find first unlocked lesson
+  const findFirstUnlockedLesson = (courseData: any) => {
+    if (!courseData?.chapters) return null;
+
+    for (const chapter of courseData.chapters) {
+      if (!chapter.locked && chapter.lessons) {
+        for (const lesson of chapter.lessons) {
+          if (!lesson.locked) {
+            return { chapter, lesson };
+          }
+        }
+      }
+    }
+    return null;
+  };
 
   const loadCourseData = async () => {
     try {
@@ -79,6 +98,8 @@ export default function CourseLearnPage() {
         `progress/${courseId}/progress?user_id=${userId}`,
       );
 
+      let updatedCourse;
+
       if (progressResponse.success) {
         console.log(
           "📊 [FRONTEND] Progress data loaded:",
@@ -86,15 +107,13 @@ export default function CourseLearnPage() {
         );
         setCourseProgress(progressResponse.data.data);
 
-        // Apply progress to course data to unlock chapters
-        const updatedCourse = applyProgressToCourse(
+        // Apply progress to course data to unlock chapters and lessons
+        updatedCourse = applyProgressToCourse(
           courseData,
           progressResponse.data.data,
         );
-        setCourse(updatedCourse);
       } else {
         console.log("📊 [FRONTEND] No progress data found, initializing...");
-        // Fix: Call initializeProgress with proper data or modify the hook
         await initializeProgress({
           course_id: courseId,
           user_id: userId,
@@ -106,20 +125,17 @@ export default function CourseLearnPage() {
             completed_lessons: 0,
           })),
         });
-        setCourse(courseData);
+
+        // Apply basic unlocking logic for new users
+        updatedCourse = applyProgressToCourse(courseData, { chapters: [] });
       }
 
-      // Auto-select first available lesson
-      if (courseData.chapters?.length > 0) {
-        const firstUnlockedChapter = courseData.chapters.find(
-          (chapter: any) => !chapter.locked,
-        );
-        if (firstUnlockedChapter?.lessons?.[0]) {
-          setSelectedLesson({
-            chapter: firstUnlockedChapter,
-            lesson: firstUnlockedChapter.lessons[0],
-          });
-        }
+      setCourse(updatedCourse);
+
+      // Auto-select first available UNLOCKED lesson
+      const firstUnlockedLesson = findFirstUnlockedLesson(updatedCourse);
+      if (firstUnlockedLesson) {
+        setSelectedLesson(firstUnlockedLesson);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load course");
@@ -129,61 +145,88 @@ export default function CourseLearnPage() {
     }
   };
 
-  // Apply progress data to course structure to unlock chapters
+  // FIXED: Enhanced applyProgressToCourse function with proper unlocking logic
   const applyProgressToCourse = (courseData: any, progressData: any) => {
-    if (!progressData?.chapters || !courseData?.chapters) return courseData;
+    if (!courseData?.chapters) return courseData;
 
-    console.log("🔓 [FRONTEND] Applying progress to unlock chapters...");
+    console.log(
+      "🔓 [FRONTEND] Applying progress to unlock chapters and lessons...",
+    );
 
     // Create a deep copy of course data
     const updatedCourse = JSON.parse(JSON.stringify(courseData));
 
-    // First pass: Apply direct progress data
+    // Reset all locking first
     updatedCourse.chapters.forEach((chapter: any) => {
-      const chapterProgress = progressData.chapters.find(
-        (ch: any) => ch.id === chapter.id,
-      );
-
-      if (chapterProgress) {
-        // Unlock chapter if it has progress
-        chapter.locked = false;
-        console.log(
-          `🔓 [FRONTEND] Chapter ${chapter.order} unlocked via progress`,
-        );
-      }
-
-      // Apply lesson completion status
-      if (chapterProgress?.completed_lessons && chapter.lessons) {
-        chapter.lessons.forEach((lesson: any, index: number) => {
-          lesson.completed = index < chapterProgress.completed_lessons;
+      chapter.locked = true;
+      if (chapter.lessons) {
+        chapter.lessons.forEach((lesson: any) => {
+          lesson.locked = true;
+          lesson.completed = false;
         });
       }
     });
 
-    // Second pass: Unlock chapters based on previous chapter completion
-    for (let i = 1; i < updatedCourse.chapters.length; i++) {
-      const prevChapter = updatedCourse.chapters[i - 1];
-      const currentChapter = updatedCourse.chapters[i];
-
-      const prevChapterProgress = progressData.chapters.find(
-        (ch: any) => ch.id === prevChapter.id,
-      );
-
-      // Unlock if previous chapter is completed OR has MCQ passed
-      if (prevChapterProgress?.completed || prevChapterProgress?.mcq_passed) {
-        currentChapter.locked = false;
-        console.log(
-          `🔓 [FRONTEND] Chapter ${currentChapter.order} unlocked via previous chapter completion`,
-        );
+    // First chapter is always unlocked
+    if (updatedCourse.chapters.length > 0) {
+      updatedCourse.chapters[0].locked = false;
+      if (updatedCourse.chapters[0].lessons?.[0]) {
+        updatedCourse.chapters[0].lessons[0].locked = false;
       }
+    }
+
+    // Apply progress data if available
+    if (progressData?.chapters) {
+      progressData.chapters.forEach((chapterProgress: any) => {
+        const chapter = updatedCourse.chapters.find(
+          (ch: any) => ch.id === chapterProgress.id,
+        );
+        if (chapter) {
+          // Unlock chapter if it has any progress
+          chapter.locked = false;
+
+          // Apply lesson completion
+          if (chapter.lessons && chapterProgress.completed_lessons) {
+            chapter.lessons.forEach((lesson: any, index: number) => {
+              if (index < chapterProgress.completed_lessons) {
+                lesson.completed = true;
+                lesson.locked = false;
+
+                // Unlock next lesson in the same chapter
+                if (index + 1 < chapter.lessons.length) {
+                  chapter.lessons[index + 1].locked = false;
+                }
+              }
+            });
+          }
+
+          // If chapter is completed or MCQ passed, unlock next chapter
+          if (chapterProgress.completed || chapterProgress.mcq_passed) {
+            const currentIndex = updatedCourse.chapters.findIndex(
+              (ch: any) => ch.id === chapter.id,
+            );
+            if (
+              currentIndex !== -1 &&
+              currentIndex + 1 < updatedCourse.chapters.length
+            ) {
+              const nextChapter = updatedCourse.chapters[currentIndex + 1];
+              nextChapter.locked = false;
+              if (nextChapter.lessons?.[0]) {
+                nextChapter.lessons[0].locked = false;
+              }
+            }
+          }
+        }
+      });
     }
 
     return updatedCourse;
   };
 
+  // FIXED: Enhanced handleLessonClick - NO AUTO-COMPLETION on click
   const handleLessonClick = async (chapter: any, lesson: any) => {
-    if (chapter.locked) {
-      alert("This chapter is locked. Complete previous chapters first.");
+    if (chapter.locked || lesson.locked) {
+      alert("This lesson is locked. Complete previous lessons first.");
       return;
     }
 
@@ -191,49 +234,88 @@ export default function CourseLearnPage() {
       lessonId: lesson.id,
       chapterId: chapter.id,
       lessonCompleted: lesson.completed,
+      lessonLocked: lesson.locked,
       chapterTitle: chapter.title,
       lessonTitle: lesson.title,
     });
 
+    // Simply select the lesson - DON'T mark as completed automatically
     setSelectedLesson({ chapter, lesson });
+  };
 
-    if (!lesson.completed) {
-      console.log("🔄 [FRONTEND] Marking lesson as completed...");
-      const success = await handleLessonComplete(lesson.id, chapter.id);
+  // NEW: Manual lesson completion handler (call this when user actually completes the lesson)
+  const handleCompleteCurrentLesson = async () => {
+    if (!selectedLesson) return;
 
-      if (success) {
-        console.log("✅ [FRONTEND] Lesson completion process finished");
-        // Refresh course data to reflect changes - FIXED: Use loadProgressData instead of setForceReload
-        await loadProgressData();
+    const { chapter, lesson } = selectedLesson;
 
-        // Also update the course state to reflect lesson completion
-        setCourse((prev: any) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            chapters: prev.chapters.map((ch: any) => {
-              if (ch.id === chapter.id) {
-                return {
-                  ...ch,
-                  lessons: ch.lessons.map((l: any) =>
-                    l.id === lesson.id ? { ...l, completed: true } : l,
-                  ),
-                };
-              }
-              return ch;
-            }),
-          };
-        });
-      } else {
-        console.error("❌ [FRONTEND] Failed to mark lesson as completed");
-        alert("Failed to mark lesson as completed. Please try again.");
-      }
-    } else {
+    if (lesson.completed) {
       console.log("ℹ️ [FRONTEND] Lesson already completed");
+      return;
+    }
+
+    console.log("🔄 [FRONTEND] Manually marking lesson as completed...");
+    const success = await handleLessonComplete(lesson.id, chapter.id);
+
+    if (success) {
+      console.log("✅ [FRONTEND] Lesson completion process finished");
+
+      // Refresh progress data
+      await loadProgressData();
+
+      // Update local state to reflect completion and unlock next content
+      setCourse((prev: any) => {
+        if (!prev) return prev;
+
+        const updatedCourse = JSON.parse(JSON.stringify(prev));
+
+        updatedCourse.chapters.forEach((ch: any) => {
+          if (ch.id === chapter.id) {
+            ch.lessons.forEach((l: any, index: number) => {
+              // Mark current lesson as completed
+              if (l.id === lesson.id) {
+                l.completed = true;
+
+                // Unlock next lesson in the same chapter
+                if (index + 1 < ch.lessons.length) {
+                  ch.lessons[index + 1].locked = false;
+                  console.log(
+                    `🔓 [FRONTEND] Unlocked next lesson: ${ch.lessons[index + 1].title}`,
+                  );
+                }
+              }
+            });
+
+            // Check if all lessons in chapter are completed
+            const allLessonsCompleted = ch.lessons.every(
+              (l: any) => l.completed,
+            );
+            if (allLessonsCompleted) {
+              console.log(
+                `✅ [FRONTEND] All lessons completed in chapter ${ch.order}`,
+              );
+              // Chapter completion will be handled by progress sync
+            }
+          }
+        });
+
+        return updatedCourse;
+      });
+
+      // Force re-render to update navigation
+      setForceUpdate((prev) => prev + 1);
+
+      // Auto-navigate to next unlocked lesson if available
+      setTimeout(() => {
+        handleNextLesson(true); // autoNavigate flag
+      }, 500);
+    } else {
+      console.error("❌ [FRONTEND] Failed to mark lesson as completed");
+      alert("Failed to mark lesson as completed. Please try again.");
     }
   };
 
-  // Enhanced MCQ submission handler - IMMEDIATE UNLOCK WITHOUT RELOAD
+  // FIXED: Enhanced MCQ submission handler with forceUpdate
   const enhancedSubmitMCQTest = async () => {
     console.log("🔄 [FRONTEND] Starting enhanced MCQ submission...");
 
@@ -242,72 +324,103 @@ export default function CourseLearnPage() {
 
       if (result && currentMCQChapter) {
         console.log(
-          "✅ [FRONTEND] MCQ submitted successfully, immediately unlocking next chapter...",
+          "✅ [FRONTEND] MCQ submitted successfully:",
+          result.passed ? "PASSED" : "FAILED",
         );
 
-        // IMMEDIATELY update the frontend state to unlock next chapter WITHOUT RELOAD
-        if (course && currentMCQChapter) {
-          const updatedCourse = JSON.parse(JSON.stringify(course));
+        if (result.passed) {
+          // Refresh progress data to get latest state
+          await loadProgressData();
 
-          // Find the current chapter index
-          const currentChapterIndex = updatedCourse.chapters.findIndex(
-            (ch: any) => ch.id === currentMCQChapter.id,
-          );
+          // Update local state to unlock next chapter
+          setCourse((prev: any) => {
+            if (!prev) return prev;
 
-          // Update current chapter MCQ status
-          if (currentChapterIndex !== -1) {
-            const currentChapter = updatedCourse.chapters[currentChapterIndex];
-            currentChapter.mcq_passed = result.passed;
-            currentChapter.mcq_results = result;
-
-            console.log(
-              `✅ [FRONTEND] Chapter ${currentChapter.order} MCQ status updated:`,
-              result.passed,
+            const updatedCourse = JSON.parse(JSON.stringify(prev));
+            const currentChapterIndex = updatedCourse.chapters.findIndex(
+              (ch: any) => ch.id === currentMCQChapter.id,
             );
-          }
 
-          // Unlock the next chapter if it exists and MCQ was passed
-          if (
-            result.passed &&
-            currentChapterIndex !== -1 &&
-            currentChapterIndex + 1 < updatedCourse.chapters.length
-          ) {
-            const nextChapter = updatedCourse.chapters[currentChapterIndex + 1];
-            nextChapter.locked = false;
-            console.log(
-              `🔓 [FRONTEND] IMMEDIATE UNLOCK: Chapter ${nextChapter.order} unlocked`,
-            );
-          }
+            if (currentChapterIndex !== -1) {
+              // Update current chapter MCQ status
+              const currentChapter =
+                updatedCourse.chapters[currentChapterIndex];
+              currentChapter.mcq_passed = true;
+              currentChapter.mcq_results = result;
 
-          // Update course state immediately - NO PAGE RELOAD
-          setCourse(updatedCourse);
-        }
+              // Unlock next chapter and its first lesson
+              if (currentChapterIndex + 1 < updatedCourse.chapters.length) {
+                const nextChapter =
+                  updatedCourse.chapters[currentChapterIndex + 1];
+                nextChapter.locked = false;
+                if (nextChapter.lessons?.[0]) {
+                  nextChapter.lessons[0].locked = false;
+                }
+                console.log(
+                  `🔓 [FRONTEND] Unlocked next chapter: ${nextChapter.title}`,
+                );
+              }
+            }
 
-        // Also update progress state
-        if (result) {
+            return updatedCourse;
+          });
+
+          // Update progress state
           setCourseProgress(result);
-        }
 
-        console.log(
-          "✅ [FRONTEND] UI updated successfully without page reload",
-        );
+          // CRITICAL: Force re-render to update navigation buttons
+          setForceUpdate((prev) => prev + 1);
+
+          console.log("✅ [FRONTEND] UI updated successfully after MCQ pass");
+
+          // Auto-navigate to next chapter if we're on the last lesson
+          if (
+            selectedLesson &&
+            selectedLesson.chapter.id === currentMCQChapter.id
+          ) {
+            const { chapterIndex } = getCurrentLessonIndices();
+            if (
+              chapterIndex !== -1 &&
+              chapterIndex + 1 < course.chapters.length
+            ) {
+              const nextChapter = course.chapters[chapterIndex + 1];
+              if (!nextChapter.locked && nextChapter.lessons.length > 0) {
+                setTimeout(() => {
+                  console.log(
+                    "🔄 [FRONTEND] Auto-navigating to next chapter after MCQ",
+                  );
+                  setSelectedLesson({
+                    chapter: nextChapter,
+                    lesson: nextChapter.lessons[0],
+                  });
+                }, 1000);
+              }
+            }
+          }
+        }
       }
     } catch (error) {
       console.error("❌ [FRONTEND] MCQ submission failed:", error);
+      alert("Failed to submit MCQ. Please try again.");
     }
   };
 
-  // Enhanced handleCloseMCQ to refresh data
+  // FIXED: Enhanced handleCloseMCQ with forceUpdate
   const enhancedHandleCloseMCQ = () => {
-    console.log("🔄 [FRONTEND] Closing MCQ, refreshing data...");
+    console.log("🔄 [FRONTEND] Closing MCQ modal and refreshing state");
     handleCloseMCQ();
+
+    // Force re-render to ensure UI updates
+    setTimeout(() => {
+      setForceUpdate((prev) => prev + 1);
+    }, 100);
   };
 
   const getCurrentLessonIndices = () => {
     if (!selectedLesson || !course)
       return { chapterIndex: -1, lessonIndex: -1 };
 
-    const chapterIndex: any = course?.chapters.findIndex(
+    const chapterIndex = course.chapters.findIndex(
       (c: any) => c.id === selectedLesson.chapter.id,
     );
 
@@ -320,73 +433,140 @@ export default function CourseLearnPage() {
     return { chapterIndex, lessonIndex };
   };
 
-  const handleNextLesson = () => {
-    if (!course) return;
+  const handleNextLesson = (autoNavigate = false) => {
+    if (!course || !selectedLesson) return;
 
     const { chapterIndex, lessonIndex } = getCurrentLessonIndices();
     if (chapterIndex === -1 || lessonIndex === -1) return;
 
-    const currentChapter = course?.chapters[chapterIndex];
-    const nextLessonIndex = lessonIndex + 1;
+    const currentChapter = course.chapters[chapterIndex];
 
+    // First, try to find next lesson in same chapter
+    const nextLessonIndex = lessonIndex + 1;
     if (nextLessonIndex < currentChapter.lessons.length) {
       const nextLesson = currentChapter.lessons[nextLessonIndex];
-      setSelectedLesson({ chapter: currentChapter, lesson: nextLesson });
-    } else {
-      const nextChapterIndex = chapterIndex + 1;
-      if (nextChapterIndex < course.chapters.length) {
-        const nextChapter = course.chapters[nextChapterIndex];
-        if (!nextChapter.locked && nextChapter.lessons.length > 0) {
-          const firstLesson = nextChapter.lessons[0];
+      if (!nextLesson.locked) {
+        setSelectedLesson({ chapter: currentChapter, lesson: nextLesson });
+        return;
+      } else if (!autoNavigate) {
+        alert("Next lesson is locked. Complete the current lesson first.");
+        return;
+      }
+    }
+
+    // If no next lesson in current chapter, try next chapter
+    const nextChapterIndex = chapterIndex + 1;
+    if (nextChapterIndex < course.chapters.length) {
+      const nextChapter = course.chapters[nextChapterIndex];
+
+      // Check if next chapter is unlocked (considering MCQ status)
+      const isNextChapterUnlocked =
+        !nextChapter.locked ||
+        (currentChapter.mcq_passed && nextChapterIndex === chapterIndex + 1);
+
+      if (isNextChapterUnlocked && nextChapter.lessons.length > 0) {
+        const firstLesson = nextChapter.lessons[0];
+        if (!firstLesson.locked) {
           setSelectedLesson({ chapter: nextChapter, lesson: firstLesson });
+          return;
+        } else if (!autoNavigate) {
+          alert("Next chapter is available but first lesson is locked.");
+          return;
         }
+      } else if (!autoNavigate) {
+        // Provide specific feedback about why next chapter is locked
+        if (currentChapter.mcq_passed) {
+          alert("Next chapter should be available. Please refresh the page.");
+        } else {
+          alert("Complete the MCQ test to unlock the next chapter.");
+        }
+        return;
       }
     }
-  };
 
-  const handlePreviousLesson = () => {
-    if (!course) return;
-
-    const { chapterIndex, lessonIndex } = getCurrentLessonIndices();
-    if (chapterIndex === -1 || lessonIndex === -1) return;
-
-    const prevLessonIndex = lessonIndex - 1;
-
-    if (prevLessonIndex >= 0) {
-      const currentChapter = course?.chapters[chapterIndex];
-      const prevLesson = currentChapter.lessons[prevLessonIndex];
-      setSelectedLesson({ chapter: currentChapter, lesson: prevLesson });
-    } else {
-      const prevChapterIndex = chapterIndex - 1;
-      if (prevChapterIndex >= 0) {
-        const prevChapter = course.chapters[prevChapterIndex];
-        if (!prevChapter.locked && prevChapter.lessons.length > 0) {
-          const lastLesson =
-            prevChapter.lessons[prevChapter.lessons.length - 1];
-          setSelectedLesson({ chapter: prevChapter, lesson: lastLesson });
-        }
-      }
+    // If we get here, no valid next lesson was found
+    if (!autoNavigate) {
+      alert("No more lessons available. You've completed this course!");
     }
+    console.log("⚠️ [FRONTEND] No unlocked next lesson available");
   };
 
+  // FIXED: Enhanced hasNextLesson that considers MCQ status
   const hasNextLesson = () => {
     if (!course || !selectedLesson) return false;
 
     const { chapterIndex, lessonIndex } = getCurrentLessonIndices();
     if (chapterIndex === -1 || lessonIndex === -1) return false;
 
-    const currentChapter = course?.chapters[chapterIndex];
-    const hasNextInChapter = lessonIndex < currentChapter.lessons.length - 1;
+    const currentChapter = course.chapters[chapterIndex];
 
-    if (hasNextInChapter) return true;
+    // Check next lesson in same chapter
+    const nextLessonIndex = lessonIndex + 1;
+    if (nextLessonIndex < currentChapter.lessons.length) {
+      const nextLesson = currentChapter.lessons[nextLessonIndex];
+      if (!nextLesson.locked) return true;
+    }
 
+    // Check first lesson in next chapter (consider MCQ status)
     const nextChapterIndex = chapterIndex + 1;
-    if (nextChapterIndex < course?.chapters.length) {
-      const nextChapter = course?.chapters[nextChapterIndex];
-      return !nextChapter.locked && nextChapter.lessons.length > 0;
+    if (nextChapterIndex < course.chapters.length) {
+      const nextChapter = course.chapters[nextChapterIndex];
+
+      // Next chapter is unlocked if it's not locked OR if current chapter MCQ is passed
+      const isNextChapterUnlocked =
+        !nextChapter.locked ||
+        (currentChapter.mcq_passed && nextChapterIndex === chapterIndex + 1);
+
+      if (
+        isNextChapterUnlocked &&
+        nextChapter.lessons.length > 0 &&
+        !nextChapter.lessons[0].locked
+      ) {
+        return true;
+      }
     }
 
     return false;
+  };
+
+  const handlePreviousLesson = () => {
+    if (!course || !selectedLesson) return;
+
+    const { chapterIndex, lessonIndex } = getCurrentLessonIndices();
+    if (chapterIndex === -1 || lessonIndex === -1) return;
+
+    // First, try to find previous lesson in same chapter
+    const prevLessonIndex = lessonIndex - 1;
+    if (prevLessonIndex >= 0) {
+      const prevLesson = course.chapters[chapterIndex].lessons[prevLessonIndex];
+      if (!prevLesson.locked) {
+        setSelectedLesson({
+          chapter: course.chapters[chapterIndex],
+          lesson: prevLesson,
+        });
+        return;
+      }
+    }
+
+    // If no previous lesson in current chapter, try previous chapter
+    const prevChapterIndex = chapterIndex - 1;
+    if (prevChapterIndex >= 0) {
+      const prevChapter = course.chapters[prevChapterIndex];
+      if (!prevChapter.locked && prevChapter.lessons.length > 0) {
+        // Find the last unlocked lesson in previous chapter
+        for (let i = prevChapter.lessons.length - 1; i >= 0; i--) {
+          const lesson = prevChapter.lessons[i];
+          if (!lesson.locked) {
+            setSelectedLesson({ chapter: prevChapter, lesson });
+            return;
+          }
+        }
+      }
+    }
+
+    // If we get here, no valid previous lesson was found
+    alert("No previous lesson available.");
+    console.log("⚠️ [FRONTEND] No unlocked previous lesson available");
   };
 
   const hasPreviousLesson = () => {
@@ -395,19 +575,47 @@ export default function CourseLearnPage() {
     const { chapterIndex, lessonIndex } = getCurrentLessonIndices();
     if (chapterIndex === -1 || lessonIndex === -1) return false;
 
-    const hasPrevInChapter = lessonIndex > 0;
-    if (hasPrevInChapter) return true;
+    // Check previous lesson in same chapter
+    const prevLessonIndex = lessonIndex - 1;
+    if (prevLessonIndex >= 0) {
+      const prevLesson = course.chapters[chapterIndex].lessons[prevLessonIndex];
+      if (!prevLesson.locked) return true;
+    }
 
+    // Check last unlocked lesson in previous chapter
     const prevChapterIndex = chapterIndex - 1;
     if (prevChapterIndex >= 0) {
-      const prevChapter = course?.chapters[prevChapterIndex];
-      return !prevChapter.locked && prevChapter.lessons.length > 0;
+      const prevChapter = course.chapters[prevChapterIndex];
+      if (!prevChapter.locked && prevChapter.lessons.length > 0) {
+        // Find if there's any unlocked lesson in previous chapter
+        return prevChapter.lessons.some((lesson: any) => !lesson.locked);
+      }
     }
 
     return false;
   };
 
+  const isLastLessonInCurrentChapter = () => {
+    if (!selectedLesson || !course) return false;
+
+    const { chapterIndex, lessonIndex } = getCurrentLessonIndices();
+    if (chapterIndex === -1 || lessonIndex === -1) return false;
+
+    const currentChapter = course.chapters[chapterIndex];
+    return lessonIndex === currentChapter.lessons.length - 1;
+  };
+
   const enhancedHandleStartMCQ = (chapter: any) => {
+    // Only allow starting MCQ if all lessons in chapter are completed
+    const allLessonsCompleted = chapter.lessons.every(
+      (lesson: any) => lesson.completed,
+    );
+    if (!allLessonsCompleted) {
+      alert(
+        "Complete all lessons in this chapter before attempting the MCQ test.",
+      );
+      return;
+    }
     handleStartMCQ(chapter);
   };
 
@@ -467,12 +675,17 @@ export default function CourseLearnPage() {
               {selectedLesson ? (
                 <div className="p-6">
                   <VideoSection
+                    key={`${selectedLesson.lesson.id}-${forceUpdate}`} // CRITICAL: Force re-render
                     chapter={selectedLesson.chapter}
                     lesson={selectedLesson.lesson}
                     onNextLesson={handleNextLesson}
                     onPreviousLesson={handlePreviousLesson}
+                    onCompleteLesson={handleCompleteCurrentLesson}
                     hasNextLesson={hasNextLesson()}
                     hasPreviousLesson={hasPreviousLesson()}
+                    isLessonCompleted={selectedLesson.lesson.completed}
+                    isLastLessonInChapter={isLastLessonInCurrentChapter()}
+                    isMCQPassed={selectedLesson.chapter.mcq_passed}
                   />
                 </div>
               ) : (
@@ -530,8 +743,8 @@ export default function CourseLearnPage() {
         onAnswerSelect={(mcqId, optionIndex) =>
           setUserAnswers((prev) => ({ ...prev, [mcqId]: optionIndex }))
         }
-        onSubmit={enhancedSubmitMCQTest} // Use enhanced submit
-        onClose={enhancedHandleCloseMCQ} // Use enhanced close
+        onSubmit={enhancedSubmitMCQTest}
+        onClose={enhancedHandleCloseMCQ}
       />
     </div>
   );
