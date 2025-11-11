@@ -548,7 +548,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ course }) => {
           <div className="space-y-6">
             {reviews
               .filter((review) => review.user_id !== parseInt(currentUserId))
-              .map((review) => (
+              .map((review: any) => (
                 <div
                   key={review.id}
                   className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800"
@@ -570,7 +570,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ course }) => {
 
                       <div>
                         <div className="font-medium text-gray-900 dark:text-white">
-                          {review.user?.username || "Anonymous User"}
+                          {review?.rating_user?.username || "Anonymous User"}
                         </div>
                         <div className="text-sm text-gray-600 dark:text-gray-400">
                           {new Date(review.createdAt).toLocaleDateString(

@@ -33,8 +33,9 @@ const MCQModal: React.FC<MCQModalProps> = ({
 
   useEffect(() => {
     if (show && chapter) {
-      const shuffled = shuffleMCQs([...chapter.mcqs]);
-      setShuffledMCQs(shuffled);
+      // Only shuffle questions, keep options in original order
+      const shuffledQuestions = shuffleArray([...chapter.mcqs]);
+      setShuffledMCQs(shuffledQuestions);
     }
   }, [show, chapter]);
 
@@ -45,13 +46,6 @@ const MCQModal: React.FC<MCQModalProps> = ({
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
-  };
-
-  const shuffleMCQs = (mcqs: any[]): any[] => {
-    return shuffleArray(mcqs).map((mcq) => ({
-      ...mcq,
-      options: shuffleArray(mcq.options),
-    }));
   };
 
   useEffect(() => {
@@ -163,6 +157,7 @@ const MCQModal: React.FC<MCQModalProps> = ({
                 </div>
 
                 <div className="space-y-3">
+                  {/* Render options in their original order - DO NOT SHUFFLE */}
                   {mcq.options.map((option: any, optIndex: any) => (
                     <label
                       key={optIndex}

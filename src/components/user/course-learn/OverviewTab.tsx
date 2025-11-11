@@ -1,5 +1,15 @@
 // components/course-learn/OverviewTab.tsx
 import React from "react";
+import {
+  BookOpen,
+  Clock,
+  Users,
+  Target,
+  CheckCircle2,
+  PlayCircle,
+  Award,
+  BarChart3,
+} from "lucide-react";
 
 interface OverviewTabProps {
   course: any;
@@ -10,174 +20,206 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   course,
   courseProgress,
 }) => {
-  // Extract ratings data from course or courseProgress
-  const ratings = course.ratings || courseProgress?.ratings;
+  // Calculate progress statistics
+  const totalLessons =
+    course?.chapters?.reduce(
+      (total: number, chapter: any) => total + (chapter.lessons?.length || 0),
+      0,
+    ) || 0;
+
+  const completedLessons =
+    courseProgress?.chapters?.reduce(
+      (total: number, chapter: any) =>
+        total + (chapter.progress?.completed_lessons || 0),
+      0,
+    ) || 0;
+
+  const totalChapters = course?.chapters?.length || 0;
+  const completedChapters = courseProgress?.completed_chapters || 0;
+
+  const progressPercentage =
+    totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${mins}m`;
+  };
+
+  const totalDuration =
+    course?.chapters?.reduce(
+      (total: number, chapter: any) => total + (chapter.duration || 0),
+      0,
+    ) || 0;
 
   return (
-    <div>
-      <h1 className="mb-2 text-2xl font-semibold">{course.title}</h1>
-      {course.subtitle && (
-        <h2 className="mb-4 text-xl text-gray-600 dark:text-gray-400">
-          {course.subtitle}
-        </h2>
-      )}
-      <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-        {/* Ratings Display */}
-        {ratings?.statistics && (
-          <span className="flex items-center gap-1">
-            ⭐ {ratings.statistics.average_rating.toFixed(1)}
-            <span className="text-xs text-gray-500">
-              ({ratings.statistics.total_ratings}{" "}
-              {ratings.statistics.total_ratings === 1 ? "rating" : "ratings"})
-            </span>
-          </span>
-        )}
-        <span>{course.enrollment_count} Students</span>
-        <span>{course.duration} Total</span>
-        {courseProgress && (
-          <span className="text-green-500">
-            {courseProgress.overall_progress}% Completed
-          </span>
-        )}
+    <div className="space-y-6">
+      {/* Progress Overview */}
+      <div className="rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 p-6 dark:from-blue-900/20 dark:to-purple-900/20">
+        <h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white">
+          <BarChart3 className="h-5 w-5" />
+          Your Learning Progress
+        </h3>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Overall Progress */}
+          <div className="rounded-xl bg-white p-4 shadow-sm dark:bg-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-blue-100 p-2 dark:bg-blue-900/30">
+                <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Overall Progress
+                </p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {progressPercentage}%
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700">
+              <div
+                className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Lessons Completed */}
+          <div className="rounded-xl bg-white p-4 shadow-sm dark:bg-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-green-100 p-2 dark:bg-green-900/30">
+                <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Lessons Completed
+                </p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {completedLessons}/{totalLessons}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Chapters Completed */}
+          <div className="rounded-xl bg-white p-4 shadow-sm dark:bg-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-orange-100 p-2 dark:bg-orange-900/30">
+                <BookOpen className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Chapters Completed
+                </p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {completedChapters}/{totalChapters}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Time Spent */}
+          <div className="rounded-xl bg-white p-4 shadow-sm dark:bg-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-purple-100 p-2 dark:bg-purple-900/30">
+                <Clock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Total Duration
+                </p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {formatDuration(totalDuration)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div
-        className="max-w-3xl whitespace-pre-line text-gray-700 dark:text-gray-300"
-        dangerouslySetInnerHTML={{ __html: course.description }}
-      />
+      {/* Course Description */}
+      <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-slate-800">
+        <h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white">
+          <BookOpen className="h-5 w-5" />
+          Course Description
+        </h3>
+        <div
+          className="prose prose-slate dark:prose-invert max-w-none"
+          dangerouslySetInnerHTML={{
+            __html: course?.description || "<p>No description available.</p>",
+          }}
+        />
+      </div>
+
+      {/* Course Features */}
+      {course?.features && course.features.length > 0 && (
+        <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-slate-800">
+          <h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white">
+            <Award className="h-5 w-5" />
+            What You'll Learn
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2">
+            {course.features.map((feature: string, index: number) => (
+              <div
+                key={index}
+                className="flex items-start gap-3 rounded-lg bg-slate-50 p-4 dark:bg-slate-700/50"
+              >
+                <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
+                <div
+                  className="prose prose-slate dark:prose-invert max-w-none text-sm"
+                  dangerouslySetInnerHTML={{ __html: feature }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Course Statistics */}
-      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-          <div className="text-2xl font-bold">
-            {course.statistics?.total_chapters || 0}
+      <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-slate-800">
+        <h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-slate-900 dark:text-white">
+          <Users className="h-5 w-5" />
+          Course Statistics
+        </h3>
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">
+              {course?.statistics?.total_chapters || 0}
+            </p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Chapters
+            </p>
           </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            Chapters
+          <div className="text-center">
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">
+              {course?.statistics?.total_lessons || 0}
+            </p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Lessons
+            </p>
           </div>
-        </div>
-        <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-          <div className="text-2xl font-bold">
-            {course.statistics?.total_lessons || 0}
+          <div className="text-center">
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">
+              {course?.statistics?.total_mcqs || 0}
+            </p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Assessments
+            </p>
           </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            Lessons
-          </div>
-        </div>
-        <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-          <div className="text-2xl font-bold">
-            {course.statistics?.total_mcqs || 0}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">MCQs</div>
-        </div>
-        <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-          <div className="text-2xl font-bold">
-            {course.enrollment_count || 0}
-          </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            Enrolled
+          <div className="text-center">
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">
+              {course?.statistics?.total_enrolled || 0}
+            </p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Enrolled
+            </p>
           </div>
         </div>
       </div>
-
-      {/* Detailed Ratings Section */}
-      {ratings?.statistics && (
-        <div className="mt-8">
-          <h3 className="mb-4 text-xl font-semibold">Course Ratings</h3>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {/* Average Rating */}
-            <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
-              <div className="flex items-center gap-4">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-yellow-500">
-                    {ratings.statistics.average_rating.toFixed(1)}
-                  </div>
-                  <div className="flex items-center justify-center">
-                    {[...Array(5)].map((_, i) => (
-                      <span
-                        key={i}
-                        className={`text-lg ${
-                          i < Math.floor(ratings.statistics.average_rating)
-                            ? "text-yellow-500"
-                            : "text-gray-300"
-                        }`}
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {ratings.statistics.total_ratings}{" "}
-                    {ratings.statistics.total_ratings === 1
-                      ? "rating"
-                      : "ratings"}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Rating Distribution */}
-            <div className="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-800">
-              <h4 className="mb-3 font-semibold">Rating Distribution</h4>
-              <div className="space-y-2">
-                {[5, 4, 3, 2, 1].map((rating) => (
-                  <div key={rating} className="flex items-center gap-2">
-                    <span className="w-8 text-sm text-gray-600 dark:text-gray-400">
-                      {rating} ★
-                    </span>
-                    <div className="flex-1">
-                      <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
-                        <div
-                          className="h-2 rounded-full bg-yellow-500"
-                          style={{
-                            width: `${ratings.statistics.percentage_distribution[rating] || 0}%`,
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                    <span className="w-12 text-xs text-gray-600 dark:text-gray-400">
-                      {ratings.statistics.rating_distribution[rating] || 0}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* User's Rating */}
-      {ratings?.user_rating && (
-        <div className="mt-6 rounded-lg bg-blue-50 p-6 dark:bg-blue-900/20">
-          <h4 className="mb-3 font-semibold text-blue-900 dark:text-blue-100">
-            Your Rating
-          </h4>
-          <div className="flex items-center gap-3">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <span
-                  key={i}
-                  className={`text-xl ${
-                    i < ratings.user_rating.score
-                      ? "text-yellow-500"
-                      : "text-gray-300"
-                  }`}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
-            <span className="text-sm text-blue-700 dark:text-blue-300">
-              {ratings.user_rating.score}.0
-            </span>
-          </div>
-          {ratings.user_rating.review && (
-            <p className="mt-2 text-sm text-blue-800 dark:text-blue-200">
-              {ratings.user_rating.review}
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 };
