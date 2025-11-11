@@ -270,11 +270,10 @@ export default function UserCourseDashboard({ className }: any) {
         <button
           key={i}
           onClick={() => setPage(i)}
-          className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 ${
-            page === i
+          className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 ${page === i
               ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25"
               : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-blue-500"
-          }`}
+            }`}
         >
           {i}
         </button>,
@@ -497,21 +496,19 @@ export default function UserCourseDashboard({ className }: any) {
               <div className="flex items-center gap-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-700">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-lg p-3 transition-all duration-300 ${
-                    viewMode === "grid"
+                  className={`rounded-lg p-3 transition-all duration-300 ${viewMode === "grid"
                       ? "bg-white text-blue-600 shadow-sm dark:bg-gray-600 dark:text-blue-400"
                       : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  }`}
+                    }`}
                 >
                   <Grid3X3 className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`rounded-lg p-3 transition-all duration-300 ${
-                    viewMode === "list"
+                  className={`rounded-lg p-3 transition-all duration-300 ${viewMode === "list"
                       ? "bg-white text-blue-600 shadow-sm dark:bg-gray-600 dark:text-blue-400"
                       : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  }`}
+                    }`}
                 >
                   <List className="h-5 w-5" />
                 </button>
@@ -763,11 +760,10 @@ const CourseCard = ({
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-500 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 ${
-        isCourseAvailable && !isEnrolled
+      className={`group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-500 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 ${isCourseAvailable && !isEnrolled
           ? "cursor-pointer hover:-translate-y-1"
           : "cursor-default"
-      }`}
+        }`}
       onClick={() => !isEnrolled && isCourseAvailable && onClick()}
     >
       {/* Course Image with Gradient Overlay */}
@@ -801,13 +797,12 @@ const CourseCard = ({
         {/* Status Badges */}
         <div className="absolute left-4 top-4 flex flex-col gap-2">
           <span
-            className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${
-              courseStatus.color === "gray"
+            className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${courseStatus.color === "gray"
                 ? "bg-gray-900/80 text-white"
                 : courseStatus.color === "orange"
                   ? "bg-orange-500/90 text-white"
                   : "bg-green-500/90 text-white"
-            }`}
+              }`}
           >
             {courseStatus.status === "inactive" && <Lock className="h-3 w-3" />}
             {courseStatus.status === "under_development" && (
@@ -830,11 +825,10 @@ const CourseCard = ({
         <button
           onClick={onWishlistToggle}
           disabled={wishlistLoading}
-          className={`absolute right-4 top-4 rounded-full p-2.5 backdrop-blur-sm transition-all duration-300 ${
-            isInWishlist
+          className={`absolute right-4 top-4 rounded-full p-2.5 backdrop-blur-sm transition-all duration-300 ${isInWishlist
               ? "bg-red-500 text-white shadow-lg hover:bg-red-600"
               : "bg-white/90 text-gray-600 shadow-lg hover:bg-white hover:text-red-500"
-          } ${wishlistLoading ? "cursor-not-allowed opacity-50" : ""}`}
+            } ${wishlistLoading ? "cursor-not-allowed opacity-50" : ""}`}
           title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >
           {wishlistLoading ? (
@@ -849,11 +843,10 @@ const CourseCard = ({
         {/* Price Badge */}
         <div className="absolute right-4 top-16">
           <span
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${
-              course.price_type === "free"
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${course.price_type === "free"
                 ? "bg-green-500/90 text-white"
                 : "bg-blue-500/90 text-white"
-            }`}
+              }`}
           >
             {course.price_type === "free" ? "FREE" : `$${course.price}`}
           </span>
@@ -960,7 +953,7 @@ const CourseCard = ({
               </div>
 
               {/* Progress Below Buttons */}
-              <div className="mt-2">
+              {/* <div className="mt-2">
                 <div className="flex items-center justify-between text-sm font-bold text-gray-900 dark:text-white">
                   <span>Progress</span>
                   <span>{progress}%</span>
@@ -971,18 +964,17 @@ const CourseCard = ({
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
-              </div>
+              </div> */}
             </>
           ) : (
             // For not enrolled
             <button
               onClick={() => isCourseAvailable && onClick()}
               disabled={!isCourseAvailable}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-300 ${
-                isCourseAvailable
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-300 ${isCourseAvailable
                   ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
                   : "cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
-              }`}
+                }`}
             >
               {isInactive ? (
                 <>
@@ -1023,11 +1015,10 @@ const CourseListItem = ({
 
   return (
     <div
-      className={`group flex items-start gap-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 ${
-        isActive && isCourseComplete && !isEnrolled
+      className={`group flex items-start gap-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 ${isActive && isCourseComplete && !isEnrolled
           ? "cursor-pointer hover:-translate-y-0.5"
           : "cursor-default"
-      }`}
+        }`}
       onClick={() => !isEnrolled && isActive && isCourseComplete && onClick()}
     >
       {/* Course Image */}
@@ -1049,11 +1040,10 @@ const CourseListItem = ({
         <button
           onClick={onWishlistToggle}
           disabled={wishlistLoading}
-          className={`absolute right-2 top-2 rounded-full p-1.5 backdrop-blur-sm transition-all duration-300 ${
-            isInWishlist
+          className={`absolute right-2 top-2 rounded-full p-1.5 backdrop-blur-sm transition-all duration-300 ${isInWishlist
               ? "bg-red-500 text-white shadow-md hover:bg-red-600"
               : "bg-white/90 text-gray-600 shadow-md hover:bg-white hover:text-red-500"
-          } ${wishlistLoading ? "cursor-not-allowed opacity-50" : ""}`}
+            } ${wishlistLoading ? "cursor-not-allowed opacity-50" : ""}`}
         >
           {wishlistLoading ? (
             <Loader2 className="h-3 w-3 animate-spin" />
@@ -1090,11 +1080,10 @@ const CourseListItem = ({
                 </span>
               )}
               <span
-                className={`rounded-full px-3 py-1 text-xs font-medium ${
-                  course.price_type === "free"
+                className={`rounded-full px-3 py-1 text-xs font-medium ${course.price_type === "free"
                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                     : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                }`}
+                  }`}
               >
                 {course.price_type === "free" ? "FREE" : `$${course.price}`}
               </span>
@@ -1157,11 +1146,10 @@ const CourseListItem = ({
               <button
                 onClick={onClick}
                 disabled={!isActive || !isCourseComplete}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${
-                  isActive && isCourseComplete
+                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${isActive && isCourseComplete
                     ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/25"
                     : "cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
-                }`}
+                  }`}
               >
                 {isInactive ? (
                   <>
