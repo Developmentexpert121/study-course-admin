@@ -23,11 +23,9 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
             const userId = getUserId();
             if (!userId) return;
 
-            console.log('🔄 [FRONTEND] Loading progress data...');
             const progressResponse = await api.get(`progress/${courseId}/progress?user_id=${userId}`);
 
             if (progressResponse.success) {
-                console.log('✅ [FRONTEND] Progress data loaded:', progressResponse.data);
                 setCourseProgress(progressResponse.data.data);
             }
         } catch (error) {
@@ -48,12 +46,7 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
                 throw new Error('User not authenticated');
             }
 
-            console.log('🎯 [FRONTEND] Calling complete-lesson API:', {
-                courseId,
-                lessonId,
-                chapterId,
-                userId
-            });
+
 
             const response = await api.post(`progress/${courseId}/complete-lesson`, {
                 user_id: userId,
@@ -61,10 +54,8 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
                 chapter_id: chapterId
             });
 
-            console.log('🎯 [FRONTEND] Complete-lesson API response:', response);
 
             if (response.success) {
-                console.log('✅ [FRONTEND] Lesson marked as completed successfully');
 
                 // Update local state
                 setCourse((prev: any) => {
@@ -130,7 +121,6 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
             });
 
             if (response.success) {
-                console.log('MCQ submitted successfully:', response.data);
 
                 const mcqResult = response.data.data;
 

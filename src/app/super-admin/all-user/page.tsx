@@ -18,22 +18,39 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchUsers, setPage, setSearch, setVerificationStatus } from "../../../store/slices/adminslice/all-user-details";
-import { activateUser, deactivateUser } from "../../../store/slices/adminslice/userManagement";
+import { useAppDispatch, useAppSelector } from "@/store";
+import {
+  fetchUsers,
+  setPage,
+  setSearch,
+  setVerificationStatus,
+} from "../../../store/slices/adminslice/all-user-details";
+import {
+  activateUser,
+  deactivateUser,
+} from "../../../store/slices/adminslice/userManagement";
 
 export default function UsersWithProgressPage({ className }: any) {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { users, totalPages, currentPage, loading, error, searchTerm, verificationStatus, totalUsers, activeUsers } = useAppSelector(
-    (state) => state.users
-  );
-  console.log("object", totalUsers)
+  const {
+    users,
+    totalPages,
+    currentPage,
+    loading,
+    error,
+    searchTerm,
+    verificationStatus,
+    totalUsers,
+    activeUsers,
+  } = useAppSelector((state) => state.users);
   const limit = 5;
   const [processingUserId, setProcessingUserId] = useState<string | null>(null);
-  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm || '');
-  const [localVerificationStatus, setLocalVerificationStatus] = useState(verificationStatus || 'all');
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm || "");
+  const [localVerificationStatus, setLocalVerificationStatus] = useState(
+    verificationStatus || "all",
+  );
 
   // Calculate stats
   const totalCount = totalUsers || 0;
@@ -41,12 +58,14 @@ export default function UsersWithProgressPage({ className }: any) {
   const inactiveCount = totalCount - activeUsers || 0;
 
   useEffect(() => {
-    dispatch(fetchUsers({
-      page: currentPage,
-      limit,
-      search: searchTerm,
-      verificationStatus
-    }));
+    dispatch(
+      fetchUsers({
+        page: currentPage,
+        limit,
+        search: searchTerm,
+        verificationStatus,
+      }),
+    );
   }, [dispatch, currentPage, limit, searchTerm, verificationStatus]);
 
   const handlePageChange = (page: number) => {
@@ -61,15 +80,15 @@ export default function UsersWithProgressPage({ className }: any) {
   };
 
   const handleClearSearch = () => {
-    setLocalSearchTerm('');
-    setLocalVerificationStatus('all');
-    dispatch(setSearch(''));
-    dispatch(setVerificationStatus('all'));
+    setLocalSearchTerm("");
+    setLocalVerificationStatus("all");
+    dispatch(setSearch(""));
+    dispatch(setVerificationStatus("all"));
     dispatch(setPage(1));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
   };
@@ -82,12 +101,14 @@ export default function UsersWithProgressPage({ className }: any) {
       try {
         const result = await dispatch(deactivateUser({ userId }));
         if (deactivateUser.fulfilled.match(result)) {
-          dispatch(fetchUsers({
-            page: currentPage,
-            limit,
-            search: searchTerm,
-            verificationStatus
-          }));
+          dispatch(
+            fetchUsers({
+              page: currentPage,
+              limit,
+              search: searchTerm,
+              verificationStatus,
+            }),
+          );
         }
       } catch (error) {
         console.error("Failed to deactivate user:", error);
@@ -105,12 +126,14 @@ export default function UsersWithProgressPage({ className }: any) {
       try {
         const result = await dispatch(activateUser({ userId }));
         if (activateUser.fulfilled.match(result)) {
-          dispatch(fetchUsers({
-            page: currentPage,
-            limit,
-            search: searchTerm,
-            verificationStatus
-          }));
+          dispatch(
+            fetchUsers({
+              page: currentPage,
+              limit,
+              search: searchTerm,
+              verificationStatus,
+            }),
+          );
         }
       } catch (error) {
         console.error("Failed to activate user:", error);
@@ -159,12 +182,16 @@ export default function UsersWithProgressPage({ className }: any) {
             </h3>
             <p className="mb-4 text-red-700 dark:text-red-300">{error}</p>
             <button
-              onClick={() => dispatch(fetchUsers({
-                page: currentPage,
-                limit,
-                search: searchTerm,
-                verificationStatus
-              }))}
+              onClick={() =>
+                dispatch(
+                  fetchUsers({
+                    page: currentPage,
+                    limit,
+                    search: searchTerm,
+                    verificationStatus,
+                  }),
+                )
+              }
               className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
@@ -191,12 +218,16 @@ export default function UsersWithProgressPage({ className }: any) {
             </p>
           </div>
           <button
-            onClick={() => dispatch(fetchUsers({
-              page: currentPage,
-              limit,
-              search: searchTerm,
-              verificationStatus
-            }))}
+            onClick={() =>
+              dispatch(
+                fetchUsers({
+                  page: currentPage,
+                  limit,
+                  search: searchTerm,
+                  verificationStatus,
+                }),
+              )
+            }
             className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] dark:bg-[#43bf79]"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
@@ -233,7 +264,7 @@ export default function UsersWithProgressPage({ className }: any) {
               <select
                 value={localVerificationStatus}
                 onChange={(e) => setLocalVerificationStatus(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 py-2 px-3 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
               >
                 <option value="all">All Users</option>
                 <option value="verified">Verified</option>
@@ -252,7 +283,7 @@ export default function UsersWithProgressPage({ className }: any) {
                 Search
               </button>
 
-              {(searchTerm || verificationStatus !== 'all') && (
+              {(searchTerm || verificationStatus !== "all") && (
                 <button
                   onClick={handleClearSearch}
                   disabled={loading}
@@ -265,7 +296,7 @@ export default function UsersWithProgressPage({ className }: any) {
           </div>
 
           {/* Active Search Info */}
-          {(searchTerm || verificationStatus !== 'all') && (
+          {(searchTerm || verificationStatus !== "all") && (
             <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <span>Active filters:</span>
               {searchTerm && (
@@ -273,9 +304,12 @@ export default function UsersWithProgressPage({ className }: any) {
                   Search: "{searchTerm}"
                 </span>
               )}
-              {verificationStatus !== 'all' && (
+              {verificationStatus !== "all" && (
                 <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                  Status: {verificationStatus === 'verified' ? 'Verified' : 'Unverified'}
+                  Status:{" "}
+                  {verificationStatus === "verified"
+                    ? "Verified"
+                    : "Unverified"}
                 </span>
               )}
             </div>
@@ -364,7 +398,9 @@ export default function UsersWithProgressPage({ className }: any) {
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center">
                       <RefreshCw className="mx-auto mb-3 h-8 w-8 animate-spin text-gray-400" />
-                      <p className="font-medium text-gray-500 dark:text-white">Loading...</p>
+                      <p className="font-medium text-gray-500 dark:text-white">
+                        Loading...
+                      </p>
                     </td>
                   </tr>
                 ) : users && users.length > 0 ? (
@@ -428,7 +464,7 @@ export default function UsersWithProgressPage({ className }: any) {
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
                         <div className="flex items-center gap-2">
-                          {user.status === 'active' ? (
+                          {user.status === "active" ? (
                             <button
                               onClick={(e) => handleDeactivateUser(e, user.id)}
                               disabled={processingUserId === user.id}
@@ -484,7 +520,9 @@ export default function UsersWithProgressPage({ className }: any) {
                     <td colSpan={5} className="px-6 py-12 text-center">
                       <User className="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600" />
                       <p className="font-medium text-gray-500 dark:text-white">
-                        {searchTerm ? 'No users found matching your search' : 'No users found'}
+                        {searchTerm
+                          ? "No users found matching your search"
+                          : "No users found"}
                       </p>
                       {searchTerm && (
                         <button
@@ -533,40 +571,47 @@ export default function UsersWithProgressPage({ className }: any) {
                 </button>
 
                 <div className="flex flex-wrap items-center justify-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                    const showPage =
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1);
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => {
+                      const showPage =
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1);
 
-                    const showEllipsis =
-                      (page === currentPage - 2 && currentPage > 3) ||
-                      (page === currentPage + 2 && currentPage < totalPages - 2);
+                      const showEllipsis =
+                        (page === currentPage - 2 && currentPage > 3) ||
+                        (page === currentPage + 2 &&
+                          currentPage < totalPages - 2);
 
-                    if (showEllipsis) {
+                      if (showEllipsis) {
+                        return (
+                          <span
+                            key={page}
+                            className="px-2 text-gray-500 dark:text-white"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+
+                      if (!showPage) return null;
+
                       return (
-                        <span key={page} className="px-2 text-gray-500 dark:text-white">
-                          ...
-                        </span>
-                      );
-                    }
-
-                    if (!showPage) return null;
-
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        disabled={loading}
-                        className={`rounded-lg px-3 py-2 text-sm shadow-sm transition-all duration-200 ${currentPage === page
-                          ? "bg-[#02517b] font-semibold text-white dark:bg-[#43bf79] dark:text-gray-900"
-                          : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          disabled={loading}
+                          className={`rounded-lg px-3 py-2 text-sm shadow-sm transition-all duration-200 ${
+                            currentPage === page
+                              ? "bg-[#02517b] font-semibold text-white dark:bg-[#43bf79] dark:text-gray-900"
+                              : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                           } disabled:cursor-not-allowed disabled:opacity-50`}
-                      >
-                        {page}
-                      </button>
-                    );
-                  })}
+                        >
+                          {page}
+                        </button>
+                      );
+                    },
+                  )}
                 </div>
 
                 <button

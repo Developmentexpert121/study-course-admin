@@ -71,7 +71,7 @@ export const fetchAdmins = createAsyncThunk(
       search = "",
       status = "",
       email = "",
-      name = ""
+      name = "",
     }: {
       page?: number;
       search?: string;
@@ -79,22 +79,23 @@ export const fetchAdmins = createAsyncThunk(
       email?: string;
       name?: string;
     } = {},
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
       // Build query parameters
       const params = new URLSearchParams();
-      params.append('page', page.toString());
+      params.append("page", page.toString());
 
-      if (search) params.append('search', search);
-      if (status && status !== 'all') params.append('status', status);
-      if (email) params.append('email', email);
-      if (name) params.append('name', name);
+      if (search) params.append("search", search);
+      if (status && status !== "all") params.append("status", status);
+      if (email) params.append("email", email);
+      if (name) params.append("name", name);
 
-      const response = await reduxApiClient.get(`user/admins?${params.toString()}`);
+      const response = await reduxApiClient.get(
+        `user/admins?${params.toString()}`,
+      );
 
       if (response.data.success && response.data.data) {
-        console.log("response", response.data.data);
         return {
           admins: response.data.data.admins || [],
           currentPage: response.data.data.pagination?.currentPage || 1,
@@ -315,7 +316,7 @@ export const {
   setEmailFilter,
   setNameFilter,
   clearFilters,
-  setPage
+  setPage,
 } = adminSlice.actions;
 export default adminSlice.reducer;
 
@@ -335,8 +336,10 @@ export const selectRejectedCount = (state: any) =>
 
 export const selectAdminStats = (state: any) => state.admin.stats;
 export const selectTotalAdmins = (state: any) => state.admin.stats.totalAdmins;
-export const selectVerifiedAdmins = (state: any) => state.admin.stats.verifiedAdmins;
-export const selectUnverifiedAdmins = (state: any) => state.admin.stats.unverifiedAdmins;
+export const selectVerifiedAdmins = (state: any) =>
+  state.admin.stats.verifiedAdmins;
+export const selectUnverifiedAdmins = (state: any) =>
+  state.admin.stats.unverifiedAdmins;
 
 // Search and filter selectors
 export const selectSearchQuery = (state: any) => state.admin.searchQuery;

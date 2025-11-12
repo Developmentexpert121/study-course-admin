@@ -33,7 +33,6 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
   useEffect(() => {
     const t = getDecryptedItem("token");
     const r = getDecryptedItem("role");
-    console.log("role of user ", r);
     setToken(t);
     setRole(r);
   }, [pathname]);

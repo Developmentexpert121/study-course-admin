@@ -1,6 +1,6 @@
 // slices/
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { reduxApiClient } from '@/lib/redux-api';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { reduxApiClient } from "@/lib/redux-api";
 
 // Types
 export interface Email {
@@ -37,44 +37,46 @@ const initialState: EmailState = {
 
 // Async thunks
 export const storeEmail = createAsyncThunk(
-  'email/storeEmail',
+  "email/storeEmail",
   async (payload: StoreEmailPayload, { rejectWithValue }) => {
     try {
-      const response = await reduxApiClient.post('email/emails', payload);
-      
+      const response = await reduxApiClient.post("email/emails", payload);
+
       if (!response.success) {
-        return rejectWithValue(response.error?.message || 'Failed to store email');
+        return rejectWithValue(
+          response.error?.message || "Failed to store email",
+        );
       }
-      
+
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to store email');
+      return rejectWithValue(error.message || "Failed to store email");
     }
-  }
+  },
 );
 
 export const fetchAllEmails = createAsyncThunk(
-  'email/fetchAllEmails',
+  "email/fetchAllEmails",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await reduxApiClient.get('email/emails');
-      
+      const response = await reduxApiClient.get("email/emails");
+
       if (!response.success) {
-        return rejectWithValue(response.error?.message || 'Failed to fetch emails');
+        return rejectWithValue(
+          response.error?.message || "Failed to fetch emails",
+        );
       }
-      
+
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch emails');
+      return rejectWithValue(error.message || "Failed to fetch emails");
     }
-  }
+  },
 );
-
-
 
 // Slice
 const emailSlice = createSlice({
-  name: 'email',
+  name: "email",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -101,8 +103,7 @@ const emailSlice = createSlice({
       .addCase(storeEmail.fulfilled, (state, action: PayloadAction<Email>) => {
         state.loading = false;
         state.success = true;
-        state.emails.unshift(action.payload); 
-        console.log("object",state)
+        state.emails.unshift(action.payload);
       })
       .addCase(storeEmail.rejected, (state, action) => {
         state.loading = false;
@@ -114,15 +115,17 @@ const emailSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchAllEmails.fulfilled, (state, action: PayloadAction<Email[]>) => {
-        state.loading = false;
-        state.emails = action.payload;
-      })
+      .addCase(
+        fetchAllEmails.fulfilled,
+        (state, action: PayloadAction<Email[]>) => {
+          state.loading = false;
+          state.emails = action.payload;
+        },
+      )
       .addCase(fetchAllEmails.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-
+      });
   },
 });
 
@@ -133,6 +136,5 @@ export const selectEmails = (state: any) => state.email.emails;
 export const selectEmailLoading = (state: any) => state.email.loading;
 export const selectEmailError = (state: any) => state.email.error;
 export const selectEmailSuccess = (state: any) => state.email.success;
-
 
 export default emailSlice.reducer;

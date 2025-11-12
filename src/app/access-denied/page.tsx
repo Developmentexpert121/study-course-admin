@@ -6,7 +6,7 @@ import { getDecryptedItem } from "@/utils/storageHelper";
 export default function AccessDenied() {
   const router = useRouter();
   const userRole: any = getDecryptedItem("role");
-console.log("role----:",userRole)
+
   const getRoleMessage = () => {
     switch (userRole?.toLowerCase()) {
       case "admin":

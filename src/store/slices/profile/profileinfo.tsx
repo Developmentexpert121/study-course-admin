@@ -1,6 +1,5 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { reduxApiClient } from '@/lib/redux-api';
-
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { reduxApiClient } from "@/lib/redux-api";
 
 // User interface matching your backend model
 interface User {
@@ -11,7 +10,7 @@ interface User {
   verified: boolean;
   profileImage: string | null;
   bio: string;
-  status: 'pending' | 'approved' | 'rejected' | 'active' | 'inactive';
+  status: "pending" | "approved" | "rejected" | "active" | "inactive";
   createdAt: string;
   updatedAt: string;
 }
@@ -32,24 +31,25 @@ const initialState: UserState = {
 
 // Enhanced async thunk with better error handling
 export const getUserById = createAsyncThunk(
-  'user/getUserById',
+  "user/getUserById",
   async (userId: string, { rejectWithValue }) => {
     try {
       const response = await reduxApiClient.get(`user/${userId}/getinfo`);
-      console.log("apicall",response)
       if (!response.success) {
-        return rejectWithValue(response.error?.message || 'Failed to fetch user');
+        return rejectWithValue(
+          response.error?.message || "Failed to fetch user",
+        );
       }
 
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch user');
+      return rejectWithValue(error.message || "Failed to fetch user");
     }
-  }
+  },
 );
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState,
   reducers: {
     clearUser: (state) => {
@@ -58,21 +58,21 @@ const userSlice = createSlice({
       state.error = null;
       state.lastFetched = null;
     },
-    
+
     clearError: (state) => {
       state.error = null;
     },
-    
+
     resetLoading: (state) => {
       state.loading = false;
     },
-    
+
     // Update user profile (for local state updates)
     updateUserProfile: (state, action: PayloadAction<Partial<User>>) => {
       if (state.currentUser) {
         state.currentUser = { ...state.currentUser, ...action.payload };
       }
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -94,17 +94,16 @@ const userSlice = createSlice({
   },
 });
 
-export const { 
-  clearUser, 
-  clearError, 
-  resetLoading, 
-  updateUserProfile 
-} = userSlice.actions;
+export const { clearUser, clearError, resetLoading, updateUserProfile } =
+  userSlice.actions;
 
 // Selectors
-export const selectCurrentUser = (state: { user: UserState }) => state.user.currentUser;
-export const selectUserLoading = (state: { user: UserState }) => state.user.loading;
+export const selectCurrentUser = (state: { user: UserState }) =>
+  state.user.currentUser;
+export const selectUserLoading = (state: { user: UserState }) =>
+  state.user.loading;
 export const selectUserError = (state: { user: UserState }) => state.user.error;
-export const selectUserLastFetched = (state: { user: UserState }) => state.user.lastFetched;
+export const selectUserLastFetched = (state: { user: UserState }) =>
+  state.user.lastFetched;
 
 export default userSlice.reducer;

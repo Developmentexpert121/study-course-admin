@@ -3,9 +3,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  AppDispatch,
-} from "@/store";
+import { AppDispatch } from "@/store";
 import {
   fetchActiveCourses,
   selectAllCourses,
@@ -29,7 +27,6 @@ import {
 import { getDecryptedItem } from "@/utils/storageHelper";
 
 const CoursesPage = () => {
-  console.log("dgfhjdgfhjgfhjghfg");
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const name: any = getDecryptedItem("name");
@@ -48,17 +45,17 @@ const CoursesPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Mock categories - replace with your actual categories
-  const categories = [
-    "Web Development",
-    "Data Science",
-    "Mobile Development",
-    "UI/UX Design",
-    "Business",
-    "Marketing",
-    "Photography",
-    "Music",
-  ];
+  // Extract categories from actual course data
+  const categories = useMemo(() => {
+    if (!courses || courses.length === 0) return ["DESIGNING", "FULL STACK"];
+
+    const uniqueCategories = Array.from(
+      new Set(courses.map((course) => course.category).filter(Boolean)),
+    );
+    return uniqueCategories.length > 0
+      ? uniqueCategories
+      : ["DESIGNING", "FULL STACK"];
+  }, [courses]);
 
   const levels = ["Beginner", "Intermediate", "Advanced"];
   const prices = ["Free", "Paid"];
@@ -67,30 +64,32 @@ const CoursesPage = () => {
     dispatch(fetchActiveCourses());
   }, [dispatch]);
 
-  // Filter and sort courses - FIXED: Using price_type instead of isFree
+  // Filter and sort courses - UPDATED: Using actual API fields
+  // Filter and sort courses - UPDATED: Using actual API fields with proper array handling
   const filteredCourses = useMemo(() => {
-    let filtered = courses || [];
+    let filtered = courses ? [...courses] : []; // Create a copy of the array
 
     // Search filter
     if (searchQuery) {
       filtered = filtered.filter(
         (course) =>
           course.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          course.creator?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          course.description?.toLowerCase().includes(searchQuery.toLowerCase()),
+          course.subtitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          course.description
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          course.category?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
-    // Category filter
+    // Category filter - UPDATED: Using category field from API
     if (selectedCategories.length > 0) {
       filtered = filtered.filter((course) =>
-        selectedCategories.some((cat) =>
-          course.category?.toLowerCase().includes(cat.toLowerCase()),
-        ),
+        selectedCategories.includes(course.category || ""),
       );
     }
 
-    // Price filter - FIXED: Using price_type field
+    // Price filter - UPDATED: Using price_type and price fields
     if (priceFilter === "free") {
       filtered = filtered.filter(
         (course) => course.price_type === "free" || Number(course.price) === 0,
@@ -101,43 +100,51 @@ const CoursesPage = () => {
       );
     }
 
-    // Level filter
+    // Level filter - DISABLED: No level field in API
     if (levelFilter !== "all") {
+      // Since there's no level field in the API, we'll skip this filter
+      // filtered = filtered.filter((course) => course.level === levelFilter);
+    }
+
+    // Rating filter - UPDATED: Using ratings field
+    if (ratingFilter > 0) {
       filtered = filtered.filter(
-        (course) => course.level?.toLowerCase() === levelFilter.toLowerCase(),
+        (course) => (course.ratings || 0) >= ratingFilter,
       );
     }
 
-    // Rating filter
-    if (ratingFilter > 0) {
-      filtered = filtered.filter((course) => course.ratings ?? 0 >= ratingFilter);
-    }
+    // Sort courses - UPDATED: Create a new array for sorting to avoid mutation issues
+    const sortedCourses = [...filtered]; // Create a copy for sorting
 
-    // Sort courses - FIXED: Using correct field names
     switch (sortBy) {
       case "newest":
-        filtered.sort(
+        sortedCourses.sort(
           (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime(),
         );
         break;
       case "rating":
-        filtered.sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
+        sortedCourses.sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
         break;
       case "price-low":
-        filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+        sortedCourses.sort(
+          (a, b) => Number(a.price || 0) - Number(b.price || 0),
+        );
         break;
       case "price-high":
-        filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+        sortedCourses.sort(
+          (a, b) => Number(b.price || 0) - Number(a.price || 0),
+        );
         break;
       case "popular":
       default:
-        // You might want to add enrollment count to your model
-        filtered.sort((a, b) => (b.id || 0) - (a.id || 0)); // Fallback to ID sort
+        // Using ID as fallback for popularity
+        sortedCourses.sort((a, b) => (b.id || 0) - (a.id || 0));
         break;
     }
 
-    return filtered;
+    return sortedCourses;
   }, [
     courses,
     searchQuery,
@@ -198,7 +205,7 @@ const CoursesPage = () => {
           <div className="mx-auto max-w-4xl text-center">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm">
               <span className="text-xs font-medium md:text-sm">
-                🎓 1000+ Courses Available
+                🎓 {courses?.length || 0}+ Courses Available
               </span>
             </div>
 
@@ -224,7 +231,9 @@ const CoursesPage = () => {
                 <div className="text-xs text-blue-200">Instructors</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold md:text-xl">50+</div>
+                <div className="text-lg font-bold md:text-xl">
+                  {categories.length}+
+                </div>
                 <div className="text-xs text-blue-200">Categories</div>
               </div>
             </div>
@@ -247,10 +256,11 @@ const CoursesPage = () => {
                 <button
                   key={category}
                   onClick={() => handleCategoryToggle(category)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 ${selectedCategories.includes(category)
-                    ? "bg-white text-blue-700 shadow-md"
-                    : "bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
-                    }`}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 ${
+                    selectedCategories.includes(category)
+                      ? "bg-white text-blue-700 shadow-md"
+                      : "bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
+                  }`}
                 >
                   {category}
                 </button>
@@ -299,15 +309,6 @@ const CoursesPage = () => {
                         <X
                           className="h-3 w-3 cursor-pointer"
                           onClick={() => setPriceFilter("all")}
-                        />
-                      </span>
-                    )}
-                    {levelFilter !== "all" && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
-                        {levelFilter}
-                        <X
-                          className="h-3 w-3 cursor-pointer"
-                          onClick={() => setLevelFilter("all")}
                         />
                       </span>
                     )}
@@ -375,7 +376,8 @@ const CoursesPage = () => {
                 </div>
               </div>
 
-              <div className="mb-6">
+              {/* Remove Level Filter since it's not in API */}
+              {/* <div className="mb-6">
                 <h3 className="mb-3 font-medium text-gray-900">Level</h3>
                 <div className="space-y-2">
                   {levels.map((level) => (
@@ -405,7 +407,7 @@ const CoursesPage = () => {
                     </span>
                   </label>
                 </div>
-              </div>
+              </div> */}
 
               <div className="mb-6">
                 <h3 className="mb-3 font-medium text-gray-900">Rating</h3>
@@ -423,10 +425,11 @@ const CoursesPage = () => {
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${i < rating
-                              ? "fill-current text-yellow-400"
-                              : "text-gray-300"
-                              }`}
+                            className={`h-4 w-4 ${
+                              i < rating
+                                ? "fill-current text-yellow-400"
+                                : "text-gray-300"
+                            }`}
                           />
                         ))}
                         <span className="ml-1">& Up</span>
@@ -470,19 +473,21 @@ const CoursesPage = () => {
                   <div className="flex rounded-lg border border-gray-300 p-1">
                     <button
                       onClick={() => setViewMode("grid")}
-                      className={`rounded-md p-2 ${viewMode === "grid"
-                        ? "bg-blue-100 text-blue-600"
-                        : "text-gray-500 hover:text-gray-700"
-                        }`}
+                      className={`rounded-md p-2 ${
+                        viewMode === "grid"
+                          ? "bg-blue-100 text-blue-600"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
                     >
                       <Grid3X3 className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`rounded-md p-2 ${viewMode === "list"
-                        ? "bg-blue-100 text-blue-600"
-                        : "text-gray-500 hover:text-gray-700"
-                        }`}
+                      className={`rounded-md p-2 ${
+                        viewMode === "list"
+                          ? "bg-blue-100 text-blue-600"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
                     >
                       <List className="h-4 w-4" />
                     </button>
@@ -591,7 +596,7 @@ const CoursesPage = () => {
             </div>
           </section>
 
-          {/* Free Courses Section - FIXED: Using price_type */}
+          {/* Free Courses Section */}
           <section>
             <div className="mb-8 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-gray-900">Free Courses</h2>
@@ -711,28 +716,6 @@ const CoursesPage = () => {
                         ))}
                       </div>
                     </div>
-
-                    <div>
-                      <h3 className="mb-3 font-medium text-gray-900">Level</h3>
-                      <div className="space-y-2">
-                        {levels.map((level) => (
-                          <label key={level} className="flex items-center">
-                            <input
-                              type="radio"
-                              name="mobile-level"
-                              checked={levelFilter === level.toLowerCase()}
-                              onChange={() =>
-                                setLevelFilter(level.toLowerCase())
-                              }
-                              className="border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="ml-2 text-sm text-gray-700">
-                              {level}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 </div>
 
@@ -761,7 +744,7 @@ const CoursesPage = () => {
   );
 };
 
-// FIXED CourseCard Component - Using correct field names
+// UPDATED CourseCard Component - Using correct API fields
 const CourseCard = ({
   course,
   view,
@@ -781,6 +764,16 @@ const CourseCard = ({
   // Get instructor name - using creator field from your data
   const instructorName = course.creator || "Unknown Instructor";
 
+  // Strip HTML from description for display
+  const stripHtml = (html: string) => {
+    if (!html) return "No description available";
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "No description available";
+  };
+
+  const cleanDescription = stripHtml(course.description || "");
+
   if (view === "list") {
     return (
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
@@ -799,7 +792,7 @@ const CourseCard = ({
                   {course.title}
                 </h3>
                 <p className="mb-3 line-clamp-2 text-sm text-gray-600">
-                  {course.description || "No description available"}
+                  {cleanDescription}
                 </p>
 
                 <div className="mb-3 flex items-center gap-4 text-sm text-gray-600">
@@ -820,10 +813,11 @@ const CourseCard = ({
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`h-4 w-4 ${star <= Math.floor(course.ratings || 0)
-                          ? "fill-current text-yellow-400"
-                          : "text-gray-300"
-                          }`}
+                        className={`h-4 w-4 ${
+                          star <= Math.floor(course.ratings || 0)
+                            ? "fill-current text-yellow-400"
+                            : "text-gray-300"
+                        }`}
                       />
                     ))}
                   </div>
@@ -907,7 +901,7 @@ const CourseCard = ({
         </h3>
 
         <p className="mb-4 line-clamp-2 h-10 text-sm text-gray-600">
-          {course.description || "No description available"}
+          {cleanDescription}
         </p>
 
         <div className="mb-4 flex items-center gap-2">
@@ -915,10 +909,11 @@ const CourseCard = ({
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`h-4 w-4 ${star <= Math.floor(course.ratings || 0)
-                  ? "fill-current text-yellow-400"
-                  : "text-gray-300"
-                  }`}
+                className={`h-4 w-4 ${
+                  star <= Math.floor(course.ratings || 0)
+                    ? "fill-current text-yellow-400"
+                    : "text-gray-300"
+                }`}
               />
             ))}
           </div>

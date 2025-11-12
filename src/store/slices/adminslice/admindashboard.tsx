@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { reduxApiClient } from '@/lib/redux-api';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { reduxApiClient } from "@/lib/redux-api";
 
 // Types
 interface CourseStats {
@@ -15,8 +15,6 @@ interface CourseStats {
   enrollment_count: number;
   completion_count: number;
 }
-
-
 
 interface AdminCourseStats {
   total_courses: number;
@@ -42,25 +40,29 @@ const initialState: AdminStatsState = {
 
 // Async thunk for fetching admin course stats
 export const fetchAdminCourseStats = createAsyncThunk(
-  'adminDashboard/fetchAdminCourseStats',
+  "adminDashboard/fetchAdminCourseStats",
   async (adminId: string, { rejectWithValue }) => {
     try {
       const response = await reduxApiClient.get(`user/admin/${adminId}`);
 
       if (!response.success) {
-        return rejectWithValue(response.error?.message || 'Failed to fetch admin course stats');
+        return rejectWithValue(
+          response.error?.message || "Failed to fetch admin course stats",
+        );
       }
 
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Failed to fetch admin course stats');
+      return rejectWithValue(
+        error.message || "Failed to fetch admin course stats",
+      );
     }
-  }
+  },
 );
 
 // Slice
 const adminDashboardSlice = createSlice({
-  name: 'adminDashboard',
+  name: "adminDashboard",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -94,8 +96,13 @@ export const { clearError, clearAdminStats } = adminDashboardSlice.actions;
 
 // Selectors
 export const selectAdminCourseStats = (state: any) =>
-// state?.instructorDashboard?.data;
-{ console.log("welcome to state ", state?.instructorDashboard?.data?.data?.all_courses) }
+  // state?.instructorDashboard?.data;
+  {
+    console.log(
+      "welcome to state ",
+      state?.instructorDashboard?.data?.data?.all_courses,
+    );
+  };
 
 export const selectAdminCourseStatsLoading = (state: any) =>
   state?.instructorDashboard?.data?.loading;
@@ -128,16 +135,12 @@ export const selectAverageEnrollmentPerCourse = (state: any) => {
 export const selectAverageCompletionRate = (state: any) => {
   const data = state?.instructorDashboard?.data;
   if (!data || data.total_enrollments === 0) return 0;
-  return Math.round((data.total_users_completed / data.total_enrollments) * 100);
+  return Math.round(
+    (data.total_users_completed / data.total_enrollments) * 100,
+  );
 };
 
-
-
-
-
-
-
-//my data 
+//my data
 
 export const selectedtotalcourses = (state: any) =>
   state?.instructorDashboard?.data?.data?.total_courses;
@@ -145,18 +148,14 @@ export const selectedtotalcourses = (state: any) =>
 export const selectedtotalcoursesactivate = (state: any) =>
   state?.instructorDashboard?.data?.data?.total_active_courses;
 
-
 export const selectedtotalcoursesEnrolled = (state: any) =>
   state?.instructorDashboard?.data?.data?.total_enrollments;
 
 export const selectedtotaluserscompleted = (state: any) =>
   state?.instructorDashboard?.data?.data?.total_users_completed;
 
-
 export const selectTop3Coursess = (state: any) =>
   state?.instructorDashboard?.data?.data?.top_3_courses || [];
-
-
 
 export const selectAllCoursesWithStats = (state: any) =>
   state?.instructorDashboard?.data?.data?.all_courses || [];
