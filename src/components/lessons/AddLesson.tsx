@@ -27,7 +27,7 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
         course_id: courseId ?? "",
         order: "",
         duration: "",
-        video_url: "",
+        video_urls: [] as string[],
         resources: [] as string[],
         is_free: true,
     });
@@ -39,15 +39,56 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
     const [imageUploadLoading, setImageUploadLoading] = useState(false);
     const [videoUploadLoading, setVideoUploadLoading] = useState(false);
     const [resourceInput, setResourceInput] = useState("");
+    const [videoUrlInputs, setVideoUrlInputs] = useState<string[]>([""]);
+
+    // Validate video URL
+    const isValidVideoUrl = (url: string): boolean => {
+        if (!url.trim()) return false;
+        try {
+            const parsedUrl = new URL(url);
+            // Check for YouTube
+            if (parsedUrl.hostname.includes('youtube.com') || parsedUrl.hostname.includes('youtu.be')) {
+                return true;
+            }
+            // Check for Vimeo
+            if (parsedUrl.hostname.includes('vimeo.com')) {
+                return true;
+            }
+            // For direct video URLs, check extension
+            const videoExtensions = ['.mp4', '.webm', '.ogg', '.avi', '.mov'];
+            return videoExtensions.some(ext => url.toLowerCase().includes(ext));
+        } catch {
+            return false;
+        }
+    };
+
+    // Get embed URL for video preview
+    const getEmbedUrl = (url: string): string | null => {
+        if (!url.trim()) return null;
+        try {
+            const parsedUrl = new URL(url);
+            if (parsedUrl.hostname.includes('youtube.com') || parsedUrl.hostname.includes('youtu.be')) {
+                const videoId = parsedUrl.searchParams.get('v') || parsedUrl.pathname.split('/').pop();
+                return `https://www.youtube.com/embed/${videoId}`;
+            }
+            if (parsedUrl.hostname.includes('vimeo.com')) {
+                const videoId = parsedUrl.pathname.split('/').pop();
+                return `https://player.vimeo.com/video/${videoId}`;
+            }
+            return url; // for direct video
+        } catch {
+            return null;
+        }
+    };
 
     // Auto-detect lesson type based on content
     const detectLessonType = (): string => {
         const hasImages = uploadedImageUrls.length > 0;
         const hasVideos = uploadedVideoUrls.length > 0;
         const hasContent = formData.content.trim().length > 0;
-        const hasVideoUrl = formData.video_url.trim().length > 0;
+        const hasVideoUrls = formData.video_urls.length > 0;
 
-        if (hasVideos || hasVideoUrl) {
+        if (hasVideos || hasVideoUrls) {
             return "video";
         } else if (hasImages && hasContent) {
             return "text"; // Text lessons can have images
@@ -169,11 +210,6 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                     const updatedUrls = [...uploadedVideoUrls];
                     updatedUrls[index] = fileUrl;
                     setUploadedVideoUrls(updatedUrls);
-
-                    // Auto-set video_url for the first video
-                    if (index === 0 && !formData.video_url) {
-                        setFormData((prev) => ({ ...prev, video_url: fileUrl }));
-                    }
                 }
 
                 toasterSuccess(
@@ -192,6 +228,30 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                 setVideoUploadLoading(false);
             }
         }
+    };
+
+    const addVideoUrl = () => {
+        setVideoUrlInputs([...videoUrlInputs, ""]);
+    };
+
+    const removeVideoUrl = (index: number) => {
+        const updatedInputs = videoUrlInputs.filter((_, i) => i !== index);
+        setVideoUrlInputs(updatedInputs);
+
+        // Also update formData.video_urls
+        const updatedUrls = formData.video_urls.filter((_, i) => i !== index);
+        setFormData((prev) => ({ ...prev, video_urls: updatedUrls }));
+    };
+
+    const updateVideoUrl = (index: number, value: string) => {
+        const updatedInputs = [...videoUrlInputs];
+        updatedInputs[index] = value;
+        setVideoUrlInputs(updatedInputs);
+
+        // Update formData.video_urls
+        const updatedUrls = [...formData.video_urls];
+        updatedUrls[index] = value.trim();
+        setFormData((prev) => ({ ...prev, video_urls: updatedUrls }));
     };
 
     const addResource = () => {
@@ -227,7 +287,7 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
 
         if (
             lessonType === "video" &&
-            !formData.video_url.trim() &&
+            formData.video_urls.length === 0 &&
             uploadedVideoUrls.length === 0
         ) {
             toasterError(
@@ -239,7 +299,7 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
         if (
             !uploadedImageUrls.length &&
             !uploadedVideoUrls.length &&
-            !formData.video_url && !formData.content.trim()
+            formData.video_urls.length === 0 && !formData.content.trim()
         ) {
             toasterError("Please add at least one content, image, video, or video URL");
             return;
@@ -253,7 +313,7 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                 order: Number(order),
                 lesson_type: lessonType,
                 duration: formData.duration ? Number(formData.duration) : undefined,
-                video_url: formData.video_url.trim(),
+                video_urls: formData.video_urls.filter((url) => url),
                 resources: formData.resources,
                 is_free: formData.is_free,
                 images: uploadedImageUrls.filter((url) => url),
@@ -295,9 +355,6 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
 
             setVideoFiles(updatedFiles);
             setUploadedVideoUrls(updatedUrls);
-            if (formData.video_url === uploadedVideoUrls[index]) {
-                setFormData((prev) => ({ ...prev, video_url: "" }));
-            }
         }
     };
 
@@ -332,7 +389,8 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                                         `📷 ${uploadedImageUrls.length} image(s) `}
                                     {uploadedVideoUrls.length > 0 &&
                                         `🎥 ${uploadedVideoUrls.length} video(s) `}
-                                    {formData.video_url && `🔗 Video URL `}
+                                    {formData.video_urls.length > 0 &&
+                                        `🔗 ${formData.video_urls.length} video URL(s) `}
                                     {formData.content.trim() && `📝 Text content`}
                                 </div>
                             </div>
@@ -428,20 +486,61 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                     </div>
 
                     <div className="mb-5.5">
-                        <InputGroup
-                            type="url"
-                            name="video_url"
-                            label="Video URL (Optional)"
-                            placeholder="Enter external video URL (YouTube, Vimeo, etc.)"
-                            value={formData.video_url}
-                            onChange={handleChange}
-                            icon={<Video size={16} />}
-                            iconPosition="left"
-                            height="sm"
-                        />
-                        <p className="mt-1 text-xs text-gray-500">
-                            Add an external video URL or upload video files below
+                        <label className="mb-3 block text-lg font-semibold text-gray-800 dark:text-white">
+                            🔗 Video URLs
+                        </label>
+                        <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
+                            Add external video URLs (YouTube, Vimeo, etc.). Each valid URL will show a preview iframe below.
                         </p>
+                        <div className="space-y-4">
+                            {videoUrlInputs.map((url, index) => (
+                                <div key={index} className="rounded-lg border border-stroke p-4 dark:border-dark-3">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <input
+                                            type="url"
+                                            value={url}
+                                            onChange={(e) => updateVideoUrl(index, e.target.value)}
+                                            placeholder="Enter video URL (YouTube, Vimeo, etc.)"
+                                            className="dark:bg-boxdark flex-1 rounded-lg border border-stroke px-3 py-2 text-sm outline-none focus:border-primary dark:border-dark-3"
+                                        />
+                                        {videoUrlInputs.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeVideoUrl(index)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-xs text-white hover:bg-red-600"
+                                            >
+                                                ×
+                                            </button>
+                                        )}
+                                    </div>
+                                    {url.trim() && isValidVideoUrl(url.trim()) && (
+                                        <div className="relative">
+                                            <iframe
+                                                src={getEmbedUrl(url.trim()) || undefined}
+                                                title={`Video preview ${index + 1}`}
+                                                className="w-full h-32 rounded-lg border"
+                                                allowFullScreen
+                                            ></iframe>
+                                            <div className="absolute top-1 right-1 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                                                ✓ Valid
+                                            </div>
+                                        </div>
+                                    )}
+                                    {url.trim() && !isValidVideoUrl(url.trim()) && (
+                                        <div className="text-red-500 text-sm">
+                                            Invalid video URL
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={addVideoUrl}
+                            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-blue-700"
+                        >
+                            ➕ Add Another Video URL
+                        </button>
                     </div>
 
                     <div className="mb-5.5">
