@@ -58,19 +58,39 @@ const VideoSection: React.FC<any> = ({
   const hasContent = !!lesson?.content;
   const hasImages = lesson?.images && lesson.images.length > 0;
   const hasVideos = lesson?.videos && lesson.videos.length > 0;
+  const hasVideoUrls = lesson?.video_urls && lesson.video_urls.length > 0;
 
   // Create slides array based on available content
   // Now each image gets its own slide
   const slides: any[] = [];
 
-  // Add content slide if available
-  if (hasContent) {
-    slides.push({
-      type: "content",
-      title: "Lesson Content",
-      icon: FileText,
-      color: "purple",
-      data: lesson.content,
+
+
+  // Add video slides
+  if (hasVideos) {
+    lesson.videos.forEach((video: string, index: number) => {
+      slides.push({
+        type: "video",
+        title: `Video ${index + 1}`,
+        icon: Video,
+        color: "blue",
+        data: video,
+        videoIndex: index,
+      });
+    });
+  }
+
+  // Add video URL slides
+  if (hasVideoUrls) {
+    lesson.video_urls.forEach((videoUrl: string, index: number) => {
+      slides.push({
+        type: "video_url",
+        title: `Video ${index + 1}`,
+        icon: Video,
+        color: "blue",
+        data: videoUrl,
+        videoIndex: index,
+      });
     });
   }
 
@@ -88,19 +108,18 @@ const VideoSection: React.FC<any> = ({
     });
   }
 
-  // Add video slides
-  if (hasVideos) {
-    lesson.videos.forEach((video: string, index: number) => {
-      slides.push({
-        type: "video",
-        title: `Video ${index + 1}`,
-        icon: Video,
-        color: "blue",
-        data: video,
-        videoIndex: index,
-      });
+
+  // Add content slide if available
+  if (hasContent) {
+    slides.push({
+      type: "content",
+      title: "Lesson Content",
+      icon: FileText,
+      color: "purple",
+      data: lesson.content,
     });
   }
+
 
   const totalSlides = slides.length;
 
@@ -217,7 +236,7 @@ const VideoSection: React.FC<any> = ({
       const current = videoRef.current.currentTime;
       const total = videoRef.current.duration || 0;
       setCurrentTime(current);
-      setDuration(total);
+
 
       if (total > 0) {
         const progress = (current / total) * 100;
@@ -278,12 +297,30 @@ const VideoSection: React.FC<any> = ({
   const scrollTo = (index: number) => {
     emblaApi?.scrollTo(index);
   };
-
+  // Get embed URL for video preview
+  const getEmbedUrl = (url: string): string | null => {
+    if (!url.trim()) return null;
+    try {
+      const parsedUrl = new URL(url);
+      if (parsedUrl.hostname.includes('youtube.com') || parsedUrl.hostname.includes('youtu.be')) {
+        const videoId = parsedUrl.searchParams.get('v') || parsedUrl.pathname.split('/').pop();
+        return `https://www.youtube.com/embed/${videoId}`;
+      }
+      if (parsedUrl.hostname.includes('vimeo.com')) {
+        const videoId = parsedUrl.pathname.split('/').pop();
+        return `https://player.vimeo.com/video/${videoId}`;
+      }
+      return url; // for direct video
+    } catch {
+      return null;
+    }
+  };
   // Check completion
   const canAutoComplete = () => {
     const currentSlideType = slides[selectedIndex]?.type;
 
     if (currentSlideType === "video") return videoProgress >= 95;
+    if (currentSlideType === "video_url") return videoProgress >= 95;
     if (currentSlideType === "content") return contentRead;
     if (currentSlideType === "image")
       return imagesViewed.has(slides[selectedIndex]?.imageIndex);
@@ -321,13 +358,12 @@ const VideoSection: React.FC<any> = ({
             className="h-1 flex-1 overflow-hidden rounded-full bg-white/30"
           >
             <div
-              className={`h-full transition-all duration-300 ${
-                index < selectedIndex
-                  ? "bg-white"
-                  : index === selectedIndex
-                    ? "animate-pulse bg-white"
-                    : "bg-white/30"
-              }`}
+              className={`h-full transition-all duration-300 ${index < selectedIndex
+                ? "bg-white"
+                : index === selectedIndex
+                  ? "animate-pulse bg-white"
+                  : "bg-white/30"
+                }`}
               style={{
                 width:
                   index < selectedIndex
@@ -440,6 +476,24 @@ const VideoSection: React.FC<any> = ({
     );
   };
 
+  // Render embedded video player (e.g., YouTube, Vimeo)
+  const renderEmbedVideoPlayer = (videoUrl: string) => {
+    return (
+      <div className="relative h-full w-full overflow-hidden rounded-lg bg-black">
+        <iframe
+          src={getEmbedUrl(videoUrl)}
+          title="Embedded Video"
+          className="h-full w-full"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+      </div>
+    );
+  };
+
+
+
   // Render single image
   const renderSingleImage = (imageUrl: string, imageIndex: number) => {
     const isViewed = imagesViewed.has(imageIndex);
@@ -502,6 +556,8 @@ const VideoSection: React.FC<any> = ({
         return renderSingleImage(slide.data, slide.imageIndex);
       case "video":
         return renderVideoPlayer(slide.data);
+      case "video_url":
+        return renderEmbedVideoPlayer(slide.data);
       default:
         return (
           <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-900">
@@ -555,11 +611,10 @@ const VideoSection: React.FC<any> = ({
       {/* Header */}
       <div className="mb-4">
         <div
-          className={`mb-4 rounded-lg p-4 transition-all duration-500 ${
-            isLessonCompleted
-              ? "border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:border-green-800 dark:from-green-900/20 dark:to-emerald-900/20"
-              : "border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 dark:border-blue-800 dark:from-blue-900/20 dark:to-indigo-900/20"
-          }`}
+          className={`mb-4 rounded-lg p-4 transition-all duration-500 ${isLessonCompleted
+            ? "border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 dark:border-green-800 dark:from-green-900/20 dark:to-emerald-900/20"
+            : "border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 dark:border-blue-800 dark:from-blue-900/20 dark:to-indigo-900/20"
+            }`}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -571,11 +626,10 @@ const VideoSection: React.FC<any> = ({
               </p>
             </div>
             <div
-              className={`rounded-full px-3 py-1 text-sm font-medium ${
-                isLessonCompleted
-                  ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-300"
-                  : "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-300"
-              }`}
+              className={`rounded-full px-3 py-1 text-sm font-medium ${isLessonCompleted
+                ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-300"
+                : "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-300"
+                }`}
             >
               {isLessonCompleted ? "Completed" : "In Progress"}
             </div>
@@ -637,15 +691,14 @@ const VideoSection: React.FC<any> = ({
                 <button
                   key={index}
                   onClick={() => scrollTo(index)}
-                  className={`h-3 w-3 rounded-full transition-all ${
-                    index === selectedIndex
-                      ? slide.color === "blue"
-                        ? "bg-blue-500"
-                        : slide.color === "green"
-                          ? "bg-green-500"
-                          : "bg-purple-500"
-                      : "bg-white/30"
-                  }`}
+                  className={`h-3 w-3 rounded-full transition-all ${index === selectedIndex
+                    ? slide.color === "blue"
+                      ? "bg-blue-500"
+                      : slide.color === "green"
+                        ? "bg-green-500"
+                        : "bg-purple-500"
+                    : "bg-white/30"
+                    }`}
                 />
               ))}
             </div>
@@ -657,13 +710,12 @@ const VideoSection: React.FC<any> = ({
           <div className="mt-4 text-center">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 backdrop-blur-sm dark:bg-gray-800/80">
               <div
-                className={`rounded p-1 ${
-                  currentSlide.color === "blue"
-                    ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
-                    : currentSlide.color === "green"
-                      ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                      : "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
-                }`}
+                className={`rounded p-1 ${currentSlide.color === "blue"
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                  : currentSlide.color === "green"
+                    ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                    : "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+                  }`}
               >
                 {renderSlideIcon(currentSlide)}
               </div>
@@ -679,41 +731,37 @@ const VideoSection: React.FC<any> = ({
       {!isLessonCompleted && (
         <div className="mb-6">
           <div
-            className={`rounded-lg border p-4 ${
-              autoCompleteReady
-                ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20"
-                : "border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20"
-            }`}
+            className={`rounded-lg border p-4 ${autoCompleteReady
+              ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20"
+              : "border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20"
+              }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
-                  className={`rounded-full p-2 ${
-                    autoCompleteReady
-                      ? "bg-green-100 text-green-600 dark:bg-green-800 dark:text-green-400"
-                      : "bg-blue-100 text-blue-600 dark:bg-blue-800 dark:text-blue-400"
-                  }`}
+                  className={`rounded-full p-2 ${autoCompleteReady
+                    ? "bg-green-100 text-green-600 dark:bg-green-800 dark:text-green-400"
+                    : "bg-blue-100 text-blue-600 dark:bg-blue-800 dark:text-blue-400"
+                    }`}
                 >
                   <CheckCircle size={18} />
                 </div>
                 <div>
                   <h4
-                    className={`font-semibold ${
-                      autoCompleteReady
-                        ? "text-green-800 dark:text-green-300"
-                        : "text-blue-800 dark:text-blue-300"
-                    }`}
+                    className={`font-semibold ${autoCompleteReady
+                      ? "text-green-800 dark:text-green-300"
+                      : "text-blue-800 dark:text-blue-300"
+                      }`}
                   >
                     {autoCompleteReady
                       ? "Ready to Complete!"
                       : "Continue Learning"}
                   </h4>
                   <p
-                    className={`text-sm ${
-                      autoCompleteReady
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-blue-600 dark:text-blue-400"
-                    }`}
+                    className={`text-sm ${autoCompleteReady
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-blue-600 dark:text-blue-400"
+                      }`}
                   >
                     {autoCompleteReady
                       ? "You've viewed all content in this lesson"
@@ -723,11 +771,10 @@ const VideoSection: React.FC<any> = ({
               </div>
               <button
                 onClick={handleManualComplete}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 font-semibold text-white transition-all hover:shadow-lg ${
-                  autoCompleteReady
-                    ? "bg-green-600 hover:bg-green-700"
-                    : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 font-semibold text-white transition-all hover:shadow-lg ${autoCompleteReady
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-blue-600 hover:bg-blue-700"
+                  }`}
               >
                 <CheckCircle size={18} />
                 {autoCompleteReady ? "Complete Lesson" : "Mark Complete"}
@@ -742,11 +789,10 @@ const VideoSection: React.FC<any> = ({
         <button
           onClick={onPreviousLesson}
           disabled={!hasPreviousLesson}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-colors ${
-            hasPreviousLesson
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "cursor-not-allowed bg-gray-200 text-gray-400 dark:bg-gray-700"
-          }`}
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-colors ${hasPreviousLesson
+            ? "bg-blue-500 text-white hover:bg-blue-600"
+            : "cursor-not-allowed bg-gray-200 text-gray-400 dark:bg-gray-700"
+            }`}
         >
           <ChevronLeft size={20} />
           Previous Lesson
@@ -755,11 +801,10 @@ const VideoSection: React.FC<any> = ({
         <button
           onClick={onNextLesson}
           disabled={!hasNextLesson}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-colors ${
-            hasNextLesson
-              ? "bg-green-600 text-white hover:bg-green-700"
-              : "cursor-not-allowed bg-gray-200 text-gray-400 dark:bg-gray-700"
-          }`}
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-colors ${hasNextLesson
+            ? "bg-green-600 text-white hover:bg-green-700"
+            : "cursor-not-allowed bg-gray-200 text-gray-400 dark:bg-gray-700"
+            }`}
         >
           Next Lesson
           <ChevronRight size={20} />
