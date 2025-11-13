@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import React, { useEffect } from "react";
 import {
   Book,
@@ -58,8 +56,6 @@ export default function DashboardStatsPage() {
   const stats = useAppSelector(selectDashboardStats);
   const loading = useAppSelector(selectDashboardStatsLoading);
   const error = useAppSelector(selectDashboardStatsError);
-
-  console.log("Dashboard Stats Data:", stats?.data);
 
   useEffect(() => {
     dispatch(fetchDashboardStats());
@@ -154,7 +150,10 @@ export default function DashboardStatsPage() {
     {
       name: "Avg Per Course",
       value: stats?.data?.summary?.totalCourses
-        ? Math.round((stats?.data?.summary?.totalEnrollments || 0) / stats?.data?.summary?.totalCourses)
+        ? Math.round(
+            (stats?.data?.summary?.totalEnrollments || 0) /
+              stats?.data?.summary?.totalCourses,
+          )
         : 0,
       fill: "#8b5cf6",
     },
@@ -170,7 +169,7 @@ export default function DashboardStatsPage() {
   // Loading state
   if (loading && !stats) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="text-center">
           <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-b-4 border-t-4 border-blue-600"></div>
           <p className="font-medium text-gray-600 dark:text-gray-300">
@@ -184,9 +183,9 @@ export default function DashboardStatsPage() {
   // Error state
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-6 bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 p-6 dark:from-gray-900 dark:to-gray-800">
         <div className="w-full max-w-md">
-          <div className="rounded-2xl border-2 border-red-200 bg-white/80 backdrop-blur-sm p-8 text-center shadow-2xl dark:border-red-500/50 dark:bg-gray-800/80">
+          <div className="rounded-2xl border-2 border-red-200 bg-white/80 p-8 text-center shadow-2xl backdrop-blur-sm dark:border-red-500/50 dark:bg-gray-800/80">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
               <BarChart3 className="h-8 w-8 text-red-500" />
             </div>
@@ -196,7 +195,7 @@ export default function DashboardStatsPage() {
             <p className="mb-6 text-red-700 dark:text-red-300">{error}</p>
             <button
               onClick={handleRefresh}
-              className="inline-flex items-center rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-6 py-3 text-white shadow-lg transition-all hover:shadow-xl hover:scale-105"
+              className="inline-flex items-center rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-6 py-3 text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
             >
               <RefreshCw className="mr-2 h-5 w-5" />
               Try Again
@@ -225,9 +224,11 @@ export default function DashboardStatsPage() {
             <button
               onClick={handleRefresh}
               disabled={loading}
-              className="mt-4 inline-flex items-center rounded-xl bg-white/20 backdrop-blur-sm px-6 py-3 text-white shadow-lg transition-all hover:bg-white/30 hover:scale-105 disabled:opacity-50 sm:mt-0"
+              className="mt-4 inline-flex items-center rounded-xl bg-white/20 px-6 py-3 text-white shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/30 disabled:opacity-50 sm:mt-0"
             >
-              <RefreshCw className={`mr-2 h-5 w-5 ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`mr-2 h-5 w-5 ${loading ? "animate-spin" : ""}`}
+              />
               {loading ? "Refreshing..." : "Refresh Stats"}
             </button>
           </div>
@@ -278,10 +279,12 @@ export default function DashboardStatsPage() {
           ].map((card, i) => (
             <div
               key={i}
-              className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-800"
+              className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800"
             >
-              <div className="absolute top-0 right-0 h-32 w-32 opacity-10">
-                <div className={`h-full w-full rounded-full bg-gradient-to-br ${card.gradient} blur-2xl`}></div>
+              <div className="absolute right-0 top-0 h-32 w-32 opacity-10">
+                <div
+                  className={`h-full w-full rounded-full bg-gradient-to-br ${card.gradient} blur-2xl`}
+                ></div>
               </div>
 
               <div className="relative">
@@ -299,11 +302,15 @@ export default function DashboardStatsPage() {
                       </span>
                     </div>
                     <div className="mt-2 flex items-center text-green-600 dark:text-green-400">
-                      <TrendingUp className="h-4 w-4 mr-1" />
-                      <span className="text-xs font-semibold">{card.trend}</span>
+                      <TrendingUp className="mr-1 h-4 w-4" />
+                      <span className="text-xs font-semibold">
+                        {card.trend}
+                      </span>
                     </div>
                   </div>
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-xl ${card.iconBg} text-white shadow-lg transition-transform group-hover:scale-110`}>
+                  <div
+                    className={`flex h-14 w-14 items-center justify-center rounded-xl ${card.iconBg} text-white shadow-lg transition-transform group-hover:scale-110`}
+                  >
                     {card.icon}
                   </div>
                 </div>
@@ -313,7 +320,7 @@ export default function DashboardStatsPage() {
         </div>
 
         {/* Charts Section with Real API Data */}
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 ">
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* User Verification Pie Chart */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
@@ -330,10 +337,13 @@ export default function DashboardStatsPage() {
                   // label={({ name, percent }) =>
                   //   `${name}: ${(percent * 100).toFixed(0)}%`
                   // }
-                  label={({ name, percent }: { name?: string; percent?: number }) =>
-                    `${name}: ${((percent || 0) * 100).toFixed(0)}%`
-                  }
-
+                  label={({
+                    name,
+                    percent,
+                  }: {
+                    name?: string;
+                    percent?: number;
+                  }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
@@ -432,11 +442,17 @@ export default function DashboardStatsPage() {
                   //   `${name}: ${value} (${(percent * 100).toFixed(0)}%)`
                   // }
 
-
-                  label={({ name, value, percent }: { name?: string; value?: any; percent?: number }) =>
+                  label={({
+                    name,
+                    value,
+                    percent,
+                  }: {
+                    name?: string;
+                    value?: any;
+                    percent?: number;
+                  }) =>
                     `${name}: ${value} (${((percent || 0) * 100).toFixed(0)}%)`
                   }
-
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
@@ -447,9 +463,9 @@ export default function DashboardStatsPage() {
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
+                    backgroundColor: "rgba(255, 255, 255, 0.95)",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
                   }}
                 />
                 <Legend />
@@ -458,20 +474,15 @@ export default function DashboardStatsPage() {
           </div>
         </div>
 
-
         <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-2 lg:grid-cols-2">
           <div className="">
-
             <CourseAuditLogsPage />
           </div>
           <div className="">
-
             <RatingsManagementPage />
           </div>
         </div>
-
-
       </div>
-    </div >
+    </div>
   );
 }

@@ -67,7 +67,6 @@ export default function ChapterDetail() {
   const [totalnomarks, settotalnomarks] = useState(0);
   const [passfail, setpassfail] = useState(false);
 
-  // console.log("chapterchapterchapterchapterchapterchapterchapterchapterchapterchapter",chapter)
   const handleTryAgain = () => {
     // Reset all MCQ-related state
     setSelectedAnswers({});
@@ -83,7 +82,6 @@ export default function ChapterDetail() {
       );
 
       if (res.success) {
-        console.log("----------------------------", res.data?.data?.data);
         const userId = getDecryptedItem("userId");
         const courseId = chapter?.course_id;
         if (click == "next") {
@@ -149,7 +147,6 @@ export default function ChapterDetail() {
       setLoading(false);
     }
   };
-  console.log(";;;;;;;;;;;;;;;;", totalnomarks);
   const fetchChapterMcqsWithPrevious = async (chapterId: string) => {
     try {
       const userId = getDecryptedItem("userId");
@@ -186,8 +183,6 @@ export default function ChapterDetail() {
           // Store previous submission data
         } else {
           setMcqs(mcqData);
-
-          console.log("yaha");
         }
       } else {
         console.log(
@@ -1180,16 +1175,11 @@ export default function ChapterDetail() {
         return;
       }
 
-      // console.log("mcqs",mcqs)
-      // Prepare answers in the required format
       const answers = mcqs.map((mcq) => ({
         mcq_id: mcq.id || mcq._id,
         selected_option: selectedAnswers[mcq._id || mcq.id],
       }));
 
-      // console.log("Submitting answers:", answers);
-
-      // Call your backend API to submit all answers
       const res: any = await api.post("mcq/submit-all", {
         user_id: parseInt(userId),
         chapter_id: parseInt(chapterId as string),
@@ -1200,23 +1190,15 @@ export default function ChapterDetail() {
         const dataallresl = res.data?.data?.data;
 
         setSubmissionData(res?.data?.data?.data);
-        // console.log("111111111111111111111",submissionData)
 
         const allMcqIds = mcqs.map((mcq) => mcq._id || mcq.id);
         setSubmittedMcqs(new Set(allMcqIds));
 
-        // Extract and store is_correct values from the response
         const results = res.data.data.results || [];
         const newResults = {};
-
-        // Create a new answers array with is_correct included
-
         setMcqResults(newResults);
-
-        // Store the full response data if needed
         setSubmissionData(dataallresl);
 
-        // Show success message with detailed results
         if (dataallresl.passed) {
           toasterSuccess(
             `Congratulation! You passed with ${dataallresl.score}/${dataallresl.total_questions} correct answers (${dataallresl.score})`,

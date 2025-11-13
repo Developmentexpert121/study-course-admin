@@ -7,12 +7,14 @@ interface CourseHeaderProps {
   title: string;
   progress?: number;
   courseId: string | null;
+  onRateClick?: () => void;
 }
 
 const CourseHeader: React.FC<CourseHeaderProps> = ({
   title,
   progress,
   courseId,
+  onRateClick,
 }) => {
   return (
     <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-4 text-white shadow-lg">
@@ -61,7 +63,10 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({
               <span className="hidden sm:block">Share</span>
             </button>
 
-            <button className="flex items-center gap-2 rounded-lg bg-yellow-500/20 px-3 py-2 text-sm font-medium text-yellow-300 transition-colors hover:bg-yellow-500/30">
+            <button
+              onClick={onRateClick}
+              className="flex items-center gap-2 rounded-lg bg-yellow-500/20 px-3 py-2 text-sm font-medium text-yellow-300 transition-colors hover:bg-yellow-500/30"
+            >
               <Star className="h-4 w-4" />
               <span className="hidden sm:block">Rate</span>
             </button>

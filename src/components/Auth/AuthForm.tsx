@@ -39,13 +39,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             const response = await api.post("user/verify-reset-token", {
               token,
             });
-            console.log("object", response?.data?.data?.email);
 
             if (response.success && response?.data?.data?.email) {
-              console.log(
-                "Token verified, email:",
-                response?.data?.data?.email,
-              );
               setFormData((prev) => ({
                 ...prev,
                 email: response?.data?.data?.email,
@@ -208,17 +203,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           setEncryptedItem("role", role);
         }
 
-      if (role === "admin") {
-      router.push("/admin/dashboard");
-    } else if (role === "Super-Admin") {
-      router.push("/super-admin/dashboard");
-    }
-    else if (role === "user") {
-      router.push("/user/dashboard");
-    }
-     else {
-      router.push("");
-  }
+        if (role === "admin") {
+          router.push("/admin/dashboard");
+        } else if (role === "Super-Admin") {
+          router.push("/super-admin/dashboard");
+        } else if (role === "user") {
+          router.push("/user/dashboard");
+        } else {
+          router.push("");
+        }
       }
     } else {
       const messageMap: Record<string, string> = {

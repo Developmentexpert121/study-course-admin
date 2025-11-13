@@ -86,7 +86,6 @@ export default function AuthChecker({
 
       // 🎯 PROTECTED PAGES: If no token, redirect to login
       if (!token && !isPublicPage && !isAuthPage) {
-        console.log("❌ No token, redirecting to login");
         router.replace("/auth/login");
         return;
       }

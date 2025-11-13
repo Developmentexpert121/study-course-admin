@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { useApiClient } from "@/lib/api";
@@ -17,6 +17,7 @@ export default function CourseLearnPage() {
   const searchParams = useSearchParams();
   const courseId = searchParams.get("id");
   const api = useApiClient();
+  const reviewsSectionRef = useRef<HTMLDivElement>(null);
 
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -46,6 +47,28 @@ export default function CourseLearnPage() {
 
   const [forceUpdate, setForceUpdate] = useState(0);
 
+  const handleRateClick = () => {
+    setActiveTab("reviews");
+
+    setTimeout(() => {
+      if (reviewsSectionRef.current) {
+        reviewsSectionRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      } else {
+        console.log("❌ [FRONTEND] Reviews section ref not found");
+
+        const reviewsElement = document.getElementById("reviews-section");
+        if (reviewsElement) {
+          reviewsElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+      }
+    }, 100);
+  };
   useEffect(() => {
     if (courseId) {
       loadCourseData();
@@ -230,21 +253,76 @@ export default function CourseLearnPage() {
     setSelectedLesson({ chapter, lesson });
   };
 
+  // Add this function to sync progress after lesson completion
+  const syncChapterProgress = async (chapterId: number) => {
+    try {
+      const userId = getUserId();
+      const progressResponse = await api.get(
+        `progress/${courseId}/progress?user_id=${userId}`,
+      );
+
+      if (progressResponse.success) {
+        const progressData = progressResponse.data.data;
+        const chapterProgress = progressData.chapters.find(
+          (ch: any) => ch.id === chapterId,
+        );
+
+        if (chapterProgress) {
+          setCourse((prev: any) => {
+            if (!prev) return prev;
+
+            const updatedCourse = JSON.parse(JSON.stringify(prev));
+            const chapter = updatedCourse.chapters.find(
+              (ch: any) => ch.id === chapterId,
+            );
+
+            if (chapter) {
+              // Update chapter progress from API
+              chapter.user_progress = {
+                ...chapter.user_progress,
+                can_attempt_mcq: chapterProgress.can_attempt_mcq,
+                lesson_completed: chapterProgress.lesson_completed,
+                completed: chapterProgress.completed,
+                mcq_passed: chapterProgress.mcq_passed,
+              };
+
+              chapter.progress = {
+                ...chapter.progress,
+                all_lessons_completed: chapterProgress.lesson_completed,
+                can_attempt_mcq: chapterProgress.can_attempt_mcq,
+              };
+
+              console.log("🔄 [FRONTEND] Synced chapter progress:", {
+                chapterId,
+                canAttemptMCQ: chapterProgress.can_attempt_mcq,
+                lessonCompleted: chapterProgress.lesson_completed,
+              });
+            }
+
+            return updatedCourse;
+          });
+        }
+      }
+    } catch (error) {
+      console.error("❌ [FRONTEND] Failed to sync chapter progress:", error);
+    }
+  };
+
+  // Call this after lesson completion in handleCompleteCurrentLesson:
   const handleCompleteCurrentLesson = async () => {
     if (!selectedLesson) return;
 
     const { chapter, lesson } = selectedLesson;
 
     if (lesson.completed) {
-      console.log("ℹ️ [FRONTEND] Lesson already completed");
       return;
     }
 
-    console.log("🔄 [FRONTEND] Manually marking lesson as completed...");
     const success = await handleLessonComplete(lesson.id, chapter.id);
 
     if (success) {
-      console.log("✅ [FRONTEND] Lesson completion process finished");
+      // Sync the chapter progress to get updated MCQ availability
+      await syncChapterProgress(chapter.id);
 
       await loadProgressData();
 
@@ -258,6 +336,30 @@ export default function CourseLearnPage() {
             ch.lessons.forEach((l: any, index: number) => {
               if (l.id === lesson.id) {
                 l.completed = true;
+
+                // Check if all lessons are now completed
+                const allLessonsCompleted = ch.lessons.every(
+                  (lesson: any) => lesson.completed,
+                );
+
+                if (allLessonsCompleted) {
+                  // Enable MCQ if all lessons are completed
+                  ch.user_progress = {
+                    ...ch.user_progress,
+                    can_attempt_mcq: true,
+                    lesson_completed: true,
+                  };
+
+                  ch.progress = {
+                    ...ch.progress,
+                    all_lessons_completed: true,
+                    can_attempt_mcq: true,
+                  };
+
+                  console.log(
+                    "✅ [FRONTEND] All lessons completed, MCQ enabled",
+                  );
+                }
 
                 if (index + 1 < ch.lessons.length) {
                   ch.lessons[index + 1].locked = false;
@@ -333,8 +435,6 @@ export default function CourseLearnPage() {
           setForceUpdate((prev) => prev + 1);
           loadCourseData();
 
-          console.log("✅ [FRONTEND] UI updated successfully after MCQ pass");
-
           // Auto-navigate to next chapter if applicable
           if (
             selectedLesson &&
@@ -361,8 +461,6 @@ export default function CourseLearnPage() {
           }
         }
 
-        // CRITICAL FIX: Close modal after submission (both pass and fail)
-        console.log("🔄 [FRONTEND] Closing MCQ modal after submission");
         enhancedHandleCloseMCQ();
       }
     } catch (error) {
@@ -376,8 +474,6 @@ export default function CourseLearnPage() {
 
   // FIXED: Enhanced close handler with proper cleanup
   const enhancedHandleCloseMCQ = () => {
-    console.log("🔄 [FRONTEND] Closing MCQ modal and cleaning up...");
-
     // Clear user answers when closing
     setUserAnswers({});
 
@@ -457,7 +553,6 @@ export default function CourseLearnPage() {
     if (!autoNavigate) {
       alert("No more lessons available. You've completed this course!");
     }
-    console.log("⚠️ [FRONTEND] No unlocked next lesson available");
   };
 
   const hasNextLesson = () => {
@@ -527,7 +622,6 @@ export default function CourseLearnPage() {
     }
 
     alert("No previous lesson available.");
-    console.log("⚠️ [FRONTEND] No unlocked previous lesson available");
   };
 
   const hasPreviousLesson = () => {
@@ -563,16 +657,34 @@ export default function CourseLearnPage() {
     return lessonIndex === currentChapter.lessons.length - 1;
   };
 
+  // FIXED: Enhanced handleStartMCQ with proper completion checking
   const enhancedHandleStartMCQ = (chapter: any) => {
-    const allLessonsCompleted = chapter.lessons.every(
-      (lesson: any) => lesson.completed,
+    // Check if all lessons are completed using multiple data sources
+    const allLessonsCompleted = chapter.lessons?.every(
+      (lesson: any) => lesson.completed === true,
     );
-    if (!allLessonsCompleted) {
+
+    // Also check the progress data
+    const progressAllLessonsCompleted = chapter.progress?.all_lessons_completed;
+
+    // Check user progress data
+    const userProgressLessonCompleted = chapter.user_progress?.lesson_completed;
+
+    if (!allLessonsCompleted && !progressAllLessonsCompleted) {
       alert(
         "Complete all lessons in this chapter before attempting the MCQ test.",
       );
       return;
     }
+
+    // Additional check for MCQ availability
+    if (chapter.user_progress && !chapter.user_progress.can_attempt_mcq) {
+      alert(
+        "MCQ test is not available yet. Please complete all lessons first.",
+      );
+      return;
+    }
+
     handleStartMCQ(chapter);
   };
 
@@ -615,18 +727,19 @@ export default function CourseLearnPage() {
       </div>
     );
   }
-
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-slate-50 to-blue-50 text-slate-900 dark:from-slate-900 dark:to-slate-800 dark:text-slate-100">
       <CourseHeader
         title={course.title}
         progress={courseProgress?.overall_progress}
         courseId={courseId}
+        onRateClick={handleRateClick}
       />
 
       <div className="flex flex-1 flex-col lg:flex-row">
         <div className="flex-1 overflow-hidden">
           <div className="grid grid-cols-1 xl:grid-cols-4">
+            {/* Main Content Area - 3/4 width */}
             <div className="xl:col-span-3">
               {selectedLesson ? (
                 <div className="p-6">
@@ -645,9 +758,9 @@ export default function CourseLearnPage() {
                   />
                 </div>
               ) : (
-                <div className="m-6 flex h-96 items-center justify-center rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
+                <div className="m-6 flex h-96 items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white/80 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
                   <div className="text-center">
-                    <div className="mx-auto mb-4 rounded-2xl bg-blue-100 p-4 dark:bg-blue-900/30">
+                    <div className="mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-100 to-purple-100 p-4 dark:from-blue-900/30 dark:to-purple-900/30">
                       <span className="text-3xl">📚</span>
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
@@ -662,6 +775,7 @@ export default function CourseLearnPage() {
               )}
             </div>
 
+            {/* Sidebar - 1/4 width */}
             <div className="xl:col-span-1">
               <CourseContentSidebar
                 course={course}
@@ -673,10 +787,15 @@ export default function CourseLearnPage() {
             </div>
           </div>
 
+          {/* Course Tabs Section */}
           <div className="border-t border-slate-200 bg-white/80 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
             <CourseTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            <div className="p-8">
+            <div
+              className="p-8"
+              ref={activeTab === "reviews" ? reviewsSectionRef : null}
+              id="reviews-section"
+            >
               <CourseTabs.Content
                 activeTab={activeTab}
                 course={course}
@@ -689,7 +808,7 @@ export default function CourseLearnPage() {
         </div>
       </div>
 
-      {/* MCQ Modal - Now will close properly after submission */}
+      {/* MCQ Modal */}
       <MCQModal
         show={!!currentMCQChapter}
         chapter={currentMCQChapter}

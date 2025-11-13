@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { reduxApiClient } from '@/lib/redux-api';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { reduxApiClient } from "@/lib/redux-api";
 
 interface User {
   id: string;
@@ -43,18 +43,21 @@ const initialState: UsersState = {
 
 // Async thunk for fetching users - UPDATED to include search and verification status parameters
 export const fetchUsers = createAsyncThunk(
-  'users/fetchUsers',
-  async ({
-    page,
-    limit,
-    search = "",
-    verificationStatus = "all"
-  }: {
-    page: number;
-    limit: number;
-    search?: string;
-    verificationStatus?: string;
-  }, { rejectWithValue }) => {
+  "users/fetchUsers",
+  async (
+    {
+      page,
+      limit,
+      search = "",
+      verificationStatus = "all",
+    }: {
+      page: number;
+      limit: number;
+      search?: string;
+      verificationStatus?: string;
+    },
+    { rejectWithValue },
+  ) => {
     try {
       // Build query parameters
       const params = new URLSearchParams({
@@ -64,19 +67,19 @@ export const fetchUsers = createAsyncThunk(
 
       // Add search parameters if they exist
       if (search) {
-        params.append('search', search);
+        params.append("search", search);
       }
 
       // Add verification status filter if not 'all'
-      if (verificationStatus && verificationStatus !== 'all') {
+      if (verificationStatus && verificationStatus !== "all") {
         // Convert to boolean value for the API
-        const isVerified = verificationStatus === 'verified';
-        params.append('verifyUser', isVerified.toString());
+        const isVerified = verificationStatus === "verified";
+        params.append("verifyUser", isVerified.toString());
       }
 
-      console.log('API URL:', `user/get-all-details-admin?${params.toString()}`);
-      const res = await reduxApiClient.get(`user/get-all-details-admin?${params.toString()}`);
-      console.log('API Response:', res.data);
+      const res = await reduxApiClient.get(
+        `user/get-all-details-admin?${params.toString()}`,
+      );
       return {
         users: res.data.data.users || [],
         totalPages: res.data?.data?.totalPages || 0,
@@ -89,13 +92,15 @@ export const fetchUsers = createAsyncThunk(
         verificationStatus: verificationStatus,
       };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch users');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch users",
+      );
     }
-  }
+  },
 );
 
 const usersSlice = createSlice({
-  name: 'users',
+  name: "users",
   initialState,
   reducers: {
     setPage: (state, action: PayloadAction<number>) => {
@@ -166,7 +171,7 @@ export const {
   setInactiveUsers,
   clearError,
   clearSearch,
-  resetUserCounts
+  resetUserCounts,
 } = usersSlice.actions;
 
 export default usersSlice.reducer;

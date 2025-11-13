@@ -2,26 +2,46 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from '@/store';
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   fetchUserById,
   updateUserProfile,
-  clearUpdateError
+  clearUpdateError,
 } from "@/store/slices/profile/profileedit";
 import {
   selectCurrentUser,
   selectUserLoading,
   selectUserError,
   selectUpdateLoading,
-  selectUpdateError
+  selectUpdateError,
 } from "@/store/slices/profile/profileedit";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton1";
-import { ArrowLeft, Mail, Calendar, User, Shield, CheckCircle, XCircle, Save, RotateCcw, Upload, Camera, Eye, EyeOff } from "lucide-react";
+import {
+  ArrowLeft,
+  Mail,
+  Calendar,
+  User,
+  Shield,
+  CheckCircle,
+  XCircle,
+  Save,
+  RotateCcw,
+  Upload,
+  Camera,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getDecryptedItem, updateEncryptedItem } from "@/utils/storageHelper";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
@@ -39,7 +59,6 @@ export default function EditProfilePage({ className }: any) {
 
   // Get user data from correct path
   const userData = currentUser?.data;
-  console.log("object", userData)
   const userId = getDecryptedItem("userId");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -55,11 +74,9 @@ export default function EditProfilePage({ className }: any) {
   const [imageLoading, setImageLoading] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
 
-
   // Fetch user data when component mounts
   useEffect(() => {
     if (userId) {
-      console.log("🟡 Fetching user with ID:", userId);
       dispatch(fetchUserById(Number(userId)));
     }
   }, [dispatch, userId]);
@@ -96,9 +113,9 @@ export default function EditProfilePage({ className }: any) {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
     setIsEditing(true);
   };
@@ -110,7 +127,7 @@ export default function EditProfilePage({ className }: any) {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         toasterError("Please select a valid image file", 3000);
         return;
       }
@@ -169,17 +186,22 @@ export default function EditProfilePage({ className }: any) {
         return;
       }
 
-      console.log('🟡 Dispatching update with:', { userId: Number(userId), updateData });
-
-      const result = await dispatch(updateUserProfile({
+      console.log("🟡 Dispatching update with:", {
         userId: Number(userId),
-        updateData
-      })).unwrap();
+        updateData,
+      });
 
-      console.log('✅ Update successful:', result);
+      const result = await dispatch(
+        updateUserProfile({
+          userId: Number(userId),
+          updateData,
+        }),
+      ).unwrap();
+
+      console.log("✅ Update successful:", result);
 
       toasterSuccess("Profile updated successfully!", 3000);
-      router.push(`/view-profile`,);
+      router.push(`/view-profile`);
       updateEncryptedItem("name", () => formData.username);
       // Reset states
       setIsEditing(false);
@@ -187,14 +209,10 @@ export default function EditProfilePage({ className }: any) {
 
       // Refresh user data
       dispatch(fetchUserById(Number(userId)));
-
     } catch (error: any) {
       console.error("❌ Update failed:", error);
     }
   };
-
-
-
 
   // const handleReset = () => {
   //   if (userData) {
@@ -209,13 +227,12 @@ export default function EditProfilePage({ className }: any) {
   //   dispatch(clearUpdateError());
   // };
 
-
   const handleReset = () => {
     if (userData) {
       setFormData({
         username: userData.username || "",
         bio: userData.bio || "",
-        profile: ""
+        profile: "",
       });
     }
     setSelectedFile(null);
@@ -223,38 +240,47 @@ export default function EditProfilePage({ className }: any) {
     dispatch(clearUpdateError());
   };
 
-
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 border-green-200';
-      case 'inactive': return 'bg-red-100 text-red-800 border-red-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'approved': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'rejected': return 'bg-gray-100 text-gray-800 border-gray-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case "active":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "inactive":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "approved":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "rejected":
+        return "bg-gray-100 text-gray-800 border-gray-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'super-admin': return 'bg-red-100 text-red-800 border-red-200';
-      case 'user': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case "admin":
+        return "bg-purple-100 text-purple-800 border-purple-200";
+      case "super-admin":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "user":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   if (loading) {
     return (
-      <div className={cn("p-6 max-w-4xl mx-auto", className)}>
-        <div className="flex items-center gap-4 mb-6">
+      <div className={cn("mx-auto max-w-4xl p-6", className)}>
+        <div className="mb-6 flex items-center gap-4">
           <Skeleton className="h-10 w-10 rounded-full" />
           <Skeleton className="h-6 w-48" />
         </div>
 
         <Card>
           <CardHeader>
-            <Skeleton className="h-6 w-32 mb-2" />
+            <Skeleton className="mb-2 h-6 w-32" />
             <Skeleton className="h-4 w-64" />
           </CardHeader>
           <CardContent className="space-y-4">
@@ -269,24 +295,22 @@ export default function EditProfilePage({ className }: any) {
 
   if (error) {
     return (
-      <div className={cn("p-6 max-w-4xl mx-auto", className)}>
-        <Button
-          variant="ghost"
-          onClick={handleBack}
-          className="mb-4"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+      <div className={cn("mx-auto max-w-4xl p-6", className)}>
+        <Button variant="ghost" onClick={handleBack} className="mb-4">
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
 
         <Card className="border-red-200">
           <CardContent className="pt-6">
             <div className="text-center text-red-600">
-              <XCircle className="w-12 h-12 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Error Loading User</h3>
+              <XCircle className="mx-auto mb-4 h-12 w-12" />
+              <h3 className="mb-2 text-lg font-semibold">Error Loading User</h3>
               <p className="mb-4">{error}</p>
               <Button
-                onClick={() => userId && dispatch(fetchUserById(Number(userId)))}
+                onClick={() =>
+                  userId && dispatch(fetchUserById(Number(userId)))
+                }
                 className="mt-4"
               >
                 Try Again
@@ -300,21 +324,19 @@ export default function EditProfilePage({ className }: any) {
 
   if (!currentUser || !userData) {
     return (
-      <div className={cn("p-6 max-w-4xl mx-auto", className)}>
-        <Button
-          variant="ghost"
-          onClick={handleBack}
-          className="mb-4"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+      <div className={cn("mx-auto max-w-4xl p-6", className)}>
+        <Button variant="ghost" onClick={handleBack} className="mb-4">
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
 
         <Card>
           <CardContent className="pt-6 text-center">
-            <User className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <h3 className="text-lg font-semibold mb-2">User Not Found</h3>
-            <p className="text-gray-600 mb-4">The requested user could not be found.</p>
+            <User className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <h3 className="mb-2 text-lg font-semibold">User Not Found</h3>
+            <p className="mb-4 text-gray-600">
+              The requested user could not be found.
+            </p>
             <Button
               onClick={() => userId && dispatch(fetchUserById(Number(userId)))}
             >
@@ -327,7 +349,7 @@ export default function EditProfilePage({ className }: any) {
   }
 
   return (
-    <div className={cn("p-6 max-w-4xl mx-auto", className)}>
+    <div className={cn("mx-auto max-w-4xl p-6", className)}>
       <input
         type="file"
         ref={fileInputRef}
@@ -337,13 +359,13 @@ export default function EditProfilePage({ className }: any) {
       />
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <Button
           variant="ghost"
           onClick={handleBack}
           className="flex items-center gap-2"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           Back to Profile
         </Button>
 
@@ -364,23 +386,25 @@ export default function EditProfilePage({ className }: any) {
               disabled={updateLoading}
               className="flex items-center gap-2"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="h-4 w-4" />
               Reset
             </Button>
           )}
           <Button
             onClick={handleSave}
-            disabled={(!isEditing && !selectedFile) || updateLoading || imageLoading}
+            disabled={
+              (!isEditing && !selectedFile) || updateLoading || imageLoading
+            }
             className="flex items-center gap-2"
           >
             {updateLoading || imageLoading ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 {imageLoading ? "Uploading..." : "Saving..."}
               </>
             ) : (
               <>
-                <Save className="w-4 h-4" />
+                <Save className="h-4 w-4" />
                 Save Changes
               </>
             )}
@@ -392,8 +416,8 @@ export default function EditProfilePage({ className }: any) {
       {showResponse && (
         <Card className="mb-6 border-blue-200 bg-blue-50">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Eye className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Eye className="h-5 w-5" />
               API Response Data
             </CardTitle>
             <CardDescription>
@@ -401,20 +425,36 @@ export default function EditProfilePage({ className }: any) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="bg-white p-4 rounded border">
-              <pre className="text-sm overflow-auto max-h-60">
+            <div className="rounded border bg-white p-4">
+              <pre className="max-h-60 overflow-auto text-sm">
                 {JSON.stringify(currentUser, null, 2)}
               </pre>
             </div>
-            <div className="mt-3 text-sm text-gray-600 space-y-1">
-              <p><strong>Data Path:</strong> currentUser.data</p>
-              <p><strong>User ID:</strong> {userData.id}</p>
-              <p><strong>Username (original):</strong> {userData.username}</p>
-              <p><strong>Username (editing):</strong> {formData.username}</p>
-              <p><strong>Bio (original):</strong> {userData.bio || 'None'}</p>
-              <p><strong>Bio (editing):</strong> {formData.bio || 'None'}</p>
-              <p><strong>Is Editing:</strong> {isEditing ? 'Yes' : 'No'}</p>
-              <p><strong>Has New Image:</strong> {selectedFile ? 'Yes' : 'No'}</p>
+            <div className="mt-3 space-y-1 text-sm text-gray-600">
+              <p>
+                <strong>Data Path:</strong> currentUser.data
+              </p>
+              <p>
+                <strong>User ID:</strong> {userData.id}
+              </p>
+              <p>
+                <strong>Username (original):</strong> {userData.username}
+              </p>
+              <p>
+                <strong>Username (editing):</strong> {formData.username}
+              </p>
+              <p>
+                <strong>Bio (original):</strong> {userData.bio || "None"}
+              </p>
+              <p>
+                <strong>Bio (editing):</strong> {formData.bio || "None"}
+              </p>
+              <p>
+                <strong>Is Editing:</strong> {isEditing ? "Yes" : "No"}
+              </p>
+              <p>
+                <strong>Has New Image:</strong> {selectedFile ? "Yes" : "No"}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -425,7 +465,7 @@ export default function EditProfilePage({ className }: any) {
         <Card className="mb-6 border-red-200 bg-red-50">
           <CardContent className="pt-4">
             <div className="flex items-center gap-2 text-red-700">
-              <XCircle className="w-4 h-4" />
+              <XCircle className="h-4 w-4" />
               <span className="font-medium">Update Error:</span>
               <span>{updateError}</span>
             </div>
@@ -433,47 +473,40 @@ export default function EditProfilePage({ className }: any) {
         </Card>
       )}
 
-
-
-
       {/* Main Profile Card */}
       <Card className="shadow-lg">
         <CardHeader className="pb-4">
-
-          <div className="flex justify-between items-center gap-6">
+          <div className="flex items-center justify-between gap-6">
             {/* Profile Image */}
-            <div className="relative group">
-              <div
-                className="w-24 h-24 rounded-full   flex items-center justify-center  "
-
-              >
+            <div className="group relative">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full">
                 {profileImage ? (
                   <Editprofile />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                    <span className="text-white text-2xl font-bold">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+                    <span className="text-2xl font-bold text-white">
                       {userData.username?.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <Camera className="w-6 h-6 text-white" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  <Camera className="h-6 w-6 text-white" />
                 </div>
               </div>
 
               {imageLoading && (
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50">
+                  <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white"></div>
                 </div>
               )}
 
-              {userData.status === 'active' && (
-                <div className="absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+              {userData.status === "active" && (
+                <div className="absolute bottom-2 right-2 h-4 w-4 rounded-full border-2 border-white bg-green-500"></div>
               )}
 
               {selectedFile && !imageLoading && (
-                <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                <div className="absolute -right-2 -top-2 rounded-full bg-blue-500 px-2 py-1 text-xs text-white">
                   New
                 </div>
               )}
@@ -482,21 +515,26 @@ export default function EditProfilePage({ className }: any) {
             {/* User Info */}
             <div className="flex-1">
               <div className="mb-4">
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="username"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   Username
                 </label>
                 <Input
                   id="username"
                   value={formData.username}
-                  onChange={(e) => handleInputChange('username', e.target.value)}
-                  className="text-2xl font-bold max-w-md"
+                  onChange={(e) =>
+                    handleInputChange("username", e.target.value)
+                  }
+                  className="max-w-md text-2xl font-bold"
                   placeholder="Enter your username"
                   disabled={updateLoading}
                 />
               </div>
 
               <CardDescription className="flex items-center gap-2 text-lg">
-                <Mail className="w-4 h-4" />
+                <Mail className="h-4 w-4" />
                 {userData.email}
               </CardDescription>
 
@@ -522,65 +560,76 @@ export default function EditProfilePage({ className }: any) {
                 {userData.role?.charAt(0).toUpperCase() + userData.role?.slice(1)}
               </Badge>
             </div> */}
-
         </CardHeader>
 
         <CardContent className="space-y-6">
           {/* Bio Section */}
           <div>
-            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <User className="w-4 h-4" />
+            <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold">
+              <User className="h-4 w-4" />
               About
             </h3>
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-1">
+            <div className="rounded-lg bg-gray-50 p-1 dark:bg-gray-800">
               <Textarea
                 value={formData.bio}
-                onChange={(e) => handleInputChange('bio', e.target.value)}
+                onChange={(e) => handleInputChange("bio", e.target.value)}
                 placeholder="Tell us about yourself..."
-                className="min-h-[120px] resize-none border-0 bg-transparent focus:ring-0 text-gray-700 dark:text-gray-300 leading-relaxed"
+                className="min-h-[120px] resize-none border-0 bg-transparent leading-relaxed text-gray-700 focus:ring-0 dark:text-gray-300"
                 rows={4}
                 disabled={updateLoading}
               />
             </div>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="mt-2 text-sm text-gray-500">
               {formData.bio?.length || 0}/500 characters
             </p>
           </div>
 
           {/* User Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-4">
-              <h4 className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <Shield className="w-4 h-4" />
+              <h4 className="flex items-center gap-2 font-semibold text-gray-700 dark:text-gray-300">
+                <Shield className="h-4 w-4" />
                 Account Details
               </h4>
 
-              <div className="space-y-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Role:</span>
-                  <Badge variant="secondary" className={getRoleColor(userData.role)}>
+              <div className="space-y-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Role:
+                  </span>
+                  <Badge
+                    variant="secondary"
+                    className={getRoleColor(userData.role)}
+                  >
                     {userData.role}
                   </Badge>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Status:</span>
-                  <Badge variant="secondary" className={getStatusColor(userData.status)}>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Status:
+                  </span>
+                  <Badge
+                    variant="secondary"
+                    className={getStatusColor(userData.status)}
+                  >
                     {userData.status}
                   </Badge>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Verified:</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Verified:
+                  </span>
                   <div className="flex items-center gap-2">
                     {userData.verified ? (
                       <>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <CheckCircle className="h-4 w-4 text-green-500" />
                         <span className="text-green-600">Verified</span>
                       </>
                     ) : (
                       <>
-                        <XCircle className="w-4 h-4 text-red-500" />
+                        <XCircle className="h-4 w-4 text-red-500" />
                         <span className="text-red-600">Not Verified</span>
                       </>
                     )}
@@ -590,29 +639,39 @@ export default function EditProfilePage({ className }: any) {
             </div>
 
             <div className="space-y-4">
-              <h4 className="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
+              <h4 className="flex items-center gap-2 font-semibold text-gray-700 dark:text-gray-300">
+                <Calendar className="h-4 w-4" />
                 Account Timeline
               </h4>
 
-              <div className="space-y-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Member since:</span>
-                  <span className="text-gray-900 dark:text-gray-100 font-medium">
-                    {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A'}
+              <div className="space-y-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Member since:
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {userData.createdAt
+                      ? new Date(userData.createdAt).toLocaleDateString()
+                      : "N/A"}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">Last updated:</span>
-                  <span className="text-gray-900 dark:text-gray-100 font-medium">
-                    {userData.updatedAt ? new Date(userData.updatedAt).toLocaleDateString() : 'N/A'}
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Last updated:
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {userData.updatedAt
+                      ? new Date(userData.updatedAt).toLocaleDateString()
+                      : "N/A"}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">User ID:</span>
-                  <span className="text-gray-900 dark:text-gray-100 font-mono text-sm bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    User ID:
+                  </span>
+                  <span className="rounded bg-gray-200 px-2 py-1 font-mono text-sm text-gray-900 dark:bg-gray-700 dark:text-gray-100">
                     #{userData.id}
                   </span>
                 </div>
@@ -622,12 +681,15 @@ export default function EditProfilePage({ className }: any) {
 
           {/* File Info */}
           {selectedFile && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-blue-800">New profile picture selected</p>
+                  <p className="font-medium text-blue-800">
+                    New profile picture selected
+                  </p>
                   <p className="text-sm text-blue-600">
-                    {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                    {selectedFile.name} (
+                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
                   </p>
                 </div>
                 <Button
@@ -647,14 +709,14 @@ export default function EditProfilePage({ className }: any) {
 
           {/* Save Button at Bottom */}
           {isEditing && (
-            <div className="flex justify-end gap-3 pt-6 border-t">
+            <div className="flex justify-end gap-3 border-t pt-6">
               <Button
                 variant="outline"
                 onClick={handleReset}
                 disabled={updateLoading || imageLoading}
                 className="flex items-center gap-2"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="h-4 w-4" />
                 Cancel
               </Button>
               <Button
@@ -664,12 +726,12 @@ export default function EditProfilePage({ className }: any) {
               >
                 {updateLoading || imageLoading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     {imageLoading ? "Uploading..." : "Saving..."}
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4" />
+                    <Save className="h-4 w-4" />
                     Save Changes
                   </>
                 )}

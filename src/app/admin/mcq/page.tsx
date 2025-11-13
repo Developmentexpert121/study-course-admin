@@ -1,7 +1,7 @@
-import McqList from '@/components/mcq/McqList'
+import McqList from "@/components/mcq/McqList";
 
 const Page = () => {
-  return <McqList basePath="admin" />
-}
+  return <McqList basePath="admin" />;
+};
 
-export default Page
+export default Page;

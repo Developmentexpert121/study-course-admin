@@ -28,8 +28,6 @@ import {
   selectedtotalcoursesactivate,
   selectedtotalcoursesEnrolled,
   selectAllCoursesWithStats,
-
-
 } from "@/store/slices/adminslice/admindashboard";
 
 import {
@@ -58,18 +56,12 @@ export default function AdminDashboardPage() {
   const totalCourses = useAppSelector(selectTotalAdminCourses);
   const totalCoursesactive = useAppSelector(selectTotalAdminCoursesactive);
   const completionRate = useAppSelector(selectAverageCompletionRate);
-
-
   const totalcourse = useAppSelector(selectedtotalcourses);
-  const totalactivarecourse = useAppSelector(selectedtotalcoursesactivate)
+  const totalactivarecourse = useAppSelector(selectedtotalcoursesactivate);
   const totalEnrollments = useAppSelector(selectedtotalcoursesEnrolled);
   const totalCompleted = useAppSelector(selectedtotaluserscompleted);
   const top3Courses = useAppSelector(selectTop3Coursess);
   const allcourse = useAppSelector(selectAllCoursesWithStats);
-
-
-  console.log("welcome to the page", allcourse)
-
 
   useEffect(() => {
     if (userId) {
@@ -122,31 +114,31 @@ export default function AdminDashboardPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="mx-auto max-w-7xl">
           {/* Header Skeleton */}
-          <div className="mb-8 rounded-2xl bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-600 p-8 shadow-2xl h-32 animate-pulse"></div>
+          <div className="mb-8 h-32 animate-pulse rounded-2xl bg-gradient-to-r from-gray-300 to-gray-400 p-8 shadow-2xl dark:from-gray-700 dark:to-gray-600"></div>
 
           {/* Cards Skeleton */}
           <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800 animate-pulse"
+                className="animate-pulse rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800"
               >
-                <div className="h-4 bg-gray-300 rounded dark:bg-gray-600 mb-4 w-1/2"></div>
-                <div className="h-8 bg-gray-300 rounded dark:bg-gray-600 mb-4 w-3/4"></div>
-                <div className="h-3 bg-gray-300 rounded dark:bg-gray-600 w-1/2"></div>
+                <div className="mb-4 h-4 w-1/2 rounded bg-gray-300 dark:bg-gray-600"></div>
+                <div className="mb-4 h-8 w-3/4 rounded bg-gray-300 dark:bg-gray-600"></div>
+                <div className="h-3 w-1/2 rounded bg-gray-300 dark:bg-gray-600"></div>
               </div>
             ))}
           </div>
 
           {/* Charts Skeleton */}
           <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:col-span-2 animate-pulse">
-              <div className="h-6 bg-gray-300 rounded dark:bg-gray-600 mb-4 w-1/3"></div>
-              <div className="h-72 bg-gray-300 rounded dark:bg-gray-600"></div>
+            <div className="animate-pulse rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
+              <div className="mb-4 h-6 w-1/3 rounded bg-gray-300 dark:bg-gray-600"></div>
+              <div className="h-72 rounded bg-gray-300 dark:bg-gray-600"></div>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800 animate-pulse">
-              <div className="h-6 bg-gray-300 rounded dark:bg-gray-600 mb-4 w-1/3"></div>
-              <div className="h-72 bg-gray-300 rounded dark:bg-gray-600"></div>
+            <div className="animate-pulse rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+              <div className="mb-4 h-6 w-1/3 rounded bg-gray-300 dark:bg-gray-600"></div>
+              <div className="h-72 rounded bg-gray-300 dark:bg-gray-600"></div>
             </div>
           </div>
         </div>
@@ -157,9 +149,9 @@ export default function AdminDashboardPage() {
   // Error state
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-6 bg-gradient-to-br from-red-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 p-6 dark:from-gray-900 dark:to-gray-800">
         <div className="w-full max-w-md">
-          <div className="rounded-2xl border-2 border-red-200 bg-white/80 backdrop-blur-sm p-8 text-center shadow-2xl dark:border-red-500/50 dark:bg-gray-800/80">
+          <div className="rounded-2xl border-2 border-red-200 bg-white/80 p-8 text-center shadow-2xl backdrop-blur-sm dark:border-red-500/50 dark:bg-gray-800/80">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
               <BarChart3 className="h-8 w-8 text-red-500" />
             </div>
@@ -169,7 +161,7 @@ export default function AdminDashboardPage() {
             <p className="mb-6 text-red-700 dark:text-red-300">{error}</p>
             <button
               onClick={handleRefresh}
-              className="inline-flex items-center rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-6 py-3 text-white shadow-lg transition-all hover:shadow-xl hover:scale-105"
+              className="inline-flex items-center rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-6 py-3 text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
             >
               <RefreshCw className="mr-2 h-5 w-5" />
               Try Again
@@ -192,15 +184,18 @@ export default function AdminDashboardPage() {
                 Course Performance Dashboard
               </h1>
               <p className="mt-2 text-blue-100">
-                Track your course enrollments, completions, and performance metrics
+                Track your course enrollments, completions, and performance
+                metrics
               </p>
             </div>
             <button
               onClick={handleRefresh}
               disabled={loading}
-              className="mt-4 inline-flex items-center rounded-xl bg-white/20 backdrop-blur-sm px-6 py-3 text-white shadow-lg transition-all hover:bg-white/30 hover:scale-105 disabled:opacity-50 sm:mt-0"
+              className="mt-4 inline-flex items-center rounded-xl bg-white/20 px-6 py-3 text-white shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:bg-white/30 disabled:opacity-50 sm:mt-0"
             >
-              <RefreshCw className={`mr-2 h-5 w-5 ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`mr-2 h-5 w-5 ${loading ? "animate-spin" : ""}`}
+              />
               {loading ? "Refreshing..." : "Refresh Stats"}
             </button>
           </div>
@@ -248,10 +243,12 @@ export default function AdminDashboardPage() {
           ].map((card, i) => (
             <div
               key={i}
-              className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-800"
+              className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800"
             >
-              <div className="absolute top-0 right-0 h-32 w-32 opacity-10">
-                <div className={`h-full w-full rounded-full bg-gradient-to-br ${card.gradient} blur-2xl`}></div>
+              <div className="absolute right-0 top-0 h-32 w-32 opacity-10">
+                <div
+                  className={`h-full w-full rounded-full bg-gradient-to-br ${card.gradient} blur-2xl`}
+                ></div>
               </div>
 
               <div className="relative">
@@ -269,11 +266,15 @@ export default function AdminDashboardPage() {
                       </span>
                     </div>
                     <div className="mt-2 flex items-center text-green-600 dark:text-green-400">
-                      <TrendingUp className="h-4 w-4 mr-1" />
-                      <span className="text-xs font-semibold">{card.trend}</span>
+                      <TrendingUp className="mr-1 h-4 w-4" />
+                      <span className="text-xs font-semibold">
+                        {card.trend}
+                      </span>
                     </div>
                   </div>
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-xl ${card.iconBg} text-white shadow-lg transition-transform group-hover:scale-110`}>
+                  <div
+                    className={`flex h-14 w-14 items-center justify-center rounded-xl ${card.iconBg} text-white shadow-lg transition-transform group-hover:scale-110`}
+                  >
                     {card.icon}
                   </div>
                 </div>
@@ -298,8 +299,16 @@ export default function AdminDashboardPage() {
                   <YAxis stroke="#6b7280" />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="enrollments" fill="#3b82f6" radius={[8, 8, 0, 0]} />
-                  <Bar dataKey="completions" fill="#10b981" radius={[8, 8, 0, 0]} />
+                  <Bar
+                    dataKey="enrollments"
+                    fill="#3b82f6"
+                    radius={[8, 8, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="completions"
+                    fill="#10b981"
+                    radius={[8, 8, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -315,7 +324,8 @@ export default function AdminDashboardPage() {
               <Activity className="mr-2 h-5 w-5 text-blue-600" />
               Enrollment Distribution
             </h3>
-            {enrollmentDistributionData[0].value > 0 || enrollmentDistributionData[1].value > 0 ? (
+            {enrollmentDistributionData[0].value > 0 ||
+            enrollmentDistributionData[1].value > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -323,9 +333,13 @@ export default function AdminDashboardPage() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }: { name?: string; percent?: number }) =>
-                      `${name}: ${((percent || 0) * 100).toFixed(0)}%`
-                    }
+                    label={({
+                      name,
+                      percent,
+                    }: {
+                      name?: string;
+                      percent?: number;
+                    }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
                     outerRadius={100}
                     fill="#8884d8"
                     dataKey="value"
@@ -381,7 +395,9 @@ export default function AdminDashboardPage() {
                       className="border-b border-gray-100 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
                     >
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                        <div className="font-medium line-clamp-2">{course.title}</div>
+                        <div className="line-clamp-2 font-medium">
+                          {course.title}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                         <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
@@ -399,19 +415,23 @@ export default function AdminDashboardPage() {
                             <div
                               className="h-full rounded-full bg-gradient-to-r from-green-500 to-blue-500"
                               style={{
-                                width: `${course.enrollment_count > 0
-                                    ? (course.completion_count / course.enrollment_count) * 100
+                                width: `${
+                                  course.enrollment_count > 0
+                                    ? (course.completion_count /
+                                        course.enrollment_count) *
+                                      100
                                     : 0
-                                  }%`,
+                                }%`,
                               }}
                             ></div>
                           </div>
                           <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
                             {course.enrollment_count > 0
                               ? (
-                                (course.completion_count / course.enrollment_count) *
-                                100
-                              ).toFixed(1)
+                                  (course.completion_count /
+                                    course.enrollment_count) *
+                                  100
+                                ).toFixed(1)
                               : 0}
                             %
                           </span>
@@ -420,7 +440,9 @@ export default function AdminDashboardPage() {
                       <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                         <div className="flex items-center">
                           <span className="text-yellow-500">★</span>
-                          <span className="ml-1 font-medium">{course.ratings || "N/A"}</span>
+                          <span className="ml-1 font-medium">
+                            {course.ratings || "N/A"}
+                          </span>
                         </div>
                       </td>
                     </tr>
@@ -439,7 +461,8 @@ export default function AdminDashboardPage() {
               No courses found
             </h3>
             <p className="text-gray-500 dark:text-gray-400">
-              You haven't created any courses yet. Start creating courses to see your performance metrics.
+              You haven't created any courses yet. Start creating courses to see
+              your performance metrics.
             </p>
           </div>
         )}

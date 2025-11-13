@@ -419,17 +419,6 @@ const UserRow: React.FC<{
   const canSendEmail = certificate && certificate.status === "issued";
   const canGenerate = progress.course_completed && !certificate;
 
-  console.log("UserRow Debug:", {
-    user: user.fullName,
-    courseCompleted: progress.course_completed,
-    certificateExists: !!certificate,
-    certificateStatus: certificate?.status,
-    canDownload,
-    canSendEmail,
-    canGenerate,
-    backendActions: actions,
-  });
-
   return (
     <TableRow className="transition-colors duration-150 hover:bg-gray-50">
       {/* User Info */}
