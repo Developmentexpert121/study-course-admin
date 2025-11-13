@@ -478,6 +478,14 @@ const VideoSection: React.FC<any> = ({
 
   // Render embedded video player (e.g., YouTube, Vimeo)
   const renderEmbedVideoPlayer = (videoUrl: string) => {
+    const embededVideoUrl = getEmbedUrl(videoUrl);
+    if (!embededVideoUrl) {
+      return (
+        <div className="flex h-full w-full items-center justify-center rounded-lg bg-gray-900">
+          <p className="text-lg text-white">Invalid video URL</p>
+        </div>
+      );
+    }
     return (
       <div className="relative h-full w-full overflow-hidden rounded-lg bg-black">
         <iframe
