@@ -489,7 +489,7 @@ const VideoSection: React.FC<any> = ({
     return (
       <div className="relative h-full w-full overflow-hidden rounded-lg bg-black">
         <iframe
-          src={getEmbedUrl(videoUrl)}
+          src={embededVideoUrl}
           title="Embedded Video"
           className="h-full w-full"
           frameBorder="0"
