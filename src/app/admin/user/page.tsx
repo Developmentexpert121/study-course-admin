@@ -123,7 +123,7 @@ const UsersClient = () => {
               />
             </svg>
             <h3 className="mt-2 text-lg font-medium text-gray-900">
-              No users found
+              No Student Found{" "}
             </h3>
             <p className="mt-1 text-gray-500">
               There are no users registered in the system yet.

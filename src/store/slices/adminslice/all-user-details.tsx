@@ -11,6 +11,7 @@ interface User {
   createdAt: string;
   profileImage: string | null;
   enrolledCourses: any[];
+  role_id?: string;
 }
 
 interface UsersState {
@@ -25,6 +26,7 @@ interface UsersState {
   error: string | null;
   searchTerm: string;
   verificationStatus: string;
+  roleId: string | null;
 }
 
 const initialState: UsersState = {
@@ -39,9 +41,9 @@ const initialState: UsersState = {
   error: null,
   searchTerm: "",
   verificationStatus: "all",
+  roleId: null,
 };
 
-// Async thunk for fetching users - UPDATED to include search and verification status parameters
 export const fetchUsers = createAsyncThunk(
   "users/fetchUsers",
   async (
@@ -50,11 +52,13 @@ export const fetchUsers = createAsyncThunk(
       limit,
       search = "",
       verificationStatus = "all",
+      role_id = null,
     }: {
       page: number;
       limit: number;
       search?: string;
       verificationStatus?: string;
+      role_id?: string | null;
     },
     { rejectWithValue },
   ) => {
@@ -72,24 +76,33 @@ export const fetchUsers = createAsyncThunk(
 
       // Add verification status filter if not 'all'
       if (verificationStatus && verificationStatus !== "all") {
-        // Convert to boolean value for the API
         const isVerified = verificationStatus === "verified";
         params.append("verifyUser", isVerified.toString());
+      }
+
+      // Add role_id filter if provided
+      if (role_id) {
+        params.append("role_id", role_id);
       }
 
       const res = await reduxApiClient.get(
         `user/get-all-details-admin?${params.toString()}`,
       );
+
+      // Match the actual API response structure
+      const responseData = res.data.data;
+
       return {
-        users: res.data.data.users || [],
-        totalPages: res.data?.data?.totalPages || 0,
+        users: responseData.users || [],
+        totalPages: responseData.totalPages || 0,
         currentPage: page,
-        totalUsers: res.data?.data?.totalUsers || 0,
-        activeUsers: res.data?.data?.activeUsers || 0,
-        inactiveUsers: res.data?.data?.inactiveUsers || 0,
-        filteredUsersCount: res.data?.data?.filteredUsersCount || 0,
+        totalUsers: responseData.totalUsers || 0,
+        activeUsers: responseData.activeUsers || 0,
+        inactiveUsers: responseData.inactiveUsers || 0,
+        filteredUsersCount: responseData.filteredUsersCount || 0,
         searchTerm: search,
         verificationStatus: verificationStatus,
+        roleId: role_id,
       };
     } catch (error: any) {
       return rejectWithValue(
@@ -112,6 +125,9 @@ const usersSlice = createSlice({
     setVerificationStatus: (state, action: PayloadAction<string>) => {
       state.verificationStatus = action.payload;
     },
+    setRoleId: (state, action: PayloadAction<string | null>) => {
+      state.roleId = action.payload;
+    },
     setTotalUsers: (state, action: PayloadAction<number>) => {
       state.totalUsers = action.payload;
     },
@@ -124,17 +140,25 @@ const usersSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    // Optional: Add a clearSearch action
     clearSearch: (state) => {
       state.searchTerm = "";
       state.verificationStatus = "all";
+      state.roleId = null;
     },
-    // Reset all user counts
+    clearRoleFilter: (state) => {
+      state.roleId = null;
+    },
     resetUserCounts: (state) => {
       state.totalUsers = 0;
       state.activeUsers = 0;
       state.inactiveUsers = 0;
       state.filteredUsersCount = 0;
+    },
+    resetFilters: (state) => {
+      state.searchTerm = "";
+      state.verificationStatus = "all";
+      state.roleId = null;
+      state.currentPage = 1;
     },
   },
   extraReducers: (builder) => {
@@ -154,6 +178,7 @@ const usersSlice = createSlice({
         state.filteredUsersCount = action.payload.filteredUsersCount;
         state.searchTerm = action.payload.searchTerm;
         state.verificationStatus = action.payload.verificationStatus;
+        state.roleId = action.payload.roleId;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
@@ -166,12 +191,15 @@ export const {
   setPage,
   setSearch,
   setVerificationStatus,
+  setRoleId,
   setTotalUsers,
   setActiveUsers,
   setInactiveUsers,
   clearError,
   clearSearch,
+  clearRoleFilter,
   resetUserCounts,
+  resetFilters,
 } = usersSlice.actions;
 
 export default usersSlice.reducer;

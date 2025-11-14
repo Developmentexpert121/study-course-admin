@@ -83,7 +83,7 @@ export function Users({ className, users }: UsersProps) {
           ) : (
             <TableRow>
               <TableCell colSpan={5} className="text-center">
-                No users found.
+                No Student Found
               </TableCell>
             </TableRow>
           )}

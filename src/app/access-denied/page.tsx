@@ -9,11 +9,11 @@ export default function AccessDenied() {
 
   const getRoleMessage = () => {
     switch (userRole?.toLowerCase()) {
-      case "admin":
+      case "Teacher":
         return "Admin access required";
-      case "super-admin":
+      case "Super-Admin":
         return "Super Admin access required";
-      case "user":
+      case "Student":
         return "User access required";
       default:
         return "You don't have permission to access this page";
@@ -22,10 +22,10 @@ export default function AccessDenied() {
 
   const getSuggestedAction = () => {
     switch (userRole?.toLowerCase()) {
-      case "admin":
-      case "super-admin":
+      case "Teacher":
+      case "Super-Admin":
         return "Please contact system administrator for elevated permissions";
-      case "user":
+      case "Student":
         return "Please contact your administrator if you need access to this resource";
       default:
         return "Please contact your administrator if you believe this is a mistake";
@@ -34,11 +34,11 @@ export default function AccessDenied() {
 
   const getDashboardPath = () => {
     switch (userRole?.toLowerCase()) {
-      case "admin":
+      case "Admin":
         return "/admin/dashboard";
       case "super-admin":
         return "/super-admin/dashboard";
-      case "user":
+      case "Student":
         return "/user/dashboard";
       default:
         return "/";

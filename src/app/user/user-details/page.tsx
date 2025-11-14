@@ -126,14 +126,12 @@ export default function UsersWithProgressPage({ className }: any) {
                     "-"
                   )}
                 </TableCell>
-
-                {/* <TableCell onClick={() => handleMore(user.id)} className="cursor-pointer">View More Details</TableCell> */}
               </TableRow>
             ))
           ) : (
             <TableRow>
               <TableCell colSpan={7} className="text-center">
-                No users found.
+                No Student Found
               </TableCell>
             </TableRow>
           )}

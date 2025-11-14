@@ -194,6 +194,8 @@ export function UserInfo() {
                 removeEncryptedItem("refreshToken");
                 removeEncryptedItem("userId");
                 removeEncryptedItem("name");
+                removeEncryptedItem("permissions");
+
                 removeEncryptedItem("email");
                 removeEncryptedItem("role");
 
@@ -207,6 +209,8 @@ export function UserInfo() {
                 removeEncryptedItem("refreshToken");
                 removeEncryptedItem("userId");
                 removeEncryptedItem("name");
+                removeEncryptedItem("permissions");
+
                 removeEncryptedItem("email");
                 removeEncryptedItem("role");
                 setIsOpen(false);

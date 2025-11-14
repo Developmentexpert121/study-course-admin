@@ -91,19 +91,17 @@ export default function Editprofile() {
     }
   };
 
-  const isUser = role === "user";
+  const isUser = role === "Student";
 
   return (
     <div className="mx-auto w-full overflow-hidden">
-
       <div className="">
         {/* Cover Photo */}
-       
 
         {/* Profile Info */}
-        <div className="relative ">
+        <div className="relative">
           {/* Profile Photo */}
-          <div className="relative z-30 mx-auto  w-24 h-24 w-full rounded-full bg-white/20 p-1 backdrop-blur">
+          <div className="relative z-30 mx-auto h-24 w-24 w-full rounded-full bg-white/20 p-1 backdrop-blur">
             <div className="relative h-full w-full rounded-[50%] drop-shadow-2">
               {data.profilePhoto && (
                 <>
@@ -137,8 +135,6 @@ export default function Editprofile() {
               )}
             </div>
           </div>
-
-         
         </div>
       </div>
     </div>

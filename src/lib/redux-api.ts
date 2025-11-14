@@ -74,7 +74,7 @@ export const reduxApiClient = {
 
     let response = await fetch(`${BASE_URL}${url}`, fetchOptions);
 
-    if (response.status === 401 && includeToken) {
+    if (response.status === 403 && includeToken) {
       const newToken = await refreshAccessToken();
       if (newToken) {
         setEncryptedItem("token", newToken);
@@ -93,7 +93,7 @@ export const reduxApiClient = {
     const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
     return reduxApiClient.request("GET", `${url}${queryString}`);
   },
-  
+
   post: (url: string, body: any) => reduxApiClient.request("POST", url, body),
   put: (url: string, body: any) => reduxApiClient.request("PUT", url, body),
   patch: (url: string, body?: any) => reduxApiClient.request("PATCH", url, body),

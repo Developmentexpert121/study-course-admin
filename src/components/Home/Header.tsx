@@ -9,7 +9,7 @@ import { toasterSuccess } from "../core/Toaster";
 
 interface HeaderProps {
   name: string | null;
-  role?: "super-admin" | "admin" | "user" | "Super-Admin" | null; // 👈 Added role prop
+  role?: "super-admin" | "Teacher" | "Student" | "Super-Admin" | null; // 👈 Added role prop
 }
 
 const Header: React.FC<HeaderProps> = ({ name, role }) => {
@@ -21,12 +21,11 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
   const handleDashboardRedirect = () => {
     if (role === "super-admin" || role === "Super-Admin") {
       router.push("/super-admin/dashboard");
-    } else if (role === "admin") {
+    } else if (role === "Teacher") {
       router.push("/admin/dashboard");
-    } else if (role === "user"){
+    } else if (role === "Student") {
       router.push("/user/dashboard");
-    }
-     else {
+    } else {
       router.push("/");
     }
     setProfileOpen(false);
@@ -110,6 +109,7 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
                     removeEncryptedItem("name");
                     removeEncryptedItem("email");
                     removeEncryptedItem("role");
+                    removeEncryptedItem("permissions");
                     toasterSuccess("Logout Successfully", 2000, "id");
                     window.location.href = "/";
                     setProfileOpen(false);

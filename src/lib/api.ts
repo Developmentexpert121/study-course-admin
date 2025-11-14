@@ -76,8 +76,7 @@ const createRequest = () => {
     };
 
     let response = await fetch(`${BASE_URL}${url}`, fetchOptions);
-
-    if (response.status === 401 && includeToken) {
+    if (response.status === 403 && includeToken) {
       const newToken = await refreshAccessToken();
       if (newToken) {
         setEncryptedItem("token", newToken);

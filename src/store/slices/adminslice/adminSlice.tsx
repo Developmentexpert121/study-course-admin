@@ -114,7 +114,7 @@ export const fetchAdmins = createAsyncThunk(
         );
       }
     } catch (err: any) {
-      if (err.response?.status === 401) {
+      if (err.response?.status === 403) {
         return rejectWithValue("Session expired. Please login again.");
       } else if (err.response?.status === 403) {
         return rejectWithValue(

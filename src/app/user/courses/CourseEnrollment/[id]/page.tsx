@@ -138,6 +138,7 @@ export default function CourseDetailsPage() {
   const handleEnroll = async () => {
     if (!userId) {
       setEnrollmentStatus("Please log in to enroll in this course");
+      router.push("/auth/login");
       return;
     }
 

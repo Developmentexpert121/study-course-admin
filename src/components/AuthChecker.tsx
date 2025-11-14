@@ -40,7 +40,6 @@ export default function AuthChecker({
         "/terms",
         "/courses",
       ];
-      console.log("dkjshfksdhf", pathname);
 
       const isCourseDetailPage =
         pathname?.startsWith("/courses/") && pathname.split("/").length === 3;
@@ -67,9 +66,9 @@ export default function AuthChecker({
 
             if (userRole === "super-admin") {
               router.replace("/super-admin/dashboard");
-            } else if (userRole === "admin") {
+            } else if (userRole === "Teacher") {
               router.replace("/admin/dashboard");
-            } else if (userRole === "user") {
+            } else if (userRole === "Student") {
               router.replace("/user/dashboard");
             } else {
               router.replace("/");

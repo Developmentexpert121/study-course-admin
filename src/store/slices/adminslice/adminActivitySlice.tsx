@@ -56,7 +56,7 @@ export const fetchAdminActivities = createAsyncThunk(
         );
       }
     } catch (err: any) {
-      if (err.response?.status === 401) {
+      if (err.response?.status === 403) {
         return rejectWithValue("Session expired. Please login again.");
       } else if (err.response?.status === 403) {
         return rejectWithValue(
@@ -116,7 +116,8 @@ export default adminActivitySlice.reducer;
 // Selectors
 export const selectActivities = (state: any) => state.adminActivity.activities;
 export const selectTotalCount = (state: any) => state.adminActivity.totalCount;
-export const selectCurrentPage = (state: any) => state.adminActivity.currentPage;
+export const selectCurrentPage = (state: any) =>
+  state.adminActivity.currentPage;
 export const selectTotalPages = (state: any) => state.adminActivity.totalPages;
 export const selectHasMore = (state: any) => state.adminActivity.hasMore;
 export const selectLoading = (state: any) => state.adminActivity.loading;
@@ -125,12 +126,12 @@ export const selectError = (state: any) => state.adminActivity.error;
 // Additional selectors for filtering
 export const selectActivitiesByType = (state: any, activityType: string) =>
   state.adminActivity.activities.filter(
-    (activity: AdminActivity) => activity.activity_type === activityType
+    (activity: AdminActivity) => activity.activity_type === activityType,
   );
 
 export const selectActivitiesByAdmin = (state: any, adminId: string) =>
   state.adminActivity.activities.filter(
-    (activity: AdminActivity) => activity.admin_id === adminId
+    (activity: AdminActivity) => activity.admin_id === adminId,
   );
 
 export const selectRecentActivities = (state: any, limit: number = 10) =>

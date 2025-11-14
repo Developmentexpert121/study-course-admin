@@ -12,6 +12,7 @@ import LoadingState from "@/components/user/course-enrollment/LoadingState";
 import ErrorState from "@/components/user/course-enrollment/errorState";
 import CourseTabs from "@/components/user/course-enrollment/CourseTabs";
 import CourseSidebar from "@/components/user/course-enrollment/courseSidebar";
+import { toasterSuccess } from "@/components/core/Toaster";
 
 export default function CourseDetailsPage() {
   const router = useRouter();
@@ -114,6 +115,9 @@ export default function CourseDetailsPage() {
   const handleEnroll = async () => {
     if (!userId) {
       setEnrollmentStatus("Please log in to enroll in this course");
+
+      router.push("/auth/login");
+
       return;
     }
 

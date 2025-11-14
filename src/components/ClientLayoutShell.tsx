@@ -40,8 +40,8 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
   // Allow public pages (home) even without token
   if (!token && !isAuthPage && !isPublicPage) return null;
 
-  const isAdmin = role === "admin";
-  const isUser = role === "user";
+  const isAdmin = role === "Teacher";
+  const isUser = role === "Student";
   const isSuperAdmin = role === "Super-Admin" || role === "super-admin";
   const isAuthenticated = !isAuthPage && (isAdmin || isUser || isSuperAdmin);
 

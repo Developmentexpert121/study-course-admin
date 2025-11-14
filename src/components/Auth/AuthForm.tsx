@@ -6,20 +6,19 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { setEncryptedItem } from "@/utils/storageHelper";
 import { useApiClient } from "@/lib/api";
+
 interface AuthFormProps {
   type: "login" | "register" | "forgot-password" | "reset-password";
 }
 
 const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   const [isRegistered, setIsRegistered] = useState(false);
-  const [isAdminRegistered, setIsAdminRegistered] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
     name: "",
     newPassword: "",
-    role: "user", // Default role
   });
   const router = useRouter();
 
@@ -75,10 +74,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRoleChange = (role: string) => {
-    setFormData({ ...formData, role });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -124,7 +119,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           username: formData.name,
           email: formData.email,
           password: formData.password,
-          role: formData.role,
+          role: "Student", // Always set as user
         };
         break;
 
@@ -141,7 +136,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         payload = {
           email: formData.email,
         };
-        toasterSuccess("email is sended to youre account");
+        toasterSuccess("Reset email sent to your account");
         break;
 
       case "reset-password":
@@ -155,9 +150,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             "no-token",
           );
           return;
-        } else {
-          toasterSuccess("Youre password is changed ", 2000);
-          router.push(`/login`);
         }
 
         if (formData.newPassword !== formData.confirmPassword) {
@@ -169,6 +161,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           token: resetToken,
           password: formData.newPassword,
         };
+        toasterSuccess("Your password has been changed successfully", 2000);
+        router.push(`/login`);
         break;
     }
 
@@ -176,16 +170,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
     if (response.success) {
       if (type === "register") {
-        // Check if it's an admin registration
-        if (formData.role === "admin") {
-          toasterSuccess(
-            "Admin account created successfully! You can now log in.",
-          );
-          setIsAdminRegistered(true);
-        } else {
-          toasterSuccess("Please check your email to verify your account!");
-          setIsRegistered(true);
-        }
+        toasterSuccess("Please check your email to verify your account!");
+        setIsRegistered(true);
       } else if (type === "login") {
         const token = response.data?.data?.accessToken;
         const refreshToken = response.data?.data?.refreshToken;
@@ -193,6 +179,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         const email = response.data?.data?.user?.email;
         const userId = response.data?.data?.user?.id;
         const role = response.data?.data?.user?.role;
+        const permissions = response.data?.data?.user?.permissions;
 
         if (token) {
           setEncryptedItem("token", token);
@@ -201,16 +188,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           setEncryptedItem("email", email);
           setEncryptedItem("userId", userId);
           setEncryptedItem("role", role);
+          setEncryptedItem("permissions", permissions);
         }
 
-        if (role === "admin") {
-          router.push("/admin/dashboard");
-        } else if (role === "Super-Admin") {
+        // Redirect based on role
+        if (role === "Super-Admin") {
           router.push("/super-admin/dashboard");
-        } else if (role === "user") {
-          router.push("/user/dashboard");
+        } else if (role === "Teacher") {
+          router.push("/admin/dashboard");
         } else {
-          router.push("");
+          router.push("/user/dashboard");
         }
       }
     } else {
@@ -223,16 +210,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         "Email Not Found": "Email Not Found",
         "Please verify your email before logging in.":
           "Please verify your email before logging in.",
-        "This is a User account. Please select 'User Account' to login.":
-          "This is a User account. Please select 'User Account' to login.",
-        "This is an Admin account. Please select 'Admin Account' to login.":
-          "This is an Admin account. Please select 'Admin Account' to login.",
       };
 
       const apiErrorCode = response?.error?.code || "";
       const errorMessage =
-        messageMap[apiErrorCode] ||
-        "Your account is suspended. Please contact your teacher.";
+        messageMap[apiErrorCode] || "An error occurred. Please try again.";
 
       toasterError(errorMessage, 5000, "id");
     }
@@ -241,7 +223,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   const renderTitle = () => {
     switch (type) {
       case "login":
-        return "Login";
+        return "Login to Your Account";
       case "register":
         return "Create Your Account";
       case "forgot-password":
@@ -251,92 +233,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     }
   };
 
-  const RoleTabs = () => (
-    <div className="mb-4">
-      <label className="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Account Type
-      </label>
-      <div className="flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
-        <button
-          type="button"
-          onClick={() => handleRoleChange("user")}
-          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
-            formData.role === "user"
-              ? "bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"
-              : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-          }`}
-        >
-          👤 User Account
-        </button>
-        <button
-          type="button"
-          onClick={() => handleRoleChange("admin")}
-          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
-            formData.role === "admin"
-              ? "bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"
-              : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-          }`}
-        >
-          ⚙️ Admin Account
-        </button>
-      </div>
-
-      <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
-        <p className="text-sm text-blue-700 dark:text-blue-300">
-          {formData.role === "user"
-            ? "User accounts require email verification."
-            : "Admin accounts require approval. Please complete the form below."}
-        </p>
-      </div>
-    </div>
-  );
-
-  // Admin Registration Success Screen
-  if (isAdminRegistered) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-100 via-white to-purple-50 px-4 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 sm:px-8">
-        <div className="relative w-full space-y-8 rounded-3xl border border-purple-200 bg-white/80 px-6 py-12 text-center shadow-2xl backdrop-blur-md dark:border-purple-700 dark:bg-white/10 sm:px-12 sm:py-16">
-          <div className="relative mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-purple-100 shadow-inner dark:bg-purple-900">
-            <div className="absolute -inset-1 animate-ping rounded-full bg-purple-400 opacity-20 blur-xl"></div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="z-10 h-14 w-14 text-purple-600 dark:text-purple-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-              />
-            </svg>
-          </div>
-
-          <h1 className="text-4xl font-extrabold tracking-tight text-purple-800 dark:text-purple-300">
-            Admin Account Created
-          </h1>
-          <p className="mx-auto w-full text-lg leading-relaxed text-gray-700 dark:text-gray-300 sm:w-3/4 md:w-2/3 lg:w-1/2">
-            Your request for a teacher account has been submitted. You will
-            receive an email once your profile has been reviewed and approved.
-          </p>
-
-          <Link href="/auth/login">
-            <button className="mt-2 inline-flex items-center justify-center rounded-full bg-purple-600 px-8 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 hover:bg-purple-700">
-              Go to Login
-            </button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // User Registration Success Screen (Email Verification)
+  // Registration Success Screen (Email Verification)
   if (isRegistered) {
     return (
-      //
-
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-100 via-white to-purple-50 px-4 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 sm:px-8">
         <div className="relative w-full space-y-8 rounded-3xl border border-purple-200 bg-white/80 px-6 py-12 text-center shadow-2xl backdrop-blur-md dark:border-purple-700 dark:bg-white/10 sm:px-12 sm:py-16">
           <div className="relative mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-purple-100 shadow-inner dark:bg-purple-900">
@@ -383,7 +282,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         </h2>
 
         <form onSubmit={handleSubmit} className="animate-fadeIn space-y-5">
-          {type === "register" && <RoleTabs />}
+          {/* {type === "register" && (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Creating a user account. Email verification required.
+              </p>
+            </div>
+          )} */}
 
           {type === "register" && (
             <div>
@@ -411,11 +316,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                 type="email"
                 value={formData.email}
                 readOnly
-                // placeholder={isVerifyingToken ? "Verifying..." : "Email from reset link"}
                 className="w-full cursor-not-allowed rounded-xl border border-gray-300 bg-gray-100 px-4 py-3 text-black focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
               />
             </div>
           )}
+
           {(type === "login" ||
             type === "register" ||
             type === "forgot-password") && (
@@ -450,51 +355,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   required
                 />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
-                  onClick={(e) => {
-                    const button = e.currentTarget;
-                    const input =
-                      button.previousElementSibling as HTMLInputElement;
-                    if (input && input.type === "password") {
-                      input.type = "text";
-                      button.innerHTML = `
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-            </svg>
-          `;
-                    } else {
-                      input.type = "password";
-                      button.innerHTML = `
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          `;
-                    }
-                  }}
-                >
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                </button>
+                <PasswordToggle />
               </div>
             </div>
           )}
@@ -513,51 +374,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   required
                 />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
-                  onClick={(e) => {
-                    const button = e.currentTarget;
-                    const input =
-                      button.previousElementSibling as HTMLInputElement;
-                    if (input && input.type === "password") {
-                      input.type = "text";
-                      button.innerHTML = `
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-          </svg>
-        `;
-                    } else {
-                      input.type = "password";
-                      button.innerHTML = `
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-        `;
-                    }
-                  }}
-                >
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                </button>
+                <PasswordToggle />
               </div>
             </div>
           )}
@@ -567,11 +384,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#02517b] via-[#0482b8] to-[#02517b] py-3 font-semibold text-white shadow-[0_0_25px_rgba(2,81,123,0.6)] transition-all duration-500 hover:scale-105 focus:outline-none"
           >
             <span className="relative z-10">{renderTitle()}</span>
-
-            {/* Animated gradient overlay */}
             <span className="animate-gradientFlow absolute inset-0 bg-[linear-gradient(270deg,#02517b,#0482b8,#02a7d0,#02517b)] bg-[length:400%_400%] opacity-80"></span>
-
-            {/* Glowing border animation */}
             <span className="animate-softGlow absolute inset-0 rounded-xl border border-[#02a7d0]/40"></span>
           </button>
         </form>
@@ -631,6 +444,56 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Password Toggle Component
+const PasswordToggle: React.FC = () => {
+  return (
+    <button
+      type="button"
+      className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
+      onClick={(e) => {
+        const button = e.currentTarget;
+        const input = button.previousElementSibling as HTMLInputElement;
+        if (input && input.type === "password") {
+          input.type = "text";
+          button.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            </svg>
+          `;
+        } else {
+          input.type = "password";
+          button.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          `;
+        }
+      }}
+    >
+      <svg
+        className="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+        />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+        />
+      </svg>
+    </button>
   );
 };
 
