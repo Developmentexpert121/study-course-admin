@@ -1,4 +1,8 @@
-import Cookies from 'js-cookie';
+// lib/api.ts
+'use client';
+
+import { getDecryptedItem, setEncryptedItem } from '@/utils/storageHelper';
+import { useMemo } from 'react';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
 
@@ -9,7 +13,7 @@ const handleResponse = async (response: Response) => {
   try {
     data = JSON.parse(rawText);
   } catch (err) {
-    console.error("❌ Failed to parse JSON. Raw response:", rawText);
+    console.log("❌ Failed to parse JSON. Raw response:", rawText);
     throw new Error("Failed to parse JSON response.");
   }
 
@@ -21,7 +25,7 @@ const handleResponse = async (response: Response) => {
 };
 
 const refreshAccessToken = async () => {
-  const refreshToken = Cookies.get("refreshToken");
+  const refreshToken = getDecryptedItem("refreshToken");
   if (!refreshToken) return null;
 
   try {
@@ -36,7 +40,7 @@ const refreshAccessToken = async () => {
     const json = await res.json();
 
     if (res.ok && json?.data?.accessToken) {
-      Cookies.set("token", json.data.accessToken, { expires: 1 });
+      setEncryptedItem("token", json.data.accessToken);
       return json.data.accessToken;
     }
 
@@ -47,52 +51,62 @@ const refreshAccessToken = async () => {
   }
 };
 
-const request = async (
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
-  url: string,
-  body?: any,
-  includeToken: boolean = true,
-  isFileUpload: boolean = false
-) => {
-  let token = Cookies.get("token");
-  let headers: any = includeToken && token
-    ? { Authorization: `Bearer ${token}` }
-    : {};
+// Create a stable request function outside of the hook
+const createRequest = () => {
+  return async (
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+    url: string,
+    body?: any,
+    includeToken: boolean = true,
+    isFileUpload: boolean = false
+  ) => {
+    let token: any = getDecryptedItem("token");
+    let headers: any = includeToken && token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
 
-  if (!isFileUpload) {
-    headers["Content-Type"] = "application/json";
-  }
-
-  const fetchOptions: RequestInit = {
-    method,
-    headers,
-    ...(body && { body: isFileUpload ? body : JSON.stringify(body) }),
-  };
-
-  let response = await fetch(`${BASE_URL}${url}`, fetchOptions);
-
-  if (response.status === 401 && includeToken) {
-    const newToken = await refreshAccessToken();
-    if (newToken) {
-      Cookies.set("token", newToken, { expires: 1 });
-      fetchOptions.headers = {
-        ...fetchOptions.headers,
-        Authorization: `Bearer ${newToken}`,
-      };
-      response = await fetch(`${BASE_URL}${url}`, fetchOptions);
+    if (!isFileUpload) {
+      headers["Content-Type"] = "application/json";
     }
-  }
 
-  return handleResponse(response);
+    const fetchOptions: RequestInit = {
+      method,
+      headers,
+      ...(body && { body: isFileUpload ? body : JSON.stringify(body) }),
+    };
+
+    let response = await fetch(`${BASE_URL}${url}`, fetchOptions);
+
+    if (response.status === 401 && includeToken) {
+      const newToken = await refreshAccessToken();
+      if (newToken) {
+        setEncryptedItem("token", newToken);
+        fetchOptions.headers = {
+          ...fetchOptions.headers,
+          Authorization: `Bearer ${newToken}`,
+        };
+        response = await fetch(`${BASE_URL}${url}`, fetchOptions);
+      }
+    }
+
+    return handleResponse(response);
+  };
 };
 
-const api = {
-  get: (url: string) => request("GET", url),
-  post: (url: string, body: any) => request("POST", url, body),
-  put: (url: string, body: any) => request("PUT", url, body),
-  patch: (url: string, body?: any) => request("PATCH", url, body), 
-  delete: (url: string) => request("DELETE", url),
-  postFile: (url: string, formData: FormData) => request("POST", url, formData, true, true),
-};
+export function useApiClient() {
+  // Use useMemo to create a stable API object
+  const api = useMemo(() => {
+    const request = createRequest();
 
-export default api;
+    return {
+      get: (url: string) => request("GET", url),
+      post: (url: string, body: any) => request("POST", url, body),
+      put: (url: string, body: any) => request("PUT", url, body),
+      patch: (url: string, body?: any) => request("PATCH", url, body),
+      delete: (url: string) => request("DELETE", url),
+      postFile: (url: string, formData: FormData) => request("POST", url, formData, true, true),
+    };
+  }, []); // Empty dependency array means this never changes
+
+  return api;
+}

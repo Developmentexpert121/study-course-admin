@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import api from "@/lib/api";
 import { toasterError, toasterSuccess } from "../core/Toaster";
-import Cookies from "js-cookie";
-
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { setEncryptedItem } from "@/utils/storageHelper";
+import { useApiClient } from "@/lib/api";
 interface AuthFormProps {
   type: "login" | "register" | "forgot-password" | "reset-password";
 }
@@ -20,8 +21,57 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     newPassword: "",
     role: "user", // Default role
   });
+  const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const searchParams = useSearchParams();
+  const api = useApiClient();
+
+  const [isVerifyingToken, setIsVerifyingToken] = useState(false);
+
+  useEffect(() => {
+    const verifyResetToken = async () => {
+      if (type === "reset-password") {
+        const token = searchParams.get("token");
+
+        if (token) {
+          setIsVerifyingToken(true);
+          try {
+            const response = await api.post("user/verify-reset-token", {
+              token,
+            });
+
+            if (response.success && response?.data?.data?.email) {
+              setFormData((prev) => ({
+                ...prev,
+                email: response?.data?.data?.email,
+              }));
+            } else {
+              toasterError(
+                "Invalid or expired reset link.",
+                3000,
+                "invalid-token",
+              );
+            }
+          } catch (error) {
+            console.error("Token verification failed:", error);
+            toasterError(
+              "Invalid reset link. Please request a new one.",
+              3000,
+              "token-error",
+            );
+          } finally {
+            setIsVerifyingToken(false);
+          }
+        }
+      }
+    };
+
+    verifyResetToken();
+  }, [type, searchParams]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -36,18 +86,30 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       const { password, confirmPassword } = formData;
 
       if (password.length < 6) {
-        toasterError("Password must be at least 6 characters.", 2000, "weak-password");
+        toasterError(
+          "Password must be at least 6 characters.",
+          2000,
+          "weak-password",
+        );
         return;
       }
 
       if (password !== confirmPassword) {
-        toasterError("Password and Confirm Password must match.", 2000, "password-mismatch");
+        toasterError(
+          "Password and Confirm Password must match.",
+          2000,
+          "password-mismatch",
+        );
         return;
       }
 
       const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
       if (!strongPasswordRegex.test(password)) {
-        toasterError("Password must include uppercase, lowercase, and a number.", 2000, "strong-password");
+        toasterError(
+          "Password must include uppercase, lowercase, and a number.",
+          2000,
+          "strong-password",
+        );
         return;
       }
     }
@@ -71,7 +133,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         payload = {
           email: formData.email,
           password: formData.password,
-          role: formData.role, // Send selected role for validation
         };
         break;
 
@@ -80,13 +141,33 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         payload = {
           email: formData.email,
         };
+        toasterSuccess("email is sended to youre account");
         break;
 
       case "reset-password":
         endpoint = "user/reset-password";
+        const resetToken = searchParams.get("token");
+
+        if (!resetToken) {
+          toasterError(
+            "Invalid reset link. Please request a new one.",
+            3000,
+            "no-token",
+          );
+          return;
+        } else {
+          toasterSuccess("Youre password is changed ", 2000);
+          router.push(`/login`);
+        }
+
+        if (formData.newPassword !== formData.confirmPassword) {
+          toasterError("Passwords do not match.", 2000, "password-mismatch");
+          return;
+        }
+
         payload = {
-          email: formData.email,
-          newPassword: formData.newPassword,
+          token: resetToken,
+          password: formData.newPassword,
         };
         break;
     }
@@ -97,7 +178,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       if (type === "register") {
         // Check if it's an admin registration
         if (formData.role === "admin") {
-          toasterSuccess("Admin account created successfully! You can now log in.");
+          toasterSuccess(
+            "Admin account created successfully! You can now log in.",
+          );
           setIsAdminRegistered(true);
         } else {
           toasterSuccess("Please check your email to verify your account!");
@@ -112,15 +195,23 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         const role = response.data?.data?.user?.role;
 
         if (token) {
-          Cookies.set("token", token, { expires: 1 });
-          Cookies.set("refreshToken", refreshToken, { expires: 7 });
-          Cookies.set("name", name, { expires: 7 });
-          Cookies.set("email", email, { expires: 7 });
-          Cookies.set("userId", userId, { expires: 7 });
-          Cookies.set("role", role, { expires: 7 });
+          setEncryptedItem("token", token);
+          setEncryptedItem("refreshToken", refreshToken);
+          setEncryptedItem("name", name);
+          setEncryptedItem("email", email);
+          setEncryptedItem("userId", userId);
+          setEncryptedItem("role", role);
         }
 
-        window.location.href = '/';
+        if (role === "admin") {
+          router.push("/admin/dashboard");
+        } else if (role === "Super-Admin") {
+          router.push("/super-admin/dashboard");
+        } else if (role === "user") {
+          router.push("/user/dashboard");
+        } else {
+          router.push("");
+        }
       }
     } else {
       const messageMap: Record<string, string> = {
@@ -130,14 +221,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         ERR_AUTH_TOKEN_EXPIRED: "Reset link expired. Please try again.",
         "Password Not Matched": "Password Not Matched",
         "Email Not Found": "Email Not Found",
-        "Please verify your email before logging in.": "Please verify your email before logging in.",
-        "This is a User account. Please select 'User Account' to login.": "This is a User account. Please select 'User Account' to login.",
-        "This is an Admin account. Please select 'Admin Account' to login.": "This is an Admin account. Please select 'Admin Account' to login."
+        "Please verify your email before logging in.":
+          "Please verify your email before logging in.",
+        "This is a User account. Please select 'User Account' to login.":
+          "This is a User account. Please select 'User Account' to login.",
+        "This is an Admin account. Please select 'Admin Account' to login.":
+          "This is an Admin account. Please select 'Admin Account' to login.",
       };
 
       const apiErrorCode = response?.error?.code || "";
       const errorMessage =
-        messageMap[apiErrorCode] || "Something went wrong. Please try again.";
+        messageMap[apiErrorCode] ||
+        "Your account is suspended. Please contact your teacher.";
 
       toasterError(errorMessage, 5000, "id");
     }
@@ -158,15 +253,17 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
   const RoleTabs = () => (
     <div className="mb-4">
-      <label className="block text-sm text-gray-700 dark:text-gray-300 mb-3">Account Type</label>
-      <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+      <label className="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        Account Type
+      </label>
+      <div className="flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
         <button
           type="button"
           onClick={() => handleRoleChange("user")}
-          className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
+          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
             formData.role === "user"
-              ? "bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm"
-              : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              ? "bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"
+              : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
           }`}
         >
           👤 User Account
@@ -174,22 +271,21 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         <button
           type="button"
           onClick={() => handleRoleChange("admin")}
-          className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
+          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
             formData.role === "admin"
-              ? "bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm"
-              : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              ? "bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"
+              : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
           }`}
         >
           ⚙️ Admin Account
         </button>
       </div>
-      
-      <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+
+      <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
         <p className="text-sm text-blue-700 dark:text-blue-300">
-          {formData.role === "user" 
-            ? "User accounts require email verification and have access to standard features."
-            : "Admin accounts are activated immediately with full system access."
-          }
+          {formData.role === "user"
+            ? "User accounts require email verification."
+            : "Admin accounts require approval. Please complete the form below."}
         </p>
       </div>
     </div>
@@ -198,22 +294,36 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   // Admin Registration Success Screen
   if (isAdminRegistered) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 px-4 sm:px-8">
-        <div className="relative bg-white/80 dark:bg-white/10 backdrop-blur-md border border-purple-200 dark:border-purple-700 rounded-3xl shadow-2xl px-6 py-12 sm:px-12 sm:py-16 w-full text-center space-y-8">
-          <div className="relative mx-auto w-28 h-28 rounded-full bg-purple-100 dark:bg-purple-900 shadow-inner flex items-center justify-center">
-            <div className="absolute -inset-1 bg-purple-400 opacity-20 blur-xl rounded-full animate-ping"></div>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14 text-purple-600 dark:text-purple-400 z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-100 via-white to-purple-50 px-4 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 sm:px-8">
+        <div className="relative w-full space-y-8 rounded-3xl border border-purple-200 bg-white/80 px-6 py-12 text-center shadow-2xl backdrop-blur-md dark:border-purple-700 dark:bg-white/10 sm:px-12 sm:py-16">
+          <div className="relative mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-purple-100 shadow-inner dark:bg-purple-900">
+            <div className="absolute -inset-1 animate-ping rounded-full bg-purple-400 opacity-20 blur-xl"></div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="z-10 h-14 w-14 text-purple-600 dark:text-purple-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+              />
             </svg>
           </div>
 
-          <h1 className="text-4xl font-extrabold text-purple-800 dark:text-purple-300 tracking-tight">Admin Account Created</h1>
-          <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed w-full sm:w-3/4 md:w-2/3 lg:w-1/2 mx-auto">
-            Your admin account has been created successfully! You can now log in immediately with full administrative privileges.
+          <h1 className="text-4xl font-extrabold tracking-tight text-purple-800 dark:text-purple-300">
+            Admin Account Created
+          </h1>
+          <p className="mx-auto w-full text-lg leading-relaxed text-gray-700 dark:text-gray-300 sm:w-3/4 md:w-2/3 lg:w-1/2">
+            Your request for a teacher account has been submitted. You will
+            receive an email once your profile has been reviewed and approved.
           </p>
 
           <Link href="/auth/login">
-            <button className="mt-2 inline-flex items-center justify-center px-8 py-3 bg-purple-600 text-white font-semibold rounded-full hover:bg-purple-700 hover:scale-105 transition-all duration-300 shadow-md">
+            <button className="mt-2 inline-flex items-center justify-center rounded-full bg-purple-600 px-8 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 hover:bg-purple-700">
               Go to Login
             </button>
           </Link>
@@ -225,101 +335,244 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   // User Registration Success Screen (Email Verification)
   if (isRegistered) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 px-4 sm:px-8">
-  <div className="relative bg-white/80 dark:bg-white/10 backdrop-blur-md border border-purple-200 dark:border-purple-700 rounded-3xl shadow-2xl px-6 py-12 sm:px-12 sm:py-16 w-full text-center space-y-8">
-    <div className="relative mx-auto w-28 h-28 rounded-full bg-purple-100 dark:bg-purple-900 shadow-inner flex items-center justify-center">
-      <div className="absolute -inset-1 bg-purple-400 opacity-20 blur-xl rounded-full animate-ping"></div>
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14 text-purple-600 dark:text-purple-400 z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-      </svg>
-    </div>
+      //
 
-    <h1 className="text-4xl font-extrabold text-purple-800 dark:text-purple-300 tracking-tight">Admin Account Created</h1>
-    <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed w-full sm:w-3/4 md:w-2/3 lg:w-1/2 mx-auto">
-      Your admin account request has been submitted successfully! Please wait for Super Admin approval. Your application will be reviewed soon and you'll get the result in your email.
-    </p>
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-100 via-white to-purple-50 px-4 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 sm:px-8">
+        <div className="relative w-full space-y-8 rounded-3xl border border-purple-200 bg-white/80 px-6 py-12 text-center shadow-2xl backdrop-blur-md dark:border-purple-700 dark:bg-white/10 sm:px-12 sm:py-16">
+          <div className="relative mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-purple-100 shadow-inner dark:bg-purple-900">
+            <div className="absolute -inset-1 animate-ping rounded-full bg-purple-400 opacity-20 blur-xl"></div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="z-10 h-14 w-14 text-purple-600 dark:text-purple-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+              />
+            </svg>
+          </div>
 
-    <Link href="/auth/login">
-      <button className="mt-2 inline-flex items-center justify-center px-8 py-3 bg-purple-600 text-white font-semibold rounded-full hover:bg-purple-700 hover:scale-105 transition-all duration-300 shadow-md">
-        Go to Login
-      </button>
-    </Link>
-  </div>
-</div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-purple-800 dark:text-purple-300">
+            Account Created Successfully!
+          </h1>
+          <p className="mx-auto w-full text-lg leading-relaxed text-gray-700 dark:text-gray-300 sm:w-3/4 md:w-2/3 lg:w-1/2">
+            Your account has been created! Please verify your email by clicking
+            the confirmation link we sent to your email address.
+          </p>
+
+          <Link href="/auth/login">
+            <button className="mt-2 inline-flex items-center justify-center rounded-full bg-purple-600 px-8 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 hover:bg-purple-700">
+              Go to Login
+            </button>
+          </Link>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-950 px-4">
-      <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8">
-        <h2 className="text-3xl font-extrabold text-center text-gray-800 dark:text-white mb-6">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#02517b] to-[#637c89de] px-4 dark:from-gray-900 dark:to-gray-950">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-900">
+        <h2 className="mb-6 text-center text-3xl font-extrabold text-gray-800 dark:text-white">
           {renderTitle()}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5 animate-fadeIn">
-          {(type === "login" || type === "register") && <RoleTabs />}
+        <form onSubmit={handleSubmit} className="animate-fadeIn space-y-5">
+          {type === "register" && <RoleTabs />}
 
-          {(type === "register" || type === "reset-password") && (
+          {type === "register" && (
             <div>
-              <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Full Name
+              </label>
               <input
                 name="name"
                 type="text"
                 placeholder="Enter your name"
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                 required
               />
             </div>
           )}
 
-          {(type === "login" || type === "register" || type === "forgot-password" || type === "reset-password") && (
+          {type === "reset-password" && (
             <div>
-              <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email
+              </label>
+              <input
+                name="email"
+                type="email"
+                value={formData.email}
+                readOnly
+                // placeholder={isVerifyingToken ? "Verifying..." : "Email from reset link"}
+                className="w-full cursor-not-allowed rounded-xl border border-gray-300 bg-gray-100 px-4 py-3 text-black focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              />
+            </div>
+          )}
+          {(type === "login" ||
+            type === "register" ||
+            type === "forgot-password") && (
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email Address
+              </label>
               <input
                 name="email"
                 type="email"
                 placeholder="Enter your email"
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                 required
               />
             </div>
           )}
 
-          {(type === "login" || type === "register" || type === "reset-password") && (
+          {(type === "login" ||
+            type === "register" ||
+            type === "reset-password") && (
             <div>
-              <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Password</label>
-              <input
-                name={type === "reset-password" ? "newPassword" : "password"}
-                type="password"
-                placeholder="Enter your password"
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  name={type === "reset-password" ? "newPassword" : "password"}
+                  type="password"
+                  placeholder="Enter your password"
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
+                  onClick={(e) => {
+                    const button = e.currentTarget;
+                    const input =
+                      button.previousElementSibling as HTMLInputElement;
+                    if (input && input.type === "password") {
+                      input.type = "text";
+                      button.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            </svg>
+          `;
+                    } else {
+                      input.type = "password";
+                      button.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          `;
+                    }
+                  }}
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
 
-          {type === "register" && (
+          {(type === "register" || type === "reset-password") && (
             <div>
-              <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label>
-              <input
-                name="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Confirm your password"
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
+                  onClick={(e) => {
+                    const button = e.currentTarget;
+                    const input =
+                      button.previousElementSibling as HTMLInputElement;
+                    if (input && input.type === "password") {
+                      input.type = "text";
+                      button.innerHTML = `
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+          </svg>
+        `;
+                    } else {
+                      input.type = "password";
+                      button.innerHTML = `
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        `;
+                    }
+                  }}
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition duration-300"
+            className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#02517b] via-[#0482b8] to-[#02517b] py-3 font-semibold text-white shadow-[0_0_25px_rgba(2,81,123,0.6)] transition-all duration-500 hover:scale-105 focus:outline-none"
           >
-            {renderTitle()}
+            <span className="relative z-10">{renderTitle()}</span>
+
+            {/* Animated gradient overlay */}
+            <span className="animate-gradientFlow absolute inset-0 bg-[linear-gradient(270deg,#02517b,#0482b8,#02a7d0,#02517b)] bg-[length:400%_400%] opacity-80"></span>
+
+            {/* Glowing border animation */}
+            <span className="animate-softGlow absolute inset-0 rounded-xl border border-[#02a7d0]/40"></span>
           </button>
         </form>
 
@@ -327,26 +580,52 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           {type === "login" && (
             <>
               Don&apos;t have an account?{" "}
-              <Link href="/auth/register" className="text-blue-600 hover:underline">Register</Link><br />
-              <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">Forgot Password?</Link>
+              <Link
+                href="/auth/register"
+                className="text-blue-600 hover:underline"
+              >
+                Register
+              </Link>
+              <br />
+              <Link
+                href="/auth/forgot-password"
+                className="text-blue-600 hover:underline"
+              >
+                Forgot Password?
+              </Link>
             </>
           )}
           {type === "register" && (
             <>
               Already have an account?{" "}
-              <Link href="/auth/login" className="text-blue-600 hover:underline">Login</Link>
+              <Link
+                href="/auth/login"
+                className="font-medium text-[#095075] hover:underline"
+              >
+                Login
+              </Link>
             </>
           )}
           {type === "forgot-password" && (
             <>
               Remember your password?{" "}
-              <Link href="/auth/login" className="text-blue-600 hover:underline">Login</Link>
+              <Link
+                href="/auth/login"
+                className="text-blue-600 hover:underline"
+              >
+                Login
+              </Link>
             </>
           )}
           {type === "reset-password" && (
             <>
               Go back to{" "}
-              <Link href="/auth/login" className="text-blue-600 hover:underline">Login</Link>
+              <Link
+                href="/auth/login"
+                className="text-blue-600 hover:underline"
+              >
+                Login
+              </Link>
             </>
           )}
         </div>

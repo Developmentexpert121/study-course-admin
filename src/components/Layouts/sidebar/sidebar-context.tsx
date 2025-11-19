@@ -11,6 +11,9 @@ type SidebarContextType = {
   setIsOpen: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
+  toggleMobileMenu: () => void;
 };
 
 const SidebarContext = createContext<SidebarContextType | null>(null);
@@ -30,19 +33,36 @@ export function SidebarProvider({
   children: React.ReactNode;
   defaultOpen?: boolean;
 }) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [isOpen, setIsOpen] = useState(false); // Start with false to avoid hydration mismatch
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    // Set initial state after mount to avoid hydration mismatch
     if (isMobile) {
       setIsOpen(false);
     } else {
-      setIsOpen(true);
+      setIsOpen(defaultOpen);
     }
-  }, [isMobile]);
+  }, [isMobile, defaultOpen]);
+
+  function toggleMobileMenu() {
+    setIsMobileMenuOpen((prev) => !prev);
+  }
 
   function toggleSidebar() {
-    setIsOpen((prev) => !prev);
+    if (isMobile) {
+      toggleMobileMenu();
+    } else {
+      setIsOpen((prev) => !prev);
+    }
+  }
+
+  // Don't render until mounted to avoid hydration mismatch
+  if (!mounted) {
+    return <>{children}</>;
   }
 
   return (
@@ -53,6 +73,9 @@ export function SidebarProvider({
         setIsOpen,
         isMobile,
         toggleSidebar,
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
+        toggleMobileMenu,
       }}
     >
       {children}

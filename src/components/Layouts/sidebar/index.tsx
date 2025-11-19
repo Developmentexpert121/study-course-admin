@@ -1,220 +1,40 @@
 "use client";
 
-import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { NAV_DATA } from "./data";
-import { ArrowLeftIcon, ChevronUp } from "./icons";
-import { MenuItem } from "./menu-item";
+import { SidebarHeader } from "./SidebarHeader";
+import { SidebarNavigation } from "./SidebarNavigation";
+import { SidebarUserProfile } from "./SidebarUserProfile";
+import { MobileHeader } from "./MobileHeader";
+import { MobileMenu } from "./MobileMenu";
 import { useSidebarContext } from "./sidebar-context";
-import Cookies from "js-cookie";
 
 export function Sidebar() {
-  const pathname = usePathname();
-  const { setIsOpen, isOpen, isMobile, toggleSidebar } = useSidebarContext();
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const [role, setRole] = useState<string | undefined>();
+  const { isMobile, isOpen, isMobileMenuOpen } = useSidebarContext();
 
-  const toggleExpanded = (title: string) => {
-    setExpandedItems((prev) => (prev.includes(title) ? [] : [title]));
-  };
-
-  useEffect(() => {
-    const r = Cookies.get('role');
-    setRole(r);
-  }, []);
-
-  useEffect(() => {
-    // Keep collapsible open, when it's subpage is active
-    NAV_DATA.some((section) => {
-      return section.items.some((item) => {
-        return item.items?.some((subItem) => {
-          if (subItem.url === pathname) {
-            if (!expandedItems.includes(item.title)) {
-              toggleExpanded(item.title);
-            }
-            return true;
-          }
-        });
-      });
-    });
-  }, [pathname]);
-
-  const isUser = role === 'user';
-  const isAdmin = role === 'admin';
-  const isSuperAdmin = role === 'Super-Admin';
-
-  // Filter navigation items based on user role and item type
-  const getFilteredNavData = () => {
-    return NAV_DATA.map((section) => ({
-      ...section,
-      items: section.items.filter((item) => {
-        // Items marked as 'both' are visible to all roles
-        if (item.type === 'both') {
-          return true;
-        }
-
-        // Super Admin can see everything (admin, user, Super-Admin, and both items)
-        if (isSuperAdmin) {
-          return item.type === 'Super-Admin';
-        }
-
-        // Admin can see admin and both items
-        if (isAdmin) {
-          return item.type === 'admin';
-        }
-
-        // User can see user and both items
-        if (isUser) {
-          return item.type === 'user';
-        }
-
-        // If no role, show nothing
-        return false;
-      })
-    })).filter((section) => section.items.length > 0); // Remove empty sections
-  };
-
-  const filteredNavData = getFilteredNavData();
-
-  // Determine home route based on role
-  const getHomeRoute = () => {
-    if (isSuperAdmin) return "/super-admin/dashboard";
-    if (isAdmin) return "/";
-    if (isUser) return "/user-dashboard";
-    return "/";
-  };
+  if (isMobile) {
+    return (
+      <>
+        <MobileHeader />
+        <MobileMenu />
+        {/* Add padding to account for fixed header */}
+        <div className="h-16"></div>
+      </>
+    );
+  }
 
   return (
-    <>
-      {/* Mobile Overlay */}
-      {isMobile && isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300"
-          onClick={() => setIsOpen(false)}
-          aria-hidden="true"
-        />
+    <aside
+      className={cn(
+        "group sticky top-0 h-screen overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out dark:border-gray-800 dark:bg-gray-dark",
+        isOpen ? "w-[290px]" : "w-[80px] hover:w-[290px]",
       )}
-
-      <aside
-        className={cn(
-          "max-w-[290px] overflow-hidden border-r border-gray-200 bg-white transition-[width] duration-200 ease-linear dark:border-gray-800 dark:bg-gray-dark",
-          isMobile ? "fixed bottom-0 top-0 z-50" : "sticky top-0 h-screen",
-          isOpen ? "w-full" : "w-0",
-        )}
-        aria-label="Main navigation"
-        aria-hidden={!isOpen}
-        inert={!isOpen}
-      >
-        <div className="flex h-full flex-col py-10 pl-[25px] pr-[7px]">
-          <div className="relative pr-4.5">
-            <Link
-              href={getHomeRoute()}
-              onClick={() => isMobile && toggleSidebar()}
-              className="px-0 py-2.5 min-[850px]:py-0"
-            >
-              <Logo />
-            </Link>
-
-            {isMobile && (
-              <button
-                onClick={toggleSidebar}
-                className="absolute left-3/4 right-4.5 top-1/2 -translate-y-1/2 text-right"
-              >
-                <span className="sr-only">Close Menu</span>
-                <ArrowLeftIcon className="ml-auto size-7" />
-              </button>
-            )}
-          </div>
-
-          {/* Navigation */}
-          <div className="custom-scrollbar mt-2 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
-            {filteredNavData.map((section) => (
-              <div key={section.label} className="mb-6">
-                <h2 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">
-                  {section.label}
-                </h2>
-
-                <nav role="navigation" aria-label={section.label}>
-                  <ul className="space-y-2">
-                    {section.items.map((item) => (
-                      <li key={item.title}>
-                        {item.items && item.items.length > 0 ? (
-                          <div>
-                            <MenuItem
-                              isActive={item.items.some(
-                                ({ url }) => url === pathname,
-                              )}
-                              onClick={() => toggleExpanded(item.title)}
-                            >
-                              <item.icon
-                                className="size-6 shrink-0"
-                                aria-hidden="true"
-                              />
-
-                              <span>{item.title}</span>
-
-                              <ChevronUp
-                                className={cn(
-                                  "ml-auto rotate-180 transition-transform duration-200",
-                                  expandedItems.includes(item.title) &&
-                                    "rotate-0",
-                                )}
-                                aria-hidden="true"
-                              />
-                            </MenuItem>
-
-                            {expandedItems.includes(item.title) && (
-                              <ul
-                                className="ml-9 mr-0 space-y-1.5 pb-[15px] pr-0 pt-2"
-                                role="menu"
-                              >
-                                {item.items.map((subItem) => (
-                                  <li key={subItem.title} role="none">
-                                    <MenuItem
-                                      as="link"
-                                      href={subItem.url}
-                                      isActive={pathname === subItem.url}
-                                    >
-                                      <span>{subItem.title}</span>
-                                    </MenuItem>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        ) : (
-                          (() => {
-                            const href = item.url || "/" + item.title.toLowerCase().split(" ").join("-");
-
-                            return (
-                              <MenuItem
-                                className="flex items-center gap-3 py-3"
-                                as="link"
-                                href={href}
-                                isActive={pathname === href}
-                              >
-                                <item.icon
-                                  className="size-6 shrink-0"
-                                  aria-hidden="true"
-                                />
-
-                                <span>{item.title}</span>
-                              </MenuItem>
-                            );
-                          })()
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
-              </div>
-            ))}
-          </div>
-        </div>
-      </aside>
-    </>
+      aria-label="Main navigation"
+    >
+      <div className="flex h-full flex-col py-5 pl-[25px] pr-[7px]">
+        <SidebarHeader />
+        <SidebarNavigation />
+        <SidebarUserProfile />
+      </div>
+    </aside>
   );
 }

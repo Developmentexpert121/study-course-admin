@@ -4,113 +4,131 @@ export const NAV_DATA = [
   {
     label: "MAIN MENU",
     items: [
-      // User-specific items
       {
-        title: "Home",
-        url: "/",
-        icon: Icons.User,
+        title: "Dashboard",
+        url: "/user/dashboard",
+        icon: Icons.HomeIcon,
         items: [],
         type: "user",
       },
       {
-        title: "Course",
-        url: "/user-panel/courses",
-        icon: Icons.User,
+        title: "My Courses",
+        url: "/user/courses",
+        icon: Icons.BookOpen,
+        items: [],
+        type: "user",
+      },
+      // {
+      //   title: "Learning Path",
+      //   url: "/user/learning-path",
+      //   icon: Icons.Target,
+      //   items: [],
+      //   type: "user",
+      // },
+      {
+        title: "Wishlist",
+        url: "/user/wishlist",
+        icon: Icons.Heart,
+        items: [],
+        type: "user",
+      },
+      {
+        title: "Certificates",
+        url: "/user/certificates",
+        icon: Icons.Award,
         items: [],
         type: "user",
       },
 
-      // Admin-specific items
       {
         title: "Dashboard",
         icon: Icons.HomeIcon,
-        url: "/",
+        url: "/admin/dashboard",
         items: [],
         type: "admin",
       },
       {
         title: "COURSES",
-        url: "/courses",
+        url: "/admin/courses",
         icon: Icons.Calendar,
         items: [],
         type: "admin",
       },
       {
-        title: "CHAPTERS",
-        url: "/add-chapter",
+        title: "COURSES ENANGEMENT",
+        url: "/admin/enangement",
         icon: Icons.Calendar,
         items: [],
-        type: "admin",
-      },
-      {
-        title: "MCQ",
-        url: "/add-mcq",
-        icon: Icons.Calendar,
-        items: [],
-        type: "admin",
-      },
-      {
-        title: "USER DETAILS",
-        icon: Icons.Alphabet,
-        items: [
-          {
-            title: "User List",
-            url: "/users",
-          },
-          {
-            title: "User Details",
-            url: "/users/user-details",
-          },
-        ],
         type: "admin",
       },
 
-      // Super Admin-specific items
+      // Super Admin items (keep existing)
       {
-        title: "Super Admin Dashboard",
+        title: "Dashboard",
         url: "/super-admin/dashboard",
         icon: Icons.HomeIcon,
         items: [],
         type: "Super-Admin",
       },
       {
-        title: "Manage Admins",
-        url: "/super-admin/request-admins",
+        title: "Admins",
+        url: "/super-admin/admins-requests",
         icon: Icons.User,
         items: [],
         type: "Super-Admin",
       },
+
       {
-        title: "System Settings",
-        url: "/super-admin/settings",
+        title: "User",
+        url: "/super-admin/all-user",
+        icon: Icons.User,
+        items: [],
+        type: "Super-Admin",
+      },
+
+      // // Common items for all users
+      // {
+      //   title: "Profile",
+      //   url: "/view-profile",
+      //   icon: Icons.User,
+      //   items: [],
+      //   type: "both",
+      // },
+
+
+
+
+      {
+        title: "Courses",
+        url: "/super-admin/courses",
         icon: Icons.Calendar,
         items: [],
         type: "Super-Admin",
       },
+
       {
-        title: "All Users",
-        url: "/super-admin/all-users",
-        icon: Icons.Alphabet,
+        title: "Activity Logs",
+        url: "/super-admin/audit-logs",
+        icon: Icons.Calendar,
+        items: [],
+        type: "Super-Admin",
+      },
+      // {
+      //   title: "Rating",
+      //   url: "/super-admin/rating",
+      //   icon: Icons.Calendar,
+      //   items: [],
+      //   type: "Super-Admin",
+      // },
+
+      {
+        title: "Newsletter",
+        url: "/super-admin/mails",
+        icon: Icons.Calendar,
         items: [],
         type: "Super-Admin",
       },
 
-      // Common items for all roles
-      {
-        title: "Profile",
-        url: "/profile",
-        icon: Icons.User,
-        items: [],
-        type: "both",
-      },
-
-       {
-        title: "Modules",
-        url: "/admin-panel/Modules",
-        icon: Icons.User,
-        items: [],
-        type: "admin",
-      },
     ],
   },
 ];
