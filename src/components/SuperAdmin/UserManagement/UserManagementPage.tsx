@@ -1,26 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/store";
-import {
-  fetchUsers,
-  setPage,
-  setSearch,
-  setVerificationStatus,
-  setRoleId,
-} from "../../../store/slices/adminslice/all-user-details";
+import { useAppDispatch } from "@/store";
 import {
   activateUser,
   deactivateUser,
 } from "../../../store/slices/adminslice/userManagement";
-import { useApiClient } from "@/lib/api";
+import { setPage } from "../../../store/slices/adminslice/all-user-details";
 import UserManagementHeader from "./UserManagementHeader";
 import SearchFilterSection from "./SearchFilterSection";
 import StatsCards from "./StatsCards";
 import UsersTable from "./UsersTable";
 import PaginationControls from "./PaginationControls";
 import CreateUserModal from "./CreateUserModal";
+import { useUserManagement } from "@/hooks/useUserManagement";
 
 interface UserManagementPageProps {
   className?: string;
@@ -39,16 +33,38 @@ export default function UserManagementPage({
 }: UserManagementPageProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const api = useApiClient();
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [userRole, setUserRole] = useState<any>(null);
-  const [availableRoles, setAvailableRoles] = useState<any[]>([]); // For Admin page role selection
-  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null); // For Admin page
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [processingUserId, setProcessingUserId] = useState<string | null>(null);
-  const [localSearchTerm, setLocalSearchTerm] = useState("");
-  const [localVerificationStatus, setLocalVerificationStatus] = useState("all");
+  // Use the custom hook - ADD localAccountStatus and setLocalAccountStatus
+  const {
+    // State
+    isCreateModalOpen,
+    setIsCreateModalOpen,
+    userRole,
+    availableRoles,
+    selectedRoleId,
+    isInitialLoad,
+    processingUserId,
+    setProcessingUserId,
+    localSearchTerm,
+    setLocalSearchTerm,
+    localAccountStatus, // ADD THIS
+    setLocalAccountStatus, // ADD THIS
+
+    // Redux state
+    usersState,
+
+    // Memoized values
+    totalCount,
+    activeCount,
+    inactiveCount,
+
+    // Handlers
+    handleRoleChange,
+    handleSearch,
+    handleClearSearch,
+    handleKeyPress,
+    refreshUsers,
+  } = useUserManagement({ roleName });
 
   const {
     users,
@@ -57,160 +73,12 @@ export default function UserManagementPage({
     loading,
     error,
     searchTerm,
-    verificationStatus,
-    totalUsers,
-    activeUsers,
-  } = useAppSelector((state) => state.users);
+    accountStatus,
+  } = usersState; // ADD accountStatus here
 
-  const limit = 5;
-
-  // Define excluded roles for Admin page
-  const EXCLUDED_ROLES = ["Super-Admin", "Student", "Teacher"];
-
-  // Fetch roles with filtering for Admin role
-  // Fetch roles with filtering for Admin role
-  const fetchRoles = async () => {
-    try {
-      console.log("Fetching roles...");
-      const response = await api.get("roles");
-      console.log("Roles API Response:", response);
-
-      if (response.success) {
-        console.log("All roles:", response.data.data);
-
-        // In the fetchRoles function, update the Admin section:
-        if (roleName === "Admin") {
-          // For Admin page, get all roles except excluded ones
-          const filteredRoles = response.data.data.filter(
-            (role: any) => !EXCLUDED_ROLES.includes(role.name),
-          );
-          console.log("Filtered roles for Admin:", filteredRoles);
-
-          setAvailableRoles(filteredRoles);
-
-          // Set the first available role as default selection
-          if (filteredRoles.length > 0) {
-            const defaultRoleId = selectedRoleId || filteredRoles[0].id;
-            setSelectedRoleId(defaultRoleId);
-            const defaultRole =
-              filteredRoles.find((role: any) => role.id === defaultRoleId) ||
-              filteredRoles[0];
-            setUserRole(defaultRole);
-            dispatch(setRoleId(defaultRoleId));
-            console.log("Default role set to:", defaultRole);
-          } else {
-            console.log("No roles available for Admin page");
-          }
-        } else {
-          // For Student and Teacher, get the specific role
-          const role = response.data.data.find(
-            (role: any) => role.name === roleName,
-          );
-          console.log(`Found ${roleName} role:`, role);
-          setUserRole(role);
-          if (role) {
-            dispatch(setRoleId(role.id));
-          }
-        }
-      }
-    } catch (error) {
-      console.error(`Failed to fetch roles:`, error);
-    }
-  };
-
-  // Calculate stats
-  const totalCount = totalUsers || 0;
-  const activeCount = activeUsers || 0;
-  const inactiveCount = totalCount - activeUsers || 0;
-
-  // Fetch roles on component mount
-  useEffect(() => {
-    fetchRoles();
-  }, []);
-
-  // Handle role selection change for Admin page
-  const handleRoleChange = (roleId: string) => {
-    console.log("=== ROLE CHANGE IN PARENT ===");
-    console.log("New roleId:", roleId);
-    console.log("Available roles:", availableRoles);
-
-    if (!roleId) {
-      console.error("No roleId provided");
-      return;
-    }
-
-    const selectedRole = availableRoles.find((role) => role.id === roleId);
-    console.log("Found role:", selectedRole);
-
-    if (selectedRole) {
-      setSelectedRoleId(roleId);
-      setUserRole(selectedRole);
-      dispatch(setRoleId(roleId));
-      dispatch(setPage(1)); // Reset to first page when role changes
-
-      // Force refresh users with new role
-      dispatch(
-        fetchUsers({
-          page: 1, // Always start from page 1 when role changes
-          limit,
-          search: searchTerm,
-          verificationStatus,
-          role_id: roleId,
-        }),
-      );
-    } else {
-      console.error("Role not found in availableRoles");
-    }
-  };
-
-  // Fetch users when dependencies change
-  useEffect(() => {
-    if (roleName === "Admin" ? selectedRoleId : userRole) {
-      dispatch(
-        fetchUsers({
-          page: currentPage,
-          limit,
-          search: searchTerm,
-          verificationStatus,
-          role_id: roleName === "Admin" ? selectedRoleId : userRole?.id,
-        }),
-      );
-      setIsInitialLoad(false);
-    }
-  }, [
-    dispatch,
-    currentPage,
-    limit,
-    searchTerm,
-    verificationStatus,
-    userRole,
-    selectedRoleId,
-    roleName,
-  ]);
-
-  // Handlers
+  // Handlers that need dispatch
   const handlePageChange = (page: number) => {
     dispatch(setPage(page));
-  };
-
-  const handleSearch = () => {
-    dispatch(setPage(1));
-    dispatch(setSearch(localSearchTerm));
-    dispatch(setVerificationStatus(localVerificationStatus));
-  };
-
-  const handleClearSearch = () => {
-    setLocalSearchTerm("");
-    setLocalVerificationStatus("all");
-    dispatch(setSearch(""));
-    dispatch(setVerificationStatus("all"));
-    dispatch(setPage(1));
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
   };
 
   const handleDeactivateUser = async (e: React.MouseEvent, userId: string) => {
@@ -250,25 +118,11 @@ export default function UserManagementPage({
   };
 
   const handleViewDetails = (userId: string) => {
-    router.push(`/super-admin/admins/view-details?id=${userId}`);
+    router.push(`/platform-manager/admins/view-details?id=${userId}`);
   };
 
   const handleUserCreated = () => {
     refreshUsers();
-  };
-
-  const refreshUsers = () => {
-    if (roleName === "Admin" ? selectedRoleId : userRole) {
-      dispatch(
-        fetchUsers({
-          page: currentPage,
-          limit,
-          search: searchTerm,
-          verificationStatus,
-          role_id: roleName === "Admin" ? selectedRoleId : userRole?.id,
-        }),
-      );
-    }
   };
 
   const formatDate = (dateString: any) => {
@@ -325,31 +179,31 @@ export default function UserManagementPage({
           onRefresh={refreshUsers}
           loading={loading}
           onCreateUser={() => setIsCreateModalOpen(true)}
-          // Make sure these are passed correctly:
           availableRoles={roleName === "Admin" ? availableRoles : []}
           selectedRoleId={selectedRoleId}
           onRoleChange={handleRoleChange}
         />
+
         {/* Search and Filter Section */}
         <SearchFilterSection
           searchTerm={localSearchTerm}
           onSearchTermChange={setLocalSearchTerm}
-          verificationStatus={localVerificationStatus}
-          onVerificationStatusChange={setLocalVerificationStatus}
+          accountStatus={localAccountStatus} // Now this will work
+          onAccountStatusChange={setLocalAccountStatus} // Now this will work
           onSearch={handleSearch}
           onClearSearch={handleClearSearch}
           onKeyPress={handleKeyPress}
           loading={loading}
           hasRole={roleName === "Admin" ? !!selectedRoleId : !!userRole}
           roleName={roleName}
-          hasActiveFilters={!!searchTerm || verificationStatus !== "all"}
+          hasActiveFilters={!!searchTerm || accountStatus !== "all"} // Use accountStatus from destructured usersState
           activeSearchTerm={searchTerm}
-          activeVerificationStatus={verificationStatus}
-          // Pass additional props for Admin page
+          activeAccountStatus={accountStatus} // Use accountStatus from destructured usersState
           availableRoles={roleName === "Admin" ? availableRoles : []}
           selectedRoleId={selectedRoleId}
           onRoleChange={handleRoleChange}
         />
+
         {/* Stats Cards */}
         <StatsCards
           totalCount={totalCount}
@@ -358,6 +212,7 @@ export default function UserManagementPage({
           roleName={roleName}
           icon={icon}
         />
+
         {/* Users Table */}
         <UsersTable
           users={users}
@@ -370,9 +225,9 @@ export default function UserManagementPage({
           onViewDetails={handleViewDetails}
           onClearSearch={handleClearSearch}
           formatDate={formatDate}
-          // Pass current role for display
           currentRole={userRole}
         />
+
         {/* Pagination Controls */}
         {totalPages > 1 && (
           <PaginationControls
@@ -383,6 +238,7 @@ export default function UserManagementPage({
             onPageChange={handlePageChange}
           />
         )}
+
         {/* Create User Modal */}
         <CreateUserModal
           isOpen={isCreateModalOpen}
@@ -390,7 +246,6 @@ export default function UserManagementPage({
           onUserCreated={handleUserCreated}
           userRole={userRole}
           roleName={roleName}
-          // Pass available roles for Admin page
           availableRoles={roleName === "Admin" ? availableRoles : []}
           selectedRoleId={selectedRoleId}
           onRoleChange={handleRoleChange}

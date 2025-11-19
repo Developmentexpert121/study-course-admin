@@ -57,8 +57,6 @@ export default function CourseLearnPage() {
           block: "start",
         });
       } else {
-        console.log("❌ [FRONTEND] Reviews section ref not found");
-
         const reviewsElement = document.getElementById("reviews-section");
         if (reviewsElement) {
           reviewsElement.scrollIntoView({
@@ -102,8 +100,6 @@ export default function CourseLearnPage() {
         throw new Error("User not authenticated");
       }
 
-      console.log("🔄 [FRONTEND] Loading course data...", { courseId, userId });
-
       const courseResponse = await api.get(
         `course/${courseId}/full-details?user_id=${userId}`,
       );
@@ -122,10 +118,6 @@ export default function CourseLearnPage() {
       let updatedCourse;
 
       if (progressResponse.success) {
-        console.log(
-          "📊 [FRONTEND] Progress data loaded:",
-          progressResponse.data.data,
-        );
         setCourseProgress(progressResponse.data.data);
 
         updatedCourse = applyProgressToCourse(
@@ -133,7 +125,6 @@ export default function CourseLearnPage() {
           progressResponse.data.data,
         );
       } else {
-        console.log("📊 [FRONTEND] No progress data found, initializing...");
         await initializeProgress({
           course_id: courseId,
           user_id: userId,
@@ -165,10 +156,6 @@ export default function CourseLearnPage() {
 
   const applyProgressToCourse = (courseData: any, progressData: any) => {
     if (!courseData?.chapters) return courseData;
-
-    console.log(
-      "🔓 [FRONTEND] Applying progress to unlock chapters and lessons...",
-    );
 
     const updatedCourse = JSON.parse(JSON.stringify(courseData));
 
@@ -241,19 +228,8 @@ export default function CourseLearnPage() {
       return;
     }
 
-    console.log("🎯 [FRONTEND] Lesson clicked:", {
-      lessonId: lesson.id,
-      chapterId: chapter.id,
-      lessonCompleted: lesson.completed,
-      lessonLocked: lesson.locked,
-      chapterTitle: chapter.title,
-      lessonTitle: lesson.title,
-    });
-
     setSelectedLesson({ chapter, lesson });
   };
-
-  // Add this function to sync progress after lesson completion
   const syncChapterProgress = async (chapterId: number) => {
     try {
       const userId = getUserId();
@@ -291,12 +267,6 @@ export default function CourseLearnPage() {
                 all_lessons_completed: chapterProgress.lesson_completed,
                 can_attempt_mcq: chapterProgress.can_attempt_mcq,
               };
-
-              console.log("🔄 [FRONTEND] Synced chapter progress:", {
-                chapterId,
-                canAttemptMCQ: chapterProgress.can_attempt_mcq,
-                lessonCompleted: chapterProgress.lesson_completed,
-              });
             }
 
             return updatedCourse;
@@ -386,10 +356,7 @@ export default function CourseLearnPage() {
     }
   };
 
-  // FIXED: Simplified MCQ submission handler with automatic modal close
   const enhancedSubmitMCQTest = async () => {
-    console.log("🔄 [FRONTEND] Starting enhanced MCQ submission...");
-
     try {
       const result: any = await submitMCQTest();
 
@@ -423,9 +390,6 @@ export default function CourseLearnPage() {
                 if (nextChapter.lessons?.[0]) {
                   nextChapter.lessons[0].locked = false;
                 }
-                console.log(
-                  `🔓 [FRONTEND] Unlocked next chapter: ${nextChapter.title}`,
-                );
               }
             }
 

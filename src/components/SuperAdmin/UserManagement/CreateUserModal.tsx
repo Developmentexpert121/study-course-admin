@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { XCircle, Loader2, Users, BookOpen, Shield } from "lucide-react";
 import { useApiClient } from "@/lib/api";
 
@@ -8,11 +8,46 @@ interface CreateUserModalProps {
   onUserCreated: () => void;
   userRole: any;
   roleName: string;
-  // New props for Admin page
   availableRoles?: any[];
   selectedRoleId?: string | null;
   onRoleChange?: (roleId: string) => void;
 }
+
+interface FormData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+// Constants
+const PASSWORD_CONFIG = {
+  length: 12,
+  charset:
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*",
+};
+
+// Role configuration
+const ROLE_CONFIG = {
+  Student: {
+    icon: Users,
+    color: "blue",
+    description:
+      "This user will be created as a Student with course enrollment and learning permissions.",
+  },
+  Teacher: {
+    icon: BookOpen,
+    color: "purple",
+    description:
+      "This user will be created as a Teacher with course creation and management permissions.",
+  },
+  Admin: {
+    icon: Shield,
+    color: "green",
+    description: (role: any) =>
+      `This user will be created as a ${role?.name || "Admin"} with administrative permissions.`,
+  },
+} as const;
 
 export default function CreateUserModal({
   isOpen,
@@ -24,7 +59,7 @@ export default function CreateUserModal({
   selectedRoleId,
   onRoleChange,
 }: CreateUserModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     username: "",
     email: "",
     password: "",
@@ -33,85 +68,72 @@ export default function CreateUserModal({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<any>(userRole);
   const api = useApiClient();
+  // Memoized role configuration
+  const roleConfig = useMemo(
+    () =>
+      ROLE_CONFIG[roleName as keyof typeof ROLE_CONFIG] || ROLE_CONFIG.Admin,
+    [roleName],
+  );
 
-  // Update selectedRole when userRole or selectedRoleId changes
+  // Update selectedRole when dependencies change
   useEffect(() => {
     if (roleName === "Admin" && availableRoles.length > 0) {
-      if (selectedRoleId) {
-        const role = availableRoles.find((r) => r.id === selectedRoleId);
-        if (role) {
-          setSelectedRole(role);
-        }
-      } else if (availableRoles.length > 0) {
-        // Default to first available role
-        setSelectedRole(availableRoles[0]);
-      }
+      const role = selectedRoleId
+        ? availableRoles.find((r) => r.id == selectedRoleId)
+        : availableRoles[0];
+
+      setSelectedRole(role || availableRoles[0]);
     } else {
-      // For Student/Teacher, use the userRole prop
       setSelectedRole(userRole);
     }
   }, [userRole, selectedRoleId, availableRoles, roleName]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // Handlers
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
-  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const roleId = e.target.value;
-    if (roleId) {
-      const role = availableRoles.find((r) => r.id === roleId);
-      if (role) {
-        setSelectedRole(role);
-        onRoleChange?.(roleId);
-      }
-    }
-  };
-
-  const generateRandomPassword = () => {
-    const length = 12;
-    const charset =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+  const generateRandomPassword = useCallback(() => {
     let password = "";
-    for (let i = 0; i < length; i++) {
-      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    for (let i = 0; i < PASSWORD_CONFIG.length; i++) {
+      password += PASSWORD_CONFIG.charset.charAt(
+        Math.floor(Math.random() * PASSWORD_CONFIG.charset.length),
+      );
     }
     setFormData((prev) => ({
       ...prev,
       password,
       confirmPassword: password,
     }));
-  };
+  }, []);
+
+  const validateForm = useCallback((): boolean => {
+    if (!formData.username || !formData.email || !selectedRole) {
+      alert("Please fill all required fields and ensure role is selected");
+      return false;
+    }
+
+    if (formData.password.length < 6) {
+      alert("Password must be at least 6 characters");
+      return false;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match");
+      return false;
+    }
+
+    return true;
+  }, [formData, selectedRole]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("=== CREATE USER DEBUG ===");
-    console.log("Form Data:", formData);
-    console.log("Selected Role:", selectedRole);
-    console.log("Role Name:", roleName);
-
-    if (!formData.username || !formData.email || !selectedRole) {
-      console.log("Validation failed - missing fields or role");
-      alert(`Please fill all required fields and ensure role is selected`);
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      console.log("Validation failed - password too short");
-      alert("Password must be at least 6 characters");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      console.log("Validation failed - passwords don't match");
-      alert("Passwords do not match");
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
     try {
-      console.log("Sending API request with role_id:", selectedRole.id);
-
       const response = await api.post(`user/create`, {
         username: formData.username,
         email: formData.email,
@@ -120,11 +142,8 @@ export default function CreateUserModal({
         send_credentials: true,
       });
 
-      console.log("API Response:", response);
-
       if (response.success) {
         const createdRoleName = selectedRole.name;
-        console.log("User created successfully!");
         alert(
           `${createdRoleName} created successfully! Login credentials sent to email.`,
         );
@@ -137,90 +156,45 @@ export default function CreateUserModal({
         onUserCreated();
         onClose();
       } else {
-        console.error("API returned error:", response);
         alert(
           response.data?.message ||
             response.error?.message ||
-            `Failed to create user`,
+            "Failed to create user",
         );
       }
     } catch (error: any) {
-      console.error(`Create user error:`, error);
-      console.error("Error details:", error.response?.data || error.message);
-      alert(error.message || `Failed to create user`);
+      console.error("Create user error:", error);
+      alert(error.message || "Failed to create user");
     } finally {
       setIsLoading(false);
     }
   };
+  // Memoized computed values
+  const modalTitle = useMemo(
+    () =>
+      roleName == "Admin"
+        ? `Create New ${selectedRole?.name}`
+        : `Create New ${roleName}`,
+    [roleName, selectedRole],
+  );
 
+  const roleDescription = useMemo(
+    () =>
+      typeof roleConfig.description === "function"
+        ? roleConfig.description(selectedRole)
+        : roleConfig.description,
+    [roleConfig.description, selectedRole],
+  );
+
+  const RoleIcon = roleConfig.icon;
+
+  // Don't render if not open
   if (!isOpen) return null;
-
-  const getRoleIcon = () => {
-    switch (roleName) {
-      case "Student":
-        return <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
-      case "Teacher":
-        return (
-          <BookOpen className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-        );
-      case "Admin":
-        return (
-          <Shield className="h-4 w-4 text-green-600 dark:text-green-400" />
-        );
-      default:
-        return <Shield className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
-    }
-  };
-
-  const getRoleColor = () => {
-    switch (roleName) {
-      case "Student":
-        return "bg-blue-50 dark:bg-blue-900/20";
-      case "Teacher":
-        return "bg-purple-50 dark:bg-purple-900/20";
-      case "Admin":
-        return "bg-green-50 dark:bg-green-900/20";
-      default:
-        return "bg-gray-50 dark:bg-gray-900/20";
-    }
-  };
-
-  const getRoleTextColor = () => {
-    switch (roleName) {
-      case "Student":
-        return "text-blue-800 dark:text-blue-300";
-      case "Teacher":
-        return "text-purple-800 dark:text-purple-300";
-      case "Admin":
-        return "text-green-800 dark:text-green-300";
-      default:
-        return "text-gray-800 dark:text-gray-300";
-    }
-  };
-
-  const getRoleDescription = (role: any) => {
-    if (roleName === "Admin" && role) {
-      return `This user will be created as a ${role.name} with administrative permissions.`;
-    }
-
-    switch (roleName) {
-      case "Student":
-        return "This user will be created as a Student with course enrollment and learning permissions.";
-      case "Teacher":
-        return "This user will be created as a Teacher with course creation and management permissions.";
-      default:
-        return "This user will be created with the selected role permissions.";
-    }
-  };
-
-  const modalTitle =
-    roleName === "Admin"
-      ? `Create New ${selectedRole?.name || "Admin"}`
-      : `Create New ${roleName}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
+        {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
             {modalTitle}
@@ -228,23 +202,30 @@ export default function CreateUserModal({
           <button
             onClick={onClose}
             className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+            disabled={isLoading}
           >
             <XCircle className="h-6 w-6" />
           </button>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Role Selection for Admin Page */}
           {roleName === "Admin" && availableRoles.length > 0 && (
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="mb-4">
+              <label
+                htmlFor="role"
+                className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Select Role *
               </label>
               <select
-                value={selectedRole?.id || ""}
-                onChange={handleRoleChange}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                id="role"
+                value={selectedRoleId || ""}
+                onChange={(e) => onRoleChange?.(e.target.value)}
+                className="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 required
+                disabled={true}
               >
                 <option value="">Select a role</option>
                 {availableRoles.map((role) => (
@@ -255,7 +236,7 @@ export default function CreateUserModal({
               </select>
             </div>
           )}
-
+          {/* Username Field */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               {selectedRole?.name || roleName} Name *
@@ -268,9 +249,11 @@ export default function CreateUserModal({
               placeholder={`Enter ${selectedRole?.name?.toLowerCase() || roleName.toLowerCase()} name`}
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               required
+              disabled={isLoading}
             />
           </div>
 
+          {/* Email Field */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Email Address *
@@ -283,9 +266,11 @@ export default function CreateUserModal({
               placeholder="Enter email address"
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               required
+              disabled={isLoading}
             />
           </div>
 
+          {/* Password Field */}
           <div>
             <div className="mb-2 flex items-center justify-between">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -295,6 +280,7 @@ export default function CreateUserModal({
                 type="button"
                 onClick={generateRandomPassword}
                 className="text-xs text-blue-600 hover:underline dark:text-blue-400"
+                disabled={isLoading}
               >
                 Generate Random
               </button>
@@ -307,9 +293,12 @@ export default function CreateUserModal({
               placeholder="Enter password"
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               required
+              disabled={isLoading}
+              minLength={6}
             />
           </div>
 
+          {/* Confirm Password Field */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Confirm Password *
@@ -322,35 +311,45 @@ export default function CreateUserModal({
               placeholder="Confirm password"
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               required
+              disabled={isLoading}
             />
           </div>
 
+          {/* Role Info Card */}
           {selectedRole && (
-            <div className={`rounded-lg p-3 ${getRoleColor()}`}>
+            <div
+              className={`rounded-lg p-3 bg-${roleConfig.color}-50 dark:bg-${roleConfig.color}-900/20`}
+            >
               <div className="flex items-center gap-2">
-                {getRoleIcon()}
-                <span className={`text-sm font-medium ${getRoleTextColor()}`}>
+                <RoleIcon
+                  className={`h-4 w-4 text-${roleConfig.color}-600 dark:text-${roleConfig.color}-400`}
+                />
+                <span
+                  className={`text-sm font-medium text-${roleConfig.color}-800 dark:text-${roleConfig.color}-300`}
+                >
                   Role: {selectedRole.name}
                 </span>
               </div>
               <p
-                className={`mt-1 text-xs ${getRoleTextColor().replace("800", "700").replace("300", "400")}`}
+                className={`mt-1 text-xs text-${roleConfig.color}-700 dark:text-${roleConfig.color}-400`}
               >
-                {getRoleDescription(selectedRole)}
+                {roleDescription}
               </p>
               <p
-                className={`mt-1 text-xs ${getRoleTextColor().replace("800", "600").replace("300", "300")}`}
+                className={`mt-1 text-xs text-${roleConfig.color}-600 dark:text-${roleConfig.color}-300`}
               >
                 Role ID: {selectedRole.id}
               </p>
             </div>
           )}
 
+          {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
               className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+              disabled={isLoading}
             >
               Cancel
             </button>

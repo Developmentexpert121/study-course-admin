@@ -8,14 +8,19 @@ import { MobileHeader } from "./MobileHeader";
 import { MobileMenu } from "./MobileMenu";
 import { useSidebarContext } from "./sidebar-context";
 
-export function Sidebar() {
+interface SidebarProps {
+  role?: string;
+  permissions?: string[];
+}
+
+export function Sidebar({ role, permissions = [] }: SidebarProps) {
   const { isMobile, isOpen, isMobileMenuOpen } = useSidebarContext();
 
   if (isMobile) {
     return (
       <>
-        <MobileHeader />
-        <MobileMenu />
+        <MobileHeader role={role} permissions={permissions} />
+        <MobileMenu role={role} permissions={permissions} />
         {/* Add padding to account for fixed header */}
         <div className="h-16"></div>
       </>
@@ -32,8 +37,8 @@ export function Sidebar() {
     >
       <div className="flex h-full flex-col py-5 pl-[25px] pr-[7px]">
         <SidebarHeader />
-        <SidebarNavigation />
-        <SidebarUserProfile />
+        <SidebarNavigation role={role} permissions={permissions} />
+        <SidebarUserProfile role={role} />
       </div>
     </aside>
   );

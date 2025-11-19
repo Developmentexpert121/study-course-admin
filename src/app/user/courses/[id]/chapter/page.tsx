@@ -46,8 +46,6 @@ export default function Chapters({ className }: any) {
         `mcq/course-chapters-status?user_id=${userId}&course_id=${courseId}`,
       );
 
-      // Store the complete responses
-      console.log("------------", response?.data?.data?.chapters);
       setLoadingById(false);
       setChaptersByid(response?.data?.data?.chapters);
       // setpassedchapter(statusResponse?.data?.data)

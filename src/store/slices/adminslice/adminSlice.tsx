@@ -114,9 +114,9 @@ export const fetchAdmins = createAsyncThunk(
         );
       }
     } catch (err: any) {
-      if (err.response?.status === 403) {
+      if (err.response?.status === 403 || err.response?.status === 401) {
         return rejectWithValue("Session expired. Please login again.");
-      } else if (err.response?.status === 403) {
+      } else if (err.response?.status === 403 || err.response?.status === 401) {
         return rejectWithValue(
           "Access denied. Super Admin privileges required.",
         );

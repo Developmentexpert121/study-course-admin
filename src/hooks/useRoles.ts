@@ -11,8 +11,6 @@ export const useRoles = () => {
         const fetchRoles = async () => {
             try {
                 const response = await api.get('roles');
-
-                console.log(response)
                 if (response.success) {
                     setRoles(response.data || []);
                 }

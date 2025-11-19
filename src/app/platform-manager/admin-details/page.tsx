@@ -63,7 +63,9 @@ export default function UserCoursesPage() {
   }, [dispatch, userId]);
 
   const handleViewCourse = (courseId: any) => {
-    router.push(`/super-admin/admin-details/course-details?id=${courseId}`);
+    router.push(
+      `/platform-manager/admin-details/course-details?id=${courseId}`,
+    );
   };
 
   // Handle refresh
@@ -364,7 +366,7 @@ export default function UserCoursesPage() {
                           <button
                             onClick={() =>
                               router.push(
-                                `/super-admin/chapters?course=${course.title}&course_id=${course.id}`,
+                                `/platform-manager/chapters?course=${course.title}&course_id=${course.id}`,
                               )
                             }
                             className="inline-flex items-center rounded-lg border border-transparent bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-100 dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-500/30"

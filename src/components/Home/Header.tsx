@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
   // ✅ Role-based dashboard routing
   const handleDashboardRedirect = () => {
     if (role === "super-admin" || role === "Super-Admin") {
-      router.push("/super-admin/dashboard");
+      router.push("/platform-manager/dashboard");
     } else if (role === "Teacher") {
       router.push("/admin/dashboard");
     } else if (role === "Student") {

@@ -10,7 +10,6 @@ const handleResponse = async (response: Response) => {
   try {
     data = JSON.parse(rawText);
   } catch (err) {
-    console.log("❌ Failed to parse JSON. Raw response:", rawText);
     throw new Error("Failed to parse JSON response.");
   }
 
@@ -74,7 +73,7 @@ export const reduxApiClient = {
 
     let response = await fetch(`${BASE_URL}${url}`, fetchOptions);
 
-    if (response.status === 403 && includeToken) {
+    if ((response.status === 403 || response?.status === 401) && includeToken) {
       const newToken = await refreshAccessToken();
       if (newToken) {
         setEncryptedItem("token", newToken);

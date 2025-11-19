@@ -37,7 +37,7 @@ export default function AccessDenied() {
       case "Admin":
         return "/admin/dashboard";
       case "super-admin":
-        return "/super-admin/dashboard";
+        return "/platform-manager/dashboard";
       case "Student":
         return "/user/dashboard";
       default:

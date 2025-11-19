@@ -192,12 +192,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         }
 
         // Redirect based on role
+        // In your AuthForm component, update the redirect section:
         if (role === "Super-Admin") {
-          router.push("/super-admin/dashboard");
+          router.push("/platform-manager/dashboard");
         } else if (role === "Teacher") {
           router.push("/admin/dashboard");
-        } else {
+        } else if (role === "Student") {
           router.push("/user/dashboard");
+        } else {
+          router.push("/platform-manager/dashboard");
         }
       }
     } else {
@@ -210,6 +213,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         "Email Not Found": "Email Not Found",
         "Please verify your email before logging in.":
           "Please verify your email before logging in.",
+        "Your account has been deactivated. Please contact administrator.":
+          "Your account has been deactivated. Please contact administrator.",
       };
 
       const apiErrorCode = response?.error?.code || "";

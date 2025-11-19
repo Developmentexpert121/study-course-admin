@@ -97,12 +97,7 @@ export const { clearError, clearAdminStats } = adminDashboardSlice.actions;
 // Selectors
 export const selectAdminCourseStats = (state: any) =>
   // state?.instructorDashboard?.data;
-  {
-    console.log(
-      "welcome to state ",
-      state?.instructorDashboard?.data?.data?.all_courses,
-    );
-  };
+  {};
 
 export const selectAdminCourseStatsLoading = (state: any) =>
   state?.instructorDashboard?.data?.loading;

@@ -1,10 +1,23 @@
 import * as Icons from "../icons";
 
-export const getDynamicNavData = (roles: any) => {
+export const getDynamicNavData = (roles: any, userPermissions: any[] = [], currentRole?: string) => {
   const rolesArray = Array.isArray(roles) ? roles : [];
 
+  // Define core roles that have their own sections
+  const coreRoles = ['Student', 'Teacher', 'Super-Admin', 'HR'];
+
+  // If current role is not a core role, use Super-Admin navigation
+  const effectiveRole = currentRole && !coreRoles.includes(currentRole) ? 'Super-Admin' : currentRole;
+
+  console.log('Navigation Debug:', {
+    currentRole,
+    effectiveRole,
+    userPermissions,
+    rolesArray
+  });
 
   const baseNavItems = [
+    // Student permissions
     {
       title: "Dashboard",
       url: "/user/dashboard",
@@ -71,85 +84,122 @@ export const getDynamicNavData = (roles: any) => {
       roles: ["Teacher"]
     },
 
-    // Super Admin permissions
+    // Super Admin permissions - Also used for HR and other non-core roles
     {
       title: "Dashboard",
-      url: "/super-admin/dashboard",
+      url: "/platform-manager/dashboard",
       icon: Icons.HomeIcon,
       items: [],
       type: "Super-Admin",
       permissions: ["dashboard"],
-      roles: ["Super-Admin"]
+      roles: ["Super-Admin", "HR", "Management Role"]
     },
     {
       title: "Manage Roles",
-      url: "/super-admin/manage-roles",
+      url: "/platform-manager/manage-roles",
       icon: Icons.HomeIcon,
       items: [],
       type: "Super-Admin",
       permissions: ["manageRoles"],
-      roles: ["Super-Admin"]
+      roles: ["Super-Admin", "HR", "Management Role"]
+    },
+    {
+      title: "Certificates",
+      url: "/platform-manager/certificates",
+      icon: Icons.Award,
+      items: [],
+      type: "Super-Admin",
+      permissions: ["certificates"],
+      roles: ["Super-Admin", "HR", "Management Role"]
     },
     {
       title: "Admins",
-      url: "/super-admin/admins",
+      url: "/platform-manager/admins",
       icon: Icons.User,
       items: [],
       type: "Super-Admin",
       permissions: ["teacher"],
-      roles: ["Super-Admin"]
+      roles: ["Super-Admin", "HR", "Management Role"]
     },
     {
       title: "Teachers",
-      url: "/super-admin/teachers",
+      url: "/platform-manager/teachers",
       icon: Icons.User,
       items: [],
       type: "Super-Admin",
       permissions: ["teacher"],
-      roles: ["Super-Admin"]
+      roles: ["Super-Admin", "HR", "Management Role"]
     },
     {
       title: "Students",
-      url: "/super-admin/students",
+      url: "/platform-manager/students",
       icon: Icons.User,
       items: [],
       type: "Super-Admin",
       permissions: ["student"],
-      roles: ["Super-Admin"]
+      roles: ["Super-Admin", "HR", "Management Role"]
     },
     {
       title: "Courses",
-      url: "/super-admin/courses",
+      url: "/platform-manager/courses",
       icon: Icons.Calendar,
       items: [],
       type: "Super-Admin",
       permissions: ["courses"],
-      roles: ["Super-Admin"]
+      roles: ["Super-Admin", "HR", "Management Role"]
     },
     {
       title: "Activity Logs",
-      url: "/super-admin/audit-logs",
+      url: "/platform-manager/audit-logs",
       icon: Icons.Calendar,
       items: [],
       type: "Super-Admin",
       permissions: ["activitylogs"],
-      roles: ["Super-Admin"]
+      roles: ["Super-Admin", "HR", "Management Role"]
     },
     {
       title: "Newsletter",
-      url: "/super-admin/mails",
+      url: "/platform-manager/mails",
       icon: Icons.Calendar,
       items: [],
       type: "Super-Admin",
       permissions: ["newsletter"],
-      roles: ["Super-Admin"]
+      roles: ["Super-Admin", "HR", "Management Role"]
     },
   ];
 
+  // Filter nav items based on user's effective role and permissions
+  const filteredNavItems = baseNavItems.filter(item => {
+    // Check if user's effective role matches
+    const roleMatch = effectiveRole ?
+      item.roles.includes(effectiveRole) :
+      false;
+
+    // Check if user has the required permissions
+    // Use .some() instead of .every() to show items if user has ANY of the required permissions
+    const permissionMatch = item.permissions.length === 0 ||
+      item.permissions.some(permission =>
+        userPermissions.includes(permission)
+      );
+
+    console.log(`Item: ${item.title}, RoleMatch: ${roleMatch}, PermissionMatch: ${permissionMatch}`, {
+      effectiveRole,
+      currentRole,
+      itemRoles: item.roles,
+      requiredPermissions: item.permissions,
+      userPermissions
+    });
+
+    return roleMatch && permissionMatch;
+  });
+
+  console.log('Filtered Nav Items:', filteredNavItems);
+
+  // Remove dynamic role generation since we're routing non-core roles to super-admin
   const dynamicRoleItems = rolesArray
     .filter((role: any) => {
       if (!role || !role.name) return false;
-      return !['Student', 'Teacher', 'Super-Admin'].includes(role.name);
+      return !['Student', 'Teacher', 'Super-Admin', 'HR', 'Management Role'].includes(role.name);
     })
     .map((role: any) => {
       const menuItems = [];
@@ -217,13 +267,35 @@ export const getDynamicNavData = (roles: any) => {
       return menuItems;
     }).flat();
 
-
-  return [
+  const finalNavItems = [
     {
       label: "MAIN MENU",
-      items: [...baseNavItems, ...dynamicRoleItems]
+      items: [...filteredNavItems, ...dynamicRoleItems]
     }
   ];
+
+  console.log('Final Navigation Data:', finalNavItems);
+  return finalNavItems;
 };
 
-export const NAV_DATA = getDynamicNavData([]);
+// Export a function that properly handles user data
+export const getNavigationData = (user: any, allRoles: any[] = []) => {
+  if (!user) {
+    return [{
+      label: "MAIN MENU",
+      items: []
+    }];
+  }
+
+  return getDynamicNavData(
+    allRoles,
+    user.permissions || [],
+    user.role
+  );
+};
+
+// Initialize with empty array for initial render
+export const INITIAL_NAV_DATA = [{
+  label: "MAIN MENU",
+  items: []
+}];

@@ -108,11 +108,6 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
                 throw new Error('User not authenticated');
             }
 
-            console.log('Submitting MCQ:', {
-                courseId,
-                chapterId: currentMCQChapter.id,
-                userAnswers
-            });
 
             const response = await api.post(`progress/${courseId}/submit-mcq`, {
                 user_id: userId,

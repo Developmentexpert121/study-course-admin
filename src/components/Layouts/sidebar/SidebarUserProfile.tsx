@@ -12,7 +12,13 @@ import { ThemeToggleSwitch } from "../../../../src/components/Layouts/header/the
 import { useSidebarContext } from "./sidebar-context";
 import { cn } from "@/lib/utils";
 
-export function SidebarUserProfile() {
+interface SidebarUserProfileProps {
+  role?: string;
+}
+
+export function SidebarUserProfile({
+  role: propRole,
+}: SidebarUserProfileProps) {
   const api = useApiClient();
   const dispatch = useDispatch<AppDispatch>();
   const name = getDecryptedItem("name");
@@ -20,11 +26,25 @@ export function SidebarUserProfile() {
   const [userImage, setUserImage] = useState("/images/user2.png");
   const [loading, setLoading] = useState(true);
   const [profileImageLoading, setProfileImageLoading] = useState(true);
+  const [internalRole, setInternalRole] = useState<string | undefined>();
+
+  // Use prop role if provided, otherwise use internal state
+  const role = propRole || internalRole;
+
   const USER: any = {
     name: name,
     email: email,
     img: "/images/user2.png",
+    role: role,
   };
+
+  useEffect(() => {
+    // Only set internal role if prop is not provided
+    if (!propRole) {
+      const r: any = getDecryptedItem("role");
+      setInternalRole(r);
+    }
+  }, [propRole]);
 
   useEffect(() => {
     const userId = getDecryptedItem("userId");
@@ -95,6 +115,26 @@ export function SidebarUserProfile() {
 
   const { isMobile, toggleSidebar, isOpen } = useSidebarContext();
 
+  // Role badge styling
+  const getRoleBadgeClass = () => {
+    const roleColors: { [key: string]: string } = {
+      "Super-Admin":
+        "bg-red-100 text-red-800 border-red-200 dark:bg-red-900 dark:text-red-300 dark:border-red-700",
+      Admin:
+        "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700",
+      Teacher:
+        "bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-700",
+      Student:
+        "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900 dark:text-purple-300 dark:border-purple-700",
+      HR: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:border-orange-700",
+    };
+
+    return (
+      roleColors[role || ""] ||
+      "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
+    );
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       {loading ? (
@@ -131,16 +171,20 @@ export function SidebarUserProfile() {
             </div>
             <figcaption
               className={cn(
-                "space-y-1 text-base font-medium",
-                isOpen ? "block" : "group-hover:block",
+                "min-w-0 flex-1 space-y-1 text-base font-medium",
+                isOpen ? "block" : "hidden group-hover:block",
               )}
             >
-              <div className="leading-none text-dark dark:text-white">
+              <div className="truncate leading-none text-dark dark:text-white">
                 {USER.name}
               </div>
-              {/* <div className="w-40 truncate leading-none text-gray-6">
-                {USER.email}
-              </div> */}
+              {role && (
+                <div
+                  className={`rounded-full border px-2 py-1 text-xs ${getRoleBadgeClass()} truncate`}
+                >
+                  {role}
+                </div>
+              )}
             </figcaption>
           </figure>
 
@@ -148,7 +192,8 @@ export function SidebarUserProfile() {
           {isDropdownOpen && (
             <div className="absolute bottom-full left-0 right-0 mb-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-dark">
               <ul className="py-1">
-                <li className="flex items-center gap-3 p-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800">
+                {/* User Info Section */}
+                <li className="flex items-center gap-3 border-b border-gray-100 p-3 dark:border-gray-700">
                   <div className="relative">
                     {profileImageLoading ? (
                       <div className="size-12 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
@@ -165,14 +210,30 @@ export function SidebarUserProfile() {
                       />
                     )}
                   </div>
-                  <div className="w-40 truncate leading-none text-gray-6">
-                    {USER.email}
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium text-dark dark:text-white">
+                      {USER.name}
+                    </div>
+                    <div className="truncate text-sm text-gray-600 dark:text-gray-400">
+                      {USER.email}
+                    </div>
+                    {role && (
+                      <div
+                        className={`rounded-full border px-2 py-1 text-xs ${getRoleBadgeClass()} mt-1 inline-block`}
+                      >
+                        {role}
+                      </div>
+                    )}
                   </div>
                 </li>
-                <li className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800">
+
+                {/* Theme Toggle */}
+                <li className="flex items-center justify-between gap-3 px-5 py-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800">
+                  <span>Theme</span>
                   <ThemeToggleSwitch />
                 </li>
 
+                {/* View Profile */}
                 <li>
                   <Link
                     href="/view-profile"
@@ -198,6 +259,8 @@ export function SidebarUserProfile() {
                     View Profile
                   </Link>
                 </li>
+
+                {/* Home */}
                 <li>
                   <Link
                     href="/"
@@ -223,6 +286,8 @@ export function SidebarUserProfile() {
                     Home
                   </Link>
                 </li>
+
+                {/* Logout */}
                 <li>
                   <button
                     className="flex w-full items-center gap-3 px-5 py-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800"
@@ -239,7 +304,6 @@ export function SidebarUserProfile() {
                         removeEncryptedItem("userId");
                         removeEncryptedItem("name");
                         removeEncryptedItem("permissions");
-
                         removeEncryptedItem("email");
                         removeEncryptedItem("role");
 
@@ -257,7 +321,6 @@ export function SidebarUserProfile() {
                         removeEncryptedItem("userId");
                         removeEncryptedItem("name");
                         removeEncryptedItem("permissions");
-
                         removeEncryptedItem("email");
                         removeEncryptedItem("role");
                         setIsDropdownOpen(false);
@@ -266,7 +329,10 @@ export function SidebarUserProfile() {
                       }
                     }}
                   >
-                    <LogOut size={18} className="text-gray-700" />
+                    <LogOut
+                      size={18}
+                      className="text-gray-700 dark:text-gray-300"
+                    />
                     <span className="text-base font-medium">Log out</span>
                   </button>
                 </li>

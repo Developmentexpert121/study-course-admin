@@ -29,15 +29,6 @@ export default function UserManagementHeader({
   selectedRoleId,
   onRoleChange,
 }: UserManagementHeaderProps) {
-  // Add debugging
-  React.useEffect(() => {
-    console.log("=== HEADER DEBUG ===");
-    console.log("roleName:", roleName);
-    console.log("availableRoles:", availableRoles);
-    console.log("selectedRoleId:", selectedRoleId);
-    console.log("onRoleChange:", onRoleChange);
-  }, [roleName, availableRoles, selectedRoleId, onRoleChange]);
-
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const roleId = e.target.value;
     console.log("Role changed to:", roleId);
@@ -70,11 +61,6 @@ export default function UserManagementHeader({
                 </option>
               ))}
             </select>
-            {/* Debug info */}
-            <div className="mt-1 text-xs text-gray-500">
-              Available roles: {availableRoles.length} | Selected:{" "}
-              {selectedRoleId}
-            </div>
           </div>
         )}
       </div>

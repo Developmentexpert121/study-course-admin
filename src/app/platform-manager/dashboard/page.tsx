@@ -46,7 +46,7 @@ import {
 } from "recharts";
 import CourseAuditLogsPage from "../audit-logs/CourseAuditLogsPage";
 
-import RatingsManagementPage from "../../../app/super-admin/rating/RatingsManagementPage";
+import RatingsManagementPage from "../../../app/platform-manager/rating/RatingsManagementPage";
 
 export default function DashboardStatsPage() {
   const dispatch = useAppDispatch();

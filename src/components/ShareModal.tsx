@@ -184,7 +184,7 @@ export default function ShareModal({
           {/* Content */}
           <div className="p-6">
             {/* Native Share Button (for mobile) */}
-           {typeof navigator.share === 'function'&& (
+            {typeof navigator.share === "function" && (
               <button
                 onClick={handleNativeShare}
                 className="mb-6 flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3 text-white transition-all hover:from-blue-600 hover:to-purple-700"

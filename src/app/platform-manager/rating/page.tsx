@@ -296,7 +296,7 @@ export default function RatingsManagementPage() {
           <div>
             {courseTitle && (
               <button
-                onClick={() => router.push("/super-admin/courses")}
+                onClick={() => router.push("/platform-manager/courses")}
                 className="mb-2 inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
               >
                 <ArrowLeft className="mr-1 h-4 w-4" />
@@ -317,7 +317,7 @@ export default function RatingsManagementPage() {
             {/* View All Ratings button when filtered by course */}
             {courseTitle && (
               <button
-                onClick={() => router.push("/super-admin/ratings")}
+                onClick={() => router.push("/platform-manager/ratings")}
                 className="inline-flex items-center rounded-lg bg-gray-600 px-4 py-2 text-white shadow-sm transition-colors hover:bg-gray-700"
               >
                 <Eye className="mr-2 h-4 w-4" />
@@ -495,7 +495,7 @@ export default function RatingsManagementPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredRatings.map((rating : any , index : number) => (
+                  filteredRatings.map((rating: any, index: number) => (
                     <tr
                       key={index}
                       className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/30"

@@ -7,15 +7,14 @@ import NextTopLoader from "nextjs-toploader";
 import { Sidebar } from "@/components/Layouts/sidebar";
 import { Header } from "@/components/Layouts/header";
 import ToastProvider from "@/components/core/ToasterProvider";
-// import UserCoursesDashboard from "@/components/UserCoursesDashboard";
-
-import type { PropsWithChildren } from "react";
 import { getDecryptedItem } from "@/utils/storageHelper";
 
-export default function ClientLayoutShell({ children }: PropsWithChildren) {
+export default function ClientLayoutShell({ children }: any) {
   const pathname = usePathname();
   const [token, setToken] = useState<any>();
   const [role, setRole] = useState<any>();
+  const [permissions, setPermissions] = useState<any[]>([]);
+
   const isAuthPage = pathname.startsWith("/auth");
   const publicRoutes = [
     "/",
@@ -33,8 +32,10 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
   useEffect(() => {
     const t = getDecryptedItem("token");
     const r = getDecryptedItem("role");
+    const p = getDecryptedItem("permissions");
     setToken(t);
     setRole(r);
+    setPermissions(Array.isArray(p) ? p : []);
   }, [pathname]);
 
   // Allow public pages (home) even without token
@@ -43,7 +44,9 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
   const isAdmin = role === "Teacher";
   const isUser = role === "Student";
   const isSuperAdmin = role === "Super-Admin" || role === "super-admin";
-  const isAuthenticated = !isAuthPage && (isAdmin || isUser || isSuperAdmin);
+  const isHR = role === "HR"; // Add HR role check
+  const isAuthenticated =
+    !isAuthPage && (isAdmin || isUser || isSuperAdmin || isHR);
 
   const showUserDashboard =
     isUser && (pathname === "/" || pathname === "/user/dashboard");
@@ -57,15 +60,15 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
 
       <div className={isLoggedIn ? "flex min-h-screen" : "min-h-screen"}>
         {/* Only show sidebar for authenticated users on protected pages */}
-        {isAuthenticated && !isPublicPage && <Sidebar />}
+        {isAuthenticated && !isPublicPage && (
+          <Sidebar role={role} permissions={permissions} />
+        )}
 
         <div className="w-full bg-gray-2 dark:bg-[#020d1a]">
           {/* Only show header for authenticated users on protected pages */}
           {/* {isAuthenticated && !isPublicPage && <Header />} */}
 
           <main className="bg-banner isolate mx-auto mt-16 w-full md:mt-0">
-            {/* {showUserDashboard ? <UserCoursesDashboard /> : children} */}
-
             {children}
           </main>
         </div>

@@ -98,7 +98,6 @@ export default function EditProfilePage({ className }: any) {
   // Initialize form data when user data is loaded
   useEffect(() => {
     if (userData) {
-      console.log("🔄 Initializing form with user data:", userData);
       setFormData({
         username: userData.username || "",
         bio: userData.bio || "",
@@ -186,19 +185,12 @@ export default function EditProfilePage({ className }: any) {
         return;
       }
 
-      console.log("🟡 Dispatching update with:", {
-        userId: Number(userId),
-        updateData,
-      });
-
       const result = await dispatch(
         updateUserProfile({
           userId: Number(userId),
           updateData,
         }),
       ).unwrap();
-
-      console.log("✅ Update successful:", result);
 
       toasterSuccess("Profile updated successfully!", 3000);
       router.push(`/view-profile`);

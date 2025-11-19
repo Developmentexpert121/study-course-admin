@@ -313,24 +313,6 @@ export default function RatingsManagementPage() {
                 : "View and manage all course ratings and reviews"}
             </p>
           </div>
-          {/* <div className="flex gap-2">
-            {courseTitle && (
-              <button
-                onClick={() => router.push("/super-admin/ratings")}
-                className="inline-flex items-center rounded-lg bg-gray-600 px-4 py-2 text-white shadow-sm transition-colors hover:bg-gray-700"
-              >
-                <Eye className="mr-2 h-4 w-4" />
-                View All Ratings
-              </button>
-            )}
-            <button
-              onClick={fetchRatings}
-              className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] dark:bg-[#43bf79]"
-            >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
-            </button>
-          </div> */}
         </div>
 
         {/* Stats Cards */}

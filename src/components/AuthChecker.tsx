@@ -48,7 +48,6 @@ export default function AuthChecker({
         publicRoutes.includes(pathname) || isCourseDetailPage;
       const isAccessDeniedPage = pathname === "access-denied";
       if (isPublicPage || isAccessDeniedPage) {
-        console.log("✅ Allowing public page access");
         setLoading(false);
         return;
       }
@@ -59,13 +58,9 @@ export default function AuthChecker({
           const response = await api.get("user/me");
           if (response.success) {
             const userRole = response.data.user.role;
-            console.log(
-              "User already logged in, redirecting to dashboard",
-              userRole,
-            );
 
             if (userRole === "super-admin") {
-              router.replace("/super-admin/dashboard");
+              router.replace("/platform-manager/dashboard");
             } else if (userRole === "Teacher") {
               router.replace("/admin/dashboard");
             } else if (userRole === "Student") {
@@ -77,7 +72,6 @@ export default function AuthChecker({
           }
         } catch (error) {
           // Token is invalid, allow access to auth page
-          console.log("Invalid token, allowing auth page access");
           setLoading(false);
         }
         return;

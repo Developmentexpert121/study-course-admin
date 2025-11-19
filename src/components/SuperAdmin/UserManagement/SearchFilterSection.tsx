@@ -1,11 +1,13 @@
+// components/SuperAdmin/UserManagement/SearchFilterSection.tsx
 import React from "react";
 import { Search } from "lucide-react";
 
+// Updated interface - using accountStatus instead of verificationStatus
 interface SearchFilterSectionProps {
   searchTerm: string;
   onSearchTermChange: (value: string) => void;
-  verificationStatus: string;
-  onVerificationStatusChange: (value: string) => void;
+  accountStatus: string; // Changed back to accountStatus
+  onAccountStatusChange: (value: string) => void; // Changed back to onAccountStatusChange
   onSearch: () => void;
   onClearSearch: () => void;
   onKeyPress: (e: React.KeyboardEvent) => void;
@@ -14,7 +16,7 @@ interface SearchFilterSectionProps {
   roleName: string;
   hasActiveFilters: boolean;
   activeSearchTerm?: string;
-  activeVerificationStatus?: string;
+  activeAccountStatus?: string; // Changed back to activeAccountStatus
   availableRoles?: any[];
   selectedRoleId?: string | null;
   onRoleChange?: (roleId: string) => void;
@@ -23,8 +25,8 @@ interface SearchFilterSectionProps {
 export default function SearchFilterSection({
   searchTerm,
   onSearchTermChange,
-  verificationStatus,
-  onVerificationStatusChange,
+  accountStatus, // Changed back to accountStatus
+  onAccountStatusChange, // Changed back to onAccountStatusChange
   onSearch,
   onClearSearch,
   onKeyPress,
@@ -33,7 +35,7 @@ export default function SearchFilterSection({
   roleName,
   hasActiveFilters,
   activeSearchTerm,
-  activeVerificationStatus,
+  activeAccountStatus, // Changed back to activeAccountStatus
 }: SearchFilterSectionProps) {
   return (
     <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
@@ -56,19 +58,19 @@ export default function SearchFilterSection({
           </div>
         </div>
 
-        {/* Verification Status Dropdown */}
+        {/* Account Status Dropdown */}
         <div className="sm:w-48">
           <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Verification Status
+            Account Status
           </label>
           <select
-            value={verificationStatus}
-            onChange={(e) => onVerificationStatusChange(e.target.value)}
+            value={accountStatus}
+            onChange={(e) => onAccountStatusChange(e.target.value)}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
           >
-            <option value="all">All {roleName}s</option>
-            <option value="verified">Verified</option>
-            <option value="unverified">Unverified</option>
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
           </select>
         </div>
 
@@ -104,12 +106,9 @@ export default function SearchFilterSection({
               Search: "{activeSearchTerm}"
             </span>
           )}
-          {activeVerificationStatus && activeVerificationStatus !== "all" && (
-            <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
-              Status:{" "}
-              {activeVerificationStatus === "verified"
-                ? "Verified"
-                : "Unverified"}
+          {activeAccountStatus && activeAccountStatus !== "all" && (
+            <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+              Status: {activeAccountStatus === "active" ? "Active" : "Inactive"}
             </span>
           )}
         </div>
