@@ -1,6 +1,10 @@
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  output: "export",
+  trailingSlash: true,
+  distDir: "out",
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -27,17 +31,12 @@ const nextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
-      
     ],
   },
-
-
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
-  },
-  
+  // Remove eslint configuration as it's no longer supported in Next.js 16
+  // eslint: {
+  //   ignoreDuringBuilds: true,
+  // },
 };
 
 export default nextConfig;
