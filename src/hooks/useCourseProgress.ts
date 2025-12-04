@@ -79,8 +79,6 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
                     };
                 });
 
-                // Reload progress data to get updated state
-                console.log('🔄 [FRONTEND] Reloading progress data...');
                 await loadProgressData();
 
                 return true;

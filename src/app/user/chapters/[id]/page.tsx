@@ -185,10 +185,6 @@ export default function ChapterDetail() {
           setMcqs(mcqData);
         }
       } else {
-        console.log(
-          "Failed to fetch MCQs with previous attempts:",
-          res.error?.message,
-        );
         setMcqs([]);
       }
     } catch (err) {

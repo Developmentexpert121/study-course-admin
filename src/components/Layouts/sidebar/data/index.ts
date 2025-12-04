@@ -3,18 +3,12 @@ import * as Icons from "../icons";
 export const getDynamicNavData = (roles: any, userPermissions: any[] = [], currentRole?: string) => {
   const rolesArray = Array.isArray(roles) ? roles : [];
 
-  // Define core roles that have their own sections
   const coreRoles = ['Student', 'Teacher', 'Super-Admin', 'HR'];
 
   // If current role is not a core role, use Super-Admin navigation
   const effectiveRole = currentRole && !coreRoles.includes(currentRole) ? 'Super-Admin' : currentRole;
 
-  console.log('Navigation Debug:', {
-    currentRole,
-    effectiveRole,
-    userPermissions,
-    rolesArray
-  });
+
 
   const baseNavItems = [
     // Student permissions
@@ -118,7 +112,7 @@ export const getDynamicNavData = (roles: any, userPermissions: any[] = [], curre
       icon: Icons.User,
       items: [],
       type: "Super-Admin",
-      permissions: ["teacher"],
+      permissions: ["Teacher"],
       roles: ["Super-Admin", "HR", "Management Role"]
     },
     {
@@ -127,7 +121,7 @@ export const getDynamicNavData = (roles: any, userPermissions: any[] = [], curre
       icon: Icons.User,
       items: [],
       type: "Super-Admin",
-      permissions: ["teacher"],
+      permissions: ["Teacher"],
       roles: ["Super-Admin", "HR", "Management Role"]
     },
     {
@@ -136,7 +130,7 @@ export const getDynamicNavData = (roles: any, userPermissions: any[] = [], curre
       icon: Icons.User,
       items: [],
       type: "Super-Admin",
-      permissions: ["student"],
+      permissions: ["Student"],
       roles: ["Super-Admin", "HR", "Management Role"]
     },
     {
@@ -168,34 +162,22 @@ export const getDynamicNavData = (roles: any, userPermissions: any[] = [], curre
     },
   ];
 
-  // Filter nav items based on user's effective role and permissions
   const filteredNavItems = baseNavItems.filter(item => {
-    // Check if user's effective role matches
     const roleMatch = effectiveRole ?
       item.roles.includes(effectiveRole) :
       false;
 
-    // Check if user has the required permissions
-    // Use .some() instead of .every() to show items if user has ANY of the required permissions
+
     const permissionMatch = item.permissions.length === 0 ||
       item.permissions.some(permission =>
         userPermissions.includes(permission)
       );
 
-    console.log(`Item: ${item.title}, RoleMatch: ${roleMatch}, PermissionMatch: ${permissionMatch}`, {
-      effectiveRole,
-      currentRole,
-      itemRoles: item.roles,
-      requiredPermissions: item.permissions,
-      userPermissions
-    });
+
 
     return roleMatch && permissionMatch;
   });
 
-  console.log('Filtered Nav Items:', filteredNavItems);
-
-  // Remove dynamic role generation since we're routing non-core roles to super-admin
   const dynamicRoleItems = rolesArray
     .filter((role: any) => {
       if (!role || !role.name) return false;
@@ -274,7 +256,6 @@ export const getDynamicNavData = (roles: any, userPermissions: any[] = [], curre
     }
   ];
 
-  console.log('Final Navigation Data:', finalNavItems);
   return finalNavItems;
 };
 

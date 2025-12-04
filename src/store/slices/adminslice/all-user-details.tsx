@@ -64,14 +64,6 @@ export const fetchUsers = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      console.log("🔍 DEBUG - fetchUsers called with:", {
-        page,
-        limit,
-        search,
-        accountStatus,
-        role_id,
-      });
-
       // FIXED: Use URLSearchParams to properly serialize parameters
       const params = new URLSearchParams();
       params.append("page", page.toString());
@@ -79,34 +71,24 @@ export const fetchUsers = createAsyncThunk(
 
       if (search) {
         params.append("search", search);
-        console.log("✅ ADDING search param:", search);
       }
 
       if (accountStatus && accountStatus !== "all") {
         params.append("accountStatus", accountStatus);
-        console.log("✅ ADDING accountStatus param:", accountStatus);
       } else {
         console.log("ℹ️ No accountStatus filter (showing all)");
       }
 
       if (role_id) {
         params.append("role_id", role_id);
-        console.log("✅ ADDING role_id param:", role_id);
       }
 
       const queryString = params.toString();
-      console.log("🔗 FINAL QUERY STRING:", queryString);
-      console.log("🌐 FULL URL: user/get-all-details-admin?" + queryString);
 
       // FIXED: Manually construct the URL with query string
       const res = await reduxApiClient.get(
         `user/get-all-details-admin?${queryString}`,
       );
-
-      console.log("📡 API RESPONSE received:", {
-        success: res.data.success,
-        userCount: res.data.data?.users?.length || 0,
-      });
 
       const responseData = res.data.data;
 

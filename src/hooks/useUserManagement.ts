@@ -12,7 +12,7 @@ import {
 } from "../store/slices/adminslice/all-user-details";
 
 interface UseUserManagementProps {
-    roleName: "Student" | "Teacher" | "Admin";
+    roleName: "Student" | "Teacher" | "Super-Admin";
 }
 
 export const useUserManagement = ({ roleName }: UseUserManagementProps) => {
@@ -44,7 +44,7 @@ export const useUserManagement = ({ roleName }: UseUserManagementProps) => {
 
     // Check if we have a valid role
     const hasValidRole = useMemo(() => {
-        return roleName === "Admin" ? !!selectedRoleId : !!userRole;
+        return roleName === "Teacher" ? !!selectedRoleId : !!userRole;
     }, [roleName, selectedRoleId, userRole]);
 
     // Fetch roles (same as before)
@@ -52,7 +52,7 @@ export const useUserManagement = ({ roleName }: UseUserManagementProps) => {
         try {
             const response = await api.get("roles");
             if (response.success) {
-                if (roleName === "Admin") {
+                if (roleName === "Teacher") {
                     const filteredRoles = response.data.data
                         .filter((role: any) => !EXCLUDED_ROLES.includes(role.name))
                         .map((role: any) => ({
@@ -80,7 +80,6 @@ export const useUserManagement = ({ roleName }: UseUserManagementProps) => {
                         };
                         setUserRole(roleWithStringId);
                         dispatch(setRoleId(roleWithStringId.id));
-                        console.log(`🎯 Set role_id for ${roleName}:`, roleWithStringId.id);
                     }
                 }
             }
@@ -105,10 +104,7 @@ export const useUserManagement = ({ roleName }: UseUserManagementProps) => {
 
     // Search handlers - SIMPLIFIED
     const handleSearch = useCallback(() => {
-        console.log('🔍 SEARCH - Applying filters:', {
-            search: localSearchTerm,
-            accountStatus: localAccountStatus
-        });
+
 
         dispatch(setPage(1));
         dispatch(setSearch(localSearchTerm));
@@ -131,7 +127,6 @@ export const useUserManagement = ({ roleName }: UseUserManagementProps) => {
 
     // Handle account status change
     const handleAccountStatusChange = useCallback((value: string) => {
-        console.log('🔄 Account status changed to:', value);
         setLocalAccountStatus(value);
 
         if (hasValidRole) {
@@ -156,7 +151,7 @@ export const useUserManagement = ({ roleName }: UseUserManagementProps) => {
                     limit,
                     search: usersState.searchTerm,
                     accountStatus: usersState.accountStatus, // CHANGED
-                    role_id: roleName === "Admin" ? selectedRoleId : userRole?.id,
+                    role_id: roleName === "Teacher" ? selectedRoleId : userRole?.id,
                 }),
             );
         }
@@ -182,7 +177,7 @@ export const useUserManagement = ({ roleName }: UseUserManagementProps) => {
                     limit,
                     search: usersState.searchTerm,
                     accountStatus: usersState.accountStatus, // CHANGED
-                    role_id: roleName === "Admin" ? selectedRoleId : userRole?.id,
+                    role_id: roleName === "Teacher" ? selectedRoleId : userRole?.id,
                 }),
             );
             setIsInitialLoad(false);

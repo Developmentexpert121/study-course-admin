@@ -128,7 +128,6 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
         );
       }
     } catch (err) {
-      console.log("🚨 Failed to update status", err);
       toasterError("Failed to update status");
     }
   };

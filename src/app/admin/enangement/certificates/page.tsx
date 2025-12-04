@@ -1,4 +1,3 @@
-// components/CourseCertificatesPage.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { Award, ChevronLeft, Download, Mail, Users } from "lucide-react";

@@ -31,7 +31,6 @@ export default function UserManagementHeader({
 }: UserManagementHeaderProps) {
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const roleId = e.target.value;
-    console.log("Role changed to:", roleId);
     onRoleChange?.(roleId);
   };
 

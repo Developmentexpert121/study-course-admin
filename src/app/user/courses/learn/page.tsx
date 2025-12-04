@@ -325,17 +325,10 @@ export default function CourseLearnPage() {
                     all_lessons_completed: true,
                     can_attempt_mcq: true,
                   };
-
-                  console.log(
-                    "✅ [FRONTEND] All lessons completed, MCQ enabled",
-                  );
                 }
 
                 if (index + 1 < ch.lessons.length) {
                   ch.lessons[index + 1].locked = false;
-                  console.log(
-                    `🔓 [FRONTEND] Unlocked next lesson: ${ch.lessons[index + 1].title}`,
-                  );
                 }
               }
             });
@@ -361,11 +354,6 @@ export default function CourseLearnPage() {
       const result: any = await submitMCQTest();
 
       if (result && currentMCQChapter) {
-        console.log(
-          "✅ [FRONTEND] MCQ submitted successfully:",
-          result.passed ? "PASSED" : "FAILED",
-        );
-
         if (result.passed) {
           await loadProgressData();
 
@@ -412,9 +400,6 @@ export default function CourseLearnPage() {
               const nextChapter = course.chapters[chapterIndex + 1];
               if (!nextChapter.locked && nextChapter.lessons.length > 0) {
                 setTimeout(() => {
-                  console.log(
-                    "🔄 [FRONTEND] Auto-navigating to next chapter after MCQ",
-                  );
                   setSelectedLesson({
                     chapter: nextChapter,
                     lesson: nextChapter.lessons[0],
