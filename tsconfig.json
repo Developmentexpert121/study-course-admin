@@ -37,7 +37,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/store/slices/adminslice/userCourseSlice.tsx",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "out/types/**/*.ts",
+    "out/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"
