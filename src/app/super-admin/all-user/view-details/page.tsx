@@ -23,7 +23,6 @@ export default function UserDetailsPage() {
   const dispatch = useAppDispatch();
 
   const { courses, loading, error } = useAppSelector((state) => state.courses);
-
   useEffect(() => {
     if (userId) {
       dispatch(fetchCoursesWithProgress(parseInt(userId, 10)));
@@ -215,7 +214,7 @@ export default function UserDetailsPage() {
         {/* Courses List */}
         <div className="space-y-6">
           {courses.length > 0 ? (
-            courses.map((course) => {
+            courses.filter((course) => course.chapters.some((ch) => !ch.locked)).map((course) => {
               const progress = calculateCourseProgress(course.chapters);
               const isEnrolled = course.chapters.some((ch) => !ch.locked);
 

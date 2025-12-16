@@ -64,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
             About
           </Link>
           <Link
-            href="/#contact"
+            href="/#footer"
             className="transition-colors hover:text-blue-600"
           >
             Contact

@@ -29,7 +29,7 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
     {},
   );
 
-  console.log(course, "===course data");
+
 
   const handleMCQResult = (chapterId: number, result: any) => {
     setMcqResults((prev) => ({

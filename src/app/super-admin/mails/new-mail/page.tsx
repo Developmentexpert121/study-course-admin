@@ -48,6 +48,9 @@ export default function BulkEmailPage({ className }: any) {
 
     if (window.confirm(`Are you sure you want to send this email to all subscribers?`)) {
       await dispatch(sendBulkEmailBatch(formData));
+
+
+      router.push("/super-admin/mails");
     }
   };
 

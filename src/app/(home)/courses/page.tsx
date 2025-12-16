@@ -27,6 +27,8 @@ import {
 import { getDecryptedItem } from "@/utils/storageHelper";
 
 const CoursesPage = () => {
+
+  console.log("jffabf")
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const name: any = getDecryptedItem("name");

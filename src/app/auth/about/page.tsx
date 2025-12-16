@@ -46,7 +46,7 @@ const AboutPage = () => {
             <a href="/" className="transition hover:text-blue-600">
               Home
             </a>
-            <a href="/#courses" className="transition hover:text-blue-600">
+            <a href="/courses" className="transition hover:text-blue-600">
               Courses
             </a>
             <a href="/#about" className="text-blue-600">

@@ -23,7 +23,7 @@ const Footer: React.FC<FooterProps> = ({
   loading,
 }) => {
   return (
-    <footer className="bg-[#00537e] pb-8 pt-16 text-white">
+    <footer id="footer" className="bg-[#00537e] pb-8 pt-16 text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Top Section */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
