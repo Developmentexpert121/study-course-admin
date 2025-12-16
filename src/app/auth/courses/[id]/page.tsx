@@ -32,6 +32,7 @@ export default function CourseDetailsPage() {
   } = useWishlist();
 
   const params = useParams();
+  console.log(params,"===params")
   const courseId = params.id;
   const userId: any = getDecryptedItem("userId");
   const [menuOpen, setMenuOpen] = useState(false);

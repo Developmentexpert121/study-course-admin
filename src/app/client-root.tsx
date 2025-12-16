@@ -11,9 +11,9 @@ export default function ClientRoot({
 }) {
   return (
     <Providers>
-      {/* <AuthChecker> */}
+      <AuthChecker>
         <ClientLayoutShell>{children}</ClientLayoutShell>
-      {/* </AuthChecker> */}
+      </AuthChecker>
     </Providers>
   );
 }
