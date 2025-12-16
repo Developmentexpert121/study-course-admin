@@ -36,7 +36,8 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
     setToken(t);
     setRole(r);
   }, [pathname]);
-
+ 
+  
   // Allow public pages (home) even without token
   if (!token && !isAuthPage && !isPublicPage) return null;
 
