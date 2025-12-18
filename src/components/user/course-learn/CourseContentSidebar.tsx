@@ -29,7 +29,7 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
     {},
   );
 
-
+console.log("progress",courseProgress)
 
   const handleMCQResult = (chapterId: number, result: any) => {
     setMcqResults((prev) => ({
@@ -150,16 +150,10 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-3 w-3 text-green-300" />
-                <span className="text-blue-100">
-                  {completedLessons}/{totalLessons} lessons
-                </span>
+             
               </div>
               <div className="flex items-center gap-2">
-                <Award className="h-3 w-3 text-purple-300" />
-                <span className="text-blue-100">
-                  {completedChapters}/{totalChapters} chapters
-                </span>
+                
               </div>
             </div>
           </div>
@@ -183,7 +177,7 @@ const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
                 <ChapterAccordion
                   key={chapter.id}
                   chapter={chapter}
-                  chapterProgress={null} // We don't need separate progress since it's in the chapter object
+                  chapterProgress={chapter.progress} // We don't need separate progress since it's in the chapter object
                   onLessonClick={onLessonClick}
                   onStartMCQ={handleStartMCQ}
                   mcqResults={mcqResults[chapter.id]}

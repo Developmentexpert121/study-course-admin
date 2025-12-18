@@ -32,12 +32,11 @@ const ChapterAccordion: React.FC<ChapterAccordionProps> = ({
   selectedLesson,
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-
   const isChapterCompleted = chapter.completed || chapter.mcq_passed;
   const isChapterLocked = chapter.locked && !isChapterCompleted;
 
   const completedLessons = chapterProgress?.completed_lessons || 0;
-  const totalLessons = chapter.lessons?.length || 0;
+  const totalLessons = chapterProgress?.total_lessons || 0;
   const progressPercentage =
     totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
