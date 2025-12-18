@@ -383,7 +383,7 @@ export default function CurriculumTab({
                       </div>
                     </div>
                   )}
-
+ 
                   {/* Content Items */}
                   <div className="mb-6">
                     <h4 className="mb-4 font-semibold text-gray-900 dark:text-white">
