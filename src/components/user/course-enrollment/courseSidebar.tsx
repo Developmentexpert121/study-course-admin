@@ -65,7 +65,7 @@ export default function CourseSidebar({
               onClick={onContinueLearning}
               className="mb-3 w-full rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 font-medium text-white transition-all duration-200 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Continue Learning
+              Continue Learning 
             </button>
 
             <button
