@@ -129,6 +129,23 @@ export const NAV_DATA = [
         type: "Super-Admin",
       },
 
+      
+      {
+        title: "Certificate",
+        url: "/super-admin/certificate",
+        icon: Icons.Calendar,
+        items: [],
+        type: "Super-Admin",
+      },
+
+      {
+        title: "Certificate",
+        url: "/admin/certificate",
+        icon: Icons.Calendar,
+        items: [],
+        type: "admin",
+      },
+
     ],
   },
 ];

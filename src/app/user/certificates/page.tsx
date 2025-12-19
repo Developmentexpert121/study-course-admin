@@ -326,13 +326,12 @@ const CertificateCard = ({
               : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
           }`}
         >
-          {certificate.status === "issued" ? "✓ Active" : "Revoked"}
+          {certificate.status === "issued" ? "✓ Active" : "Wait for approval"}
         </span>
       </div>
     </div>
 
-    {/* Actions */}
-    <div className="border-t border-gray-100 bg-gray-50 px-6 pb-6 pt-4 dark:border-gray-600 dark:bg-gray-700/50">
+ {['issued'].includes(certificate.status) && (<div className="border-t border-gray-100 bg-gray-50 px-6 pb-6 pt-4 dark:border-gray-600 dark:bg-gray-700/50">
       <div className="flex gap-3">
         <button
           onClick={() => onView(certificate.certificate_url)}
@@ -361,7 +360,10 @@ const CertificateCard = ({
           Download
         </button>
       </div>
-    </div>
+    </div>)} 
+  
+    {/* Actions */}
+    
   </div>
 );
 
