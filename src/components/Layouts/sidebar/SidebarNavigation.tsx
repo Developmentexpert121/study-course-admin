@@ -2,6 +2,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getDynamicNavData } from "./data"; // Import dynamic function
 import { ChevronUp } from "./icons";
+
 import { MenuItem } from "./menu-item";
 import { useSidebarContext } from "./sidebar-context";
 import { getDecryptedItem } from "@/utils/storageHelper";
