@@ -57,11 +57,25 @@ const handleApprove = async (id: any) => {
     dispatch(fetchAllCertificates())
   };
 
-  const handleReject = async (userId:any) => {
-    
-   dispatch(rejectCertificate({ userId, role })); 
-   dispatch(fetchAllCertificates())
-  };
+const handleReject = async (userId: any) => {
+   const reason = prompt("Provide a reason for rejection");
+  
+  // Check if user actually entered a reason
+  if (!reason || reason.trim() === "") {
+    alert("Please provide a reason for rejection");
+    return;
+  }
+  
+  // Dispatch with correct payload structure
+  dispatch(rejectCertificate({ 
+    userId,      // or use cert.user.id if calling from onClick
+    reason: reason.trim(),
+    role 
+  }));
+  
+  // Refresh the list after rejection
+  dispatch(fetchAllCertificates());
+};
 
   
 

@@ -62,7 +62,7 @@ export const approveCertificate = createAsyncThunk(
 // ✅ FIXED: Corrected payload structure and role type
 export const rejectCertificate = createAsyncThunk(
   'certificateApproval/reject',
-  async ({ userId, role,reason  }: { userId: number; role: 'admin' | 'super-admin' ,reason?: string; }, { rejectWithValue }) => {
+  async ({ userId, role,reason  }: { userId: number; role: 'admin' | 'super-admin' ,reason: string; }, { rejectWithValue }) => {
     try {
       
       // Try with leading slash if backend route has it
@@ -70,7 +70,8 @@ export const rejectCertificate = createAsyncThunk(
         `certificate/rejected/of/certificate`,
         { 
           user_id: userId,
-          role: role
+          role: role,
+          reason:reason,
         }
       );
 
