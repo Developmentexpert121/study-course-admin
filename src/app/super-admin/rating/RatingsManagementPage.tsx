@@ -15,7 +15,9 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApiClient } from "@/lib/api";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
-
+import { updateReviewVisibility } from "@/store/slices/adminslice/ratingsoftdelete";
+import { useAppDispatch } from "@/store";
+import { getDecryptedItem } from "@/utils/storageHelper";
 interface Rating {
   id: number;
   user_id: number;
@@ -37,13 +39,13 @@ export default function RatingsManagementPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const api = useApiClient();
-
+const role = getDecryptedItem("role");
   const courseId = searchParams.get("course_id");
 
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
-
+  const dispatch = useAppDispatch();
   const fetchRatings = async () => {
     try {
       setLoading(true);
@@ -105,25 +107,20 @@ export default function RatingsManagementPage() {
     }
   };
 
-  const handleDeleteRating = async (ratingId: number) => {
-    setActionLoading(ratingId);
-    try {
-      const res = await api.delete(`rating/${ratingId}`);
-      if (res.success) {
-        toasterSuccess("Rating deleted", 2000, "id");
-        fetchRatings();
-      }
-    } catch {
-      toasterError("Failed to delete rating", 2000, "id");
-    } finally {
-      setActionLoading(null);
-    }
+
+
+  const handleDeleteRating = async (ratingId: number , role:any) => {
+    await dispatch(updateReviewVisibility({
+      ratingId: ratingId,
+      role: role,
+    }));
+    fetchRatings();
   };
 
   const handleAddRating = async (ratingId: number) => {
     setActionLoading(ratingId);
     try {
-      const res = await api.patch(`ratings/${ratingId}/add`);
+      const res = await api.put(`rating/${ratingId}/visibilityactive`);
       if (res.success) {
         toasterSuccess("Rating activated", 2000, "id");
         fetchRatings();
@@ -205,6 +202,7 @@ export default function RatingsManagementPage() {
                   <span className="italic text-gray-500 dark:text-gray-400">
                     No review
                   </span>
+
                 )}
               </p>
 
@@ -251,9 +249,9 @@ export default function RatingsManagementPage() {
                   </button>
                 )}
 
-                {rating.isactive ? (
+                {(rating.review_visibility === "visible" )? (
                   <button
-                    onClick={() => handleDeleteRating(rating.id)}
+                    onClick={() => handleDeleteRating(rating.id , role)}
                     disabled={actionLoading === rating.id}
                     className="flex items-center gap-1 rounded-md bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700 disabled:opacity-50"
                   >

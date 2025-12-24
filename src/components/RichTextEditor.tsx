@@ -60,13 +60,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editorProps: {
       attributes: {
         "aria-label": label || "rich text editor",
-        class: "prose prose-sm sm:prose-base focus:outline-none max-w-none",
+        class: "prose prose-sm sm:prose-base focus:outline-none max-w-none h-full",
       },
     },
     onUpdate: ({ editor }) => {
       onChange?.(editor.getHTML());
     },
-    immediatelyRender: false, // Add this line
+    immediatelyRender: false,
   });
 
   useEffect(() => {
@@ -260,11 +260,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </div>
         </div>
 
-        <EditorContent
-          editor={editor}
+        <div
+          onClick={() => editor?.chain().focus().run()}
           style={{ minHeight }}
-          className="prose w-full max-w-none overflow-y-auto px-4 py-3"
-        />
+          className="w-full cursor-text overflow-y-auto px-4 py-3"
+        >
+          <EditorContent
+            editor={editor}
+            className="prose prose-sm sm:prose-base max-w-none focus:outline-none"
+          />
+        </div>
       </div>
 
       {error && <p className="mt-1 text-sm text-red-600">{String(error)}</p>}

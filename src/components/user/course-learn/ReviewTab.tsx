@@ -40,7 +40,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ course }) => {
   const [hoveredStar, setHoveredStar] = useState(0);
   const api = useApiClient();
   const currentUserId: any = getDecryptedItem("userId");
-
+console.log("this is the review of user", reviews)
   useEffect(() => {
     if (course?.id) {
       fetchReviews();
@@ -199,14 +199,14 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ course }) => {
     }
   };
 
-  const handleDeleteReview = async (reviewId: number) => {
+  const handleDeleteReview = async (rating_id: number) => {
     if (!confirm("Are you sure you want to delete your review?")) return;
 
     try {
-      const response = await api.delete(`rating/delete/${reviewId}`);
+      const response = await api.delete(`rating/user/${rating_id}/delete`);
 
       if (response.success) {
-        setReviews((prev) => prev.filter((review) => review.id !== reviewId));
+        setReviews((prev) => prev.filter((review) => review.id !== rating_id));
         setFormData({ score: 0, review: "" });
         setShowReviewForm(false);
         setEditingReview(null);
@@ -215,19 +215,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ course }) => {
       }
     } catch (error: any) {
       console.error("Error deleting review:", error);
-      try {
-        const deleteResponse = await api.delete(`rating/${reviewId}`);
-        if (deleteResponse.success) {
-          setReviews((prev) => prev.filter((review) => review.id !== reviewId));
-          setFormData({ score: 0, review: "" });
-          setShowReviewForm(false);
-          setEditingReview(null);
-          alert("Review deleted successfully!");
-          fetchReviews();
-        }
-      } catch (deleteError) {
-        alert("Failed to delete review. Please try again.");
-      }
+    
     }
   };
 

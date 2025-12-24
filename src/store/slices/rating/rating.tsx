@@ -39,7 +39,7 @@ export const updateReviewVisibility = createAsyncThunk(
   async (payload: UpdateVisibilityPayload, { rejectWithValue }) => {
     try {
       const response = await reduxApiClient.put(
-        `rating/${payload.ratingId}/visibility`,
+        `ratings/${payload.ratingId}/visibility`,
         { role: payload.role }
       );
 
@@ -59,7 +59,7 @@ export const getRatingById = createAsyncThunk(
   "rating/getRatingById",
   async (ratingId: string | number, { rejectWithValue }) => {
     try {
-      const response = await reduxApiClient.get(`rating/${ratingId}`);
+      const response = await reduxApiClient.get(`ratings/${ratingId}`);
 
       if (!response.success) {
         return rejectWithValue(response.error?.message || "Failed to fetch rating");
@@ -81,7 +81,7 @@ export const batchUpdateReviewVisibility = createAsyncThunk(
   ) => {
     try {
       const response = await reduxApiClient.put(
-        "rating/batch/visibility",
+        "ratings/batch/visibility",
         payload
       );
 

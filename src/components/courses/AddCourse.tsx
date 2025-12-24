@@ -54,6 +54,7 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
         priceType: "free",
         duration: "",
         status: "draft",
+        courseMode: "online", // "online", "offline", or "hybrid"
         image: null as File | string | null,
         introVideo: null as File | string | null,
     });
@@ -247,12 +248,10 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
             priceType,
             duration,
             status,
+            courseMode,
         } = formData;
 
-        if (
-            !title
-
-        ) {
+        if (!title) {
             toasterError("Please fill all the title fields ❌", 2000, "id");
             return;
         }
@@ -287,6 +286,7 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                 priceType,
                 duration,
                 status,
+                courseMode,
                 features: courseFeatures,
                 image: formData.image,
                 introVideo: formData.introVideo || "",
@@ -414,9 +414,22 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                                         type="button"
                                         onClick={handleCreateCategory}
                                         disabled={isCreatingCategory || !formData.category.trim()}
-                                        className="flex items-center gap-2 rounded-lg bg-[#02517b82] px-4 py-3 text-white hover:bg-[#02517bc9] disabled:cursor-not-allowed disabled:opacity-50"
+                                        className={`flex items-center gap-2 rounded-lg px-4 py-3 text-white transition-all ${isCreatingCategory || !formData.category.trim()
+                                            ? "cursor-not-allowed bg-gray-400 opacity-50"
+                                            : "bg-[#02517b] hover:bg-[#02517bc9]"
+                                            }`}
                                     >
-                                        {isCreatingCategory ? "Creating..." : "Create New"}
+                                        {isCreatingCategory ? (
+                                            <>
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                Creating...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Plus className="h-4 w-4" />
+                                                Create New
+                                            </>
+                                        )}
                                     </button>
                                 </div>
 
@@ -462,7 +475,25 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                         </div>
                     </div>
 
+                    {/* Course Mode Row */}
                     <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
+                        <div className="w-full sm:w-1/2">
+                            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
+                                Course Mode *
+                            </label>
+                            <select
+                                name="courseMode"
+                                value={formData.courseMode}
+                                onChange={handleChange}
+                                className="w-full rounded-lg border border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
+                                required
+                            >
+                                <option value="online">Online</option>
+                                <option value="offline">Offline</option>
+                                <option value="hybrid">Hybrid (Online + Offline)</option>
+                            </select>
+                        </div>
+
                         <div className="w-full sm:w-1/2">
                             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
                                 Price Type *
@@ -478,17 +509,19 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                                 <option value="paid">Paid</option>
                             </select>
                         </div>
+                    </div>
 
+                    <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                         {formData.priceType === "paid" && (
                             <InputGroup
                                 className="w-full sm:w-1/2"
                                 type="number"
                                 name="price"
-                                label="Price ($)"
+                                label="Price (₹)"
                                 placeholder="0.00"
                                 value={formData.price}
                                 onChange={handleChange}
-                                icon={<DollarSign />}
+                                icon={<span className="text-lg font-bold">₹</span>}
                                 iconPosition="left"
                                 height="sm"
                                 min="0.01"
@@ -498,7 +531,7 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                         )}
 
                         <InputGroup
-                            className="w-full sm:w-1/2"
+                            className={formData.priceType === "paid" ? "w-full sm:w-1/2" : "w-full"}
                             type="text"
                             name="duration"
                             label="Duration"
@@ -511,24 +544,6 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                             required
                         />
                     </div>
-
-                    {/* Status */}
-                    {/* <div className="mb-5.5">
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
-              Status *
-            </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
-              required
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="draft">Draft</option>
-            </select>
-          </div> */}
 
                     {/* Course Features with Rich Text Editor */}
                     <div className="mb-5.5">
@@ -599,8 +614,6 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                             accept="image/*"
                             onChange={handleChange}
                         />
-
-
 
                         {/* Image Upload Loader */}
                         {isUploading && (
@@ -688,9 +701,6 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                             onChange={handleDescriptionChange}
                             placeholder="Write detailed description about the course..."
                             minHeight="300px"
-                        // error={
-                        //   !formData.description ? "Description is required" : undefined
-                        // }
                         />
                     </div>
 
@@ -706,12 +716,6 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                         <button
                             className="rounded-lg bg-primary px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             type="submit"
-                        // disabled={
-                        //   isUploading ||
-                        //   isVideoUploading ||
-                        //   courseFeatures.length === 0 ||
-                        //   !formData.image
-                        // }
                         >
                             {isUploading || isVideoUploading ? "Uploading..." : "ADD COURSE"}
                         </button>

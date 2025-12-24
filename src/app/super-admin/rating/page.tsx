@@ -52,7 +52,7 @@ export default function RatingsManagementPage() {
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
-
+console.log("ratingratingratingratingratingrating",ratings)
   // Filters
   const [statusFilter, setStatusFilter] = useState("all");
   const [scoreFilter, setScoreFilter] = useState("all");
@@ -92,9 +92,9 @@ export default function RatingsManagementPage() {
 
       if (res.success) {
         // The new API returns both ratings and statistics
-        const ratingsData = res.data?.data?.ratings || [];
+        const ratingsData = res?.data?.data || [];
         const statistics = res.data?.data?.statistics || {};
-
+console.log(res?.data?.data,"ppppp")
         setRatings(ratingsData);
         setStats({
           totalRatings: statistics.total_ratings || 0,
@@ -145,7 +145,13 @@ export default function RatingsManagementPage() {
       scoreFilter === "all" || rating.score.toString() === scoreFilter;
     return statusMatch && scoreMatch;
   });
-
+console.log("rating", ratings.filter((rating) => {
+    const statusMatch =
+      statusFilter === "all" || rating.status === statusFilter;
+    const scoreMatch =
+      scoreFilter === "all" || rating.score.toString() === scoreFilter;
+    return statusMatch && scoreMatch;
+  }));
   // Replace your current handleHideRating and handleUnhideRating functions with these:
 
   // Handle hide review (only hides the review text, keeps rating visible)
@@ -315,15 +321,7 @@ export default function RatingsManagementPage() {
           </div>
           <div className="flex gap-2">
             {/* View All Ratings button when filtered by course */}
-            {courseTitle && (
-              <button
-                onClick={() => router.push("/super-admin/ratings")}
-                className="inline-flex items-center rounded-lg bg-gray-600 px-4 py-2 text-white shadow-sm transition-colors hover:bg-gray-700"
-              >
-                <Eye className="mr-2 h-4 w-4" />
-                View All Ratings
-              </button>
-            )}
+            
             <button
               onClick={fetchRatings}
               className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] dark:bg-[#43bf79]"
@@ -502,27 +500,15 @@ export default function RatingsManagementPage() {
                     >
                       <td className="whitespace-nowrap px-6 py-4">
                         <div className="flex items-center">
-                          <div className="h-12 w-12 flex-shrink-0">
-                            {rating.user?.profileImage ? (
-                              <img
-                                className="h-12 w-12 rounded-full border-2 border-gray-200 object-cover dark:border-gray-600"
-                                src={rating.user.profileImage}
-                                alt={rating.user.username}
-                              />
-                            ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-blue-300 bg-gradient-to-br from-blue-500 to-blue-700 dark:border-blue-400">
-                                <User className="h-6 w-6 text-white" />
-                              </div>
-                            )}
-                          </div>
+                      
                           <div className="ml-4">
                             <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {rating.user?.username || "Unknown User"}
+                              {rating.rating_user?.username || "Unknown User"}
                             </div>
                             <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                               <Mail className="h-3 w-3" />
                               <span className="truncate">
-                                {rating.user?.email || "No email"}
+                                {rating.rating_user?.email || "No email"}
                               </span>
                             </div>
                           </div>
@@ -531,7 +517,7 @@ export default function RatingsManagementPage() {
                       <td className="whitespace-nowrap px-6 py-4">
                         <div className="flex items-center text-sm text-gray-900 dark:text-gray-300">
                           <BookOpen className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400 dark:text-white" />
-                          <span>{rating.course.title}</span>
+                          {/* <span>{rating.course.title}</span> */}
                         </div>
                         <div className="mt-2 flex items-center">
                           {[...Array(5)].map((_, i) => (

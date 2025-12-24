@@ -19,7 +19,7 @@ export default function CourseHeader({
     const mins = minutes % 60;
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   };
-
+console.log("this is the detail about the course details", courseData)
   // Safe progress calculation - userData.progress is a number, not an object
   const progress = userData?.progress || 0;
   const safeProgress = Math.min(Math.max(Number(progress) || 0, 0), 100);
@@ -101,7 +101,7 @@ export default function CourseHeader({
             </div>
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span>{courseData.ratings?.average_rating || 0}</span>
+              <span>{courseData.ratings || 4}</span>
             </div>
           </div>
         </div>

@@ -24,6 +24,8 @@ import admminratings from "./slices/adminslice/reviewhideadmin";
 import superadmininfos from "./slices/adminslice/courseEnrollmentsSlice";
 import  coursesReducer from "./slices/adminslice/userprogress";
 import instructorDashboardReducer from "./slices/adminslice/admindashboard";
+import progressReducer from"./slices/adminslice/completechapter";
+
 
 const placeholderSlice = createSlice({
   name: "placeholder",
@@ -56,6 +58,7 @@ export const makeStore = () => {
        coursedetails:superadmininfos,
         courses: coursesReducer,
          instructorDashboard: instructorDashboardReducer,
+         progress: progressReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

@@ -17,11 +17,19 @@ import {
     MoreVertical,
     BookOpen,
     FileQuestion,
+    CheckCircle
 } from "lucide-react";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApiClient } from "@/lib/api";
 import SafeHtmlRenderer from "@/components/SafeHtmlRenderer";
+
+import { useDispatch, useSelector } from 'react-redux';
+import { 
+  markChapterComplete, 
+  fetchCourseProgress,
+  resetProgress 
+} from '@/store/slices/adminslice/completechapter';
 
 export default function ChaptersList({ basePath }: any) {
     const router = useRouter();
@@ -32,12 +40,25 @@ export default function ChaptersList({ basePath }: any) {
         type: "image",
         items: [],
     });
+    
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [limit] = useState(5);
     const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
+
+
+    const handleCompleteChapter = async () => {
+    await dispatch(
+      markChapterComplete({
+        userId: 1,
+        courseId: 2,
+        chapterId: 3,
+      })
+    );
+  };
+
 
     const searchParams = useSearchParams();
     const courseId = searchParams.get("course_id");
@@ -454,6 +475,15 @@ export default function ChaptersList({ basePath }: any) {
                             >
                                 <Trash2 size={16} />
                                 Delete Chapter
+                            </button>
+
+                            <button
+                               
+                                // onClick={() => handleCompleteChapter()}
+                                className="flex items-center gap-3 px-4 py-3 text-left text-sm text-emerald-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            >
+                                <CheckCircle size={16} />
+                                Mark as Completed
                             </button>
                         </div>
                     </div>
