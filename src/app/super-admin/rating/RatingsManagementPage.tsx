@@ -150,7 +150,7 @@ const role = getDecryptedItem("role");
           </p>
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3   lg:grid-cols-1">
           {ratings.slice(0, 9).map((rating) => (
             <div
               key={rating.id}

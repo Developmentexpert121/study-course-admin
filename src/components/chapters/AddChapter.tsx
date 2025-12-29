@@ -334,7 +334,7 @@ const AddChapter = ({ basePath }: { basePath: string }) => {
             </button>
           </div> */}
 
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 pt-4">
             <button
               className="rounded-lg border border-stroke px-6 py-[7px] font-medium text-dark hover:shadow-1 dark:border-dark-3 dark:text-white"
               type="button"

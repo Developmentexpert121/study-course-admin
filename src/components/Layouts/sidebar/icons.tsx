@@ -250,3 +250,124 @@ export const Award = ({ className = "w-6 h-6" }) => (
     />
   </svg>
 );
+
+
+
+export function Dashboard(props: PropsType) {
+  return (
+    <svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      {...props}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2.25 3A.75.75 0 013 2.25h18a.75.75 0 01.75.75v16a.75.75 0 01-.75.75H3a.75.75 0 01-.75-.75V3zm1.5.75v14.5h16.5V3.75H3.75zM5 6a.75.75 0 01.75-.75h4a.75.75 0 01.75.75v5a.75.75 0 01-.75.75h-4a.75.75 0 01-.75-.75V6zm1.5.75v3.5h2.5v-3.5h-2.5zm5.75-1.5a.75.75 0 01.75-.75h4a.75.75 0 01.75.75v8a.75.75 0 01-.75.75h-4a.75.75 0 01-.75-.75V5zm1.5.75v6.5h2.5V5.75h-2.5z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+export function AdminUser(props: PropsType) {
+  return (
+    <svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      {...props}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 1.25a4.75 4.75 0 100 9.5 4.75 4.75 0 000-9.5zM8.75 6a3.25 3.25 0 116.5 0 3.25 3.25 0 01-6.5 0zM12 12.25c-2.313 0-4.445.526-6.024 1.414C4.42 14.54 3.25 15.866 3.25 17.5v.102c-.001 1.162-.002 2.62 1.277 3.662.629.512 1.51.877 2.7 1.117 1.192.242 2.747.369 4.773.369s3.58-.127 4.774-.369c1.19-.24 2.07-.605 2.7-1.117 1.279-1.042 1.277-2.5 1.276-3.662V17.5c0-1.634-1.17-2.96-2.725-3.836-1.58-.888-3.711-1.414-6.025-1.414zM4.75 17.5c0-.851.622-1.775 1.961-2.528 1.316-.74 3.184-1.222 5.29-1.222 2.104 0 3.972.482 5.288 1.222 1.34.753 1.961 1.677 1.961 2.528 0 1.308-.04 2.044-.724 2.6-.37.302-.99.597-2.05.811-1.057.214-2.502.339-4.476.339-1.974 0-3.42-.125-4.476-.339-1.06-.214-1.68-.509-2.05-.81-.684-.557-.724-1.293-.724-2.601zM16.75 5a.75.75 0 01.75-.75h3a.75.75 0 010 1.5h-3a.75.75 0 01-.75-.75zm0 3a.75.75 0 01.75-.75h3a.75.75 0 010 1.5h-3a.75.75 0 01-.75-.75z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+export function Course(props: PropsType) {
+  return (
+    <svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      {...props}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M3 2.25a.75.75 0 01.75.75v2.437L12 4.133l8.25 1.304V3a.75.75 0 011.5 0v2.75c0 .414-.335.75-.75.75h-.75v10.5h.75a.75.75 0 010 1.5h-19a.75.75 0 010-1.5h.75V6.5H3a.75.75 0 01-.75-.75V3a.75.75 0 01.75-.75zm1.5 4.25v10.5h16.5V6.5H4.5zm6.75 7.5a.75.75 0 01.75-.75h4a.75.75 0 010 1.5h-4a.75.75 0 01-.75-.75zm-2 2a.75.75 0 01.75-.75h6a.75.75 0 010 1.5h-6a.75.75 0 01-.75-.75z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+export function ActivityLog(props: PropsType) {
+  return (
+    <svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      {...props}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M3 2.25a.75.75 0 01.75.75v2h16.5V3a.75.75 0 011.5 0v2h1.25a.75.75 0 01.75.75v16a.75.75 0 01-.75.75H2.25a.75.75 0 01-.75-.75v-16a.75.75 0 01.75-.75H3.5V3a.75.75 0 01.75-.75zM3.75 6.5v14.5h16.5V6.5H3.75zm3 1.5a.75.75 0 01.75-.75h2a.75.75 0 010 1.5h-2a.75.75 0 01-.75-.75zm0 3a.75.75 0 01.75-.75h8a.75.75 0 010 1.5h-8a.75.75 0 01-.75-.75zm0 3a.75.75 0 01.75-.75h8a.75.75 0 010 1.5h-8a.75.75 0 01-.75-.75zm0 3a.75.75 0 01.75-.75h8a.75.75 0 010 1.5h-8a.75.75 0 01-.75-.75z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+export function Newsletter(props: PropsType) {
+  return (
+    <svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      {...props}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2.25 3a.75.75 0 01.75-.75h18a.75.75 0 01.75.75v14a.75.75 0 01-.75.75H3a.75.75 0 01-.75-.75V3zm1.5.75v12.5h16.5V3.75H3.75z"
+        fill="currentColor"
+      />
+      <path
+        d="M3.281 4.125l8.719 6.094 8.719-6.094M2.25 18.75h19.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function Certificate(props: PropsType) {
+  return (
+    <svg
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      {...props}
+    >
+      <path
+        d="M12 2L15.09 10.26H23.84L17.02 15.25L20.16 23.51L12 18.52L3.84 23.51L6.98 15.25L0.16 10.26H8.91L12 2Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}

@@ -18,7 +18,7 @@ const Breadcrumb = ({ pageName, links = [] }: BreadcrumbProps) => {
       : [{ label: "Dashboard", href: "/" }, { label: pageName }];
 
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className=" flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4">
       <h2 className="text-[26px] font-bold leading-[30px] text-dark dark:text-white">
         {pageName}
       </h2>

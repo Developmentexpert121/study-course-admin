@@ -7,7 +7,7 @@ export const NAV_DATA = [
       {
         title: "Dashboard",
         url: "/user/dashboard",
-        icon: Icons.HomeIcon,
+        icon: Icons.Dashboard,
         items: [],
         type: "user",
       },
@@ -35,14 +35,14 @@ export const NAV_DATA = [
       {
         title: "Certificates",
         url: "/user/certificates",
-        icon: Icons.Award,
+        icon: Icons.Certificate,
         items: [],
         type: "user",
       },
 
       {
         title: "Dashboard",
-        icon: Icons.HomeIcon,
+        icon: Icons.Dashboard,
         url: "/admin/dashboard",
         items: [],
         type: "admin",
@@ -50,7 +50,7 @@ export const NAV_DATA = [
       {
         title: "COURSES",
         url: "/admin/courses",
-        icon: Icons.Calendar,
+        icon: Icons.Course,
         items: [],
         type: "admin",
       },
@@ -66,14 +66,14 @@ export const NAV_DATA = [
       {
         title: "Dashboard",
         url: "/super-admin/dashboard",
-        icon: Icons.HomeIcon,
+        icon: Icons.Dashboard,
         items: [],
         type: "Super-Admin",
       },
       {
         title: "Admins",
         url: "/super-admin/admins-requests",
-        icon: Icons.User,
+        icon: Icons.AdminUser,
         items: [],
         type: "Super-Admin",
       },
@@ -86,22 +86,14 @@ export const NAV_DATA = [
         type: "Super-Admin",
       },
 
-      // // Common items for all users
-      // {
-      //   title: "Profile",
-      //   url: "/view-profile",
-      //   icon: Icons.User,
-      //   items: [],
-      //   type: "both",
-      // },
-
+      
 
 
 
       {
         title: "Courses",
         url: "/super-admin/courses",
-        icon: Icons.Calendar,
+        icon: Icons.Course,
         items: [],
         type: "Super-Admin",
       },
@@ -109,24 +101,35 @@ export const NAV_DATA = [
       {
         title: "Activity Logs",
         url: "/super-admin/audit-logs",
-        icon: Icons.Calendar,
+        icon: Icons.ActivityLog,
         items: [],
         type: "Super-Admin",
       },
-      // {
-      //   title: "Rating",
-      //   url: "/super-admin/rating",
-      //   icon: Icons.Calendar,
-      //   items: [],
-      //   type: "Super-Admin",
-      // },
+    
 
       {
         title: "Newsletter",
         url: "/super-admin/mails",
-        icon: Icons.Calendar,
+        icon: Icons.Newsletter,
         items: [],
         type: "Super-Admin",
+      },
+
+      
+      {
+        title: "Certificate",
+        url: "/super-admin/certificate",
+        icon: Icons.Certificate,
+        items: [],
+        type: "Super-Admin",
+      },
+
+      {
+        title: "Certificate",
+        url: "/admin/certificate",
+        icon: Icons.Certificate,
+        items: [],
+        type: "admin",
       },
 
     ],

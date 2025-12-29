@@ -165,7 +165,20 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
 
         if ((name === "image" || name === "introVideo") && files && files[0]) {
             await handleFileUpload(name, files[0]);
-        } else if (name !== "category") {
+        } 
+        
+        else if (name === "duration") {
+         // Allow any text input, but prevent purely negative number entries
+        // This allows "8 weeks", "30 hours", "8 weeks, 30 hours" but prevents "-5"
+        const trimmedValue = value.trim();
+        
+        // Allow empty string or if it doesn't start with a minus sign
+        if (trimmedValue === "" || !trimmedValue.match(/^\s*-/)) {
+            setFormData((prev: any) => ({ ...prev, [name]: value }));
+        }
+    }
+        
+        else if (name !== "category") {
             setFormData((prev: any) => ({ ...prev, [name]: value }));
         }
     };
