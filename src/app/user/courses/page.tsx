@@ -292,7 +292,7 @@ export default function EnrolledCourses({ className }: any) {
             {/* Courses Grid */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
               {filteredEnrollments.map((enrollment: any) => {
-                const { course, progress } = enrollment;
+                const { course, progress, batch } = enrollment;
                 const progressPercent = getCourseProgress(progress);
                 const isCompleted = progressPercent >= 100;
 
@@ -328,9 +328,16 @@ export default function EnrolledCourses({ className }: any) {
                     <div className="p-6">
                       {/* Course Meta */}
                       <div className="mb-3 flex items-center justify-between">
-                        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                          <Calendar className="mr-1 h-3 w-3" />
-                          {formatDate(enrollment.enrolled_at)}
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                            <Calendar className="mr-1 h-3 w-3" />
+                            {formatDate(enrollment.enrolled_at)}
+                          </div>
+                          {/* Batch Badge */}
+                          <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+                            <Users className="h-3 w-3" />
+                            <span>Batch {batch}</span>
+                          </div>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                           {getProgressIcon(progressPercent)}
@@ -507,7 +514,7 @@ export default function EnrolledCourses({ className }: any) {
               >
                 Clear filters
               </button>
-            )}
+              )}
           </div>
         )}
       </div>

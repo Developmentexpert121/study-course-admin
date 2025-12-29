@@ -24,8 +24,10 @@ import admminratings from "./slices/adminslice/reviewhideadmin";
 import superadmininfos from "./slices/adminslice/courseEnrollmentsSlice";
 import coursesReducer from "./slices/adminslice/userprogress";
 import instructorDashboardReducer from "./slices/adminslice/admindashboard";
-import certificateReducer from "./slices/adminslice/certificate"
-import certificateApprovalReducer from "./slices/adminslice/approvalcertificate"
+import certificateReducer from "./slices/adminslice/certificate";
+import certificateApprovalReducer from "./slices/adminslice/approvalcertificate";
+
+
 
 const placeholderSlice = createSlice({
   name: "placeholder",
@@ -60,6 +62,7 @@ export const makeStore = () => {
       instructorDashboard: instructorDashboardReducer,
       certificate: certificateReducer,
       certificateApproval: certificateApprovalReducer,
+  
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

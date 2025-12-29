@@ -40,7 +40,7 @@ const CourseUsersManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<any>("");
   const [progressFilter, setProgressFilter] = useState<string>("all");
   const [actionLoading, setActionLoading] = useState<number | null>(null);
-
+  const [batchUpdating, setBatchUpdating] = useState<number | null>(null);
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
@@ -194,7 +194,7 @@ const CourseUsersManagement: React.FC = () => {
       const link = document.createElement("a");
       link.href = certificateUrl;
       link.download = `certificate_${certificateCode}_${userName.replace(/\s+/g, "_")}.pdf`;
-      link.target = "_blank"; // Open in new tab for better UX
+      link.target = "_blank";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -202,6 +202,36 @@ const CourseUsersManagement: React.FC = () => {
     } catch (error) {
       console.error("Error downloading certificate:", error);
       toasterError("Failed to download certificate", 2000, "id");
+    }
+  };
+
+  const handleBatchChange = async (enrollmentId: number, newBatch: string, userName: string) => {
+    setBatchUpdating(enrollmentId);
+    try {
+      const response = await api.put(
+        `enroll/${enrollmentId}/batch`,
+        { batch: newBatch }
+      );
+
+      if (response?.data.success) {
+        toasterSuccess(`Batch updated to ${newBatch} for ${userName}`, 2000, "id");
+        await fetchCourseUsers();
+      } else {
+        toasterError(
+          response?.data.message || "Failed to update batch",
+          2000,
+          "id",
+        );
+      }
+    } catch (error: any) {
+      console.error("Error updating batch:", error);
+      toasterError(
+        error.response?.data?.message || "Failed to update batch",
+        2000,
+        "id",
+      );
+    } finally {
+      setBatchUpdating(null);
     }
   };
 
@@ -355,8 +385,9 @@ const CourseUsersManagement: React.FC = () => {
                     Certificate Status
                   </TableHead>
                   <TableHead className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Actions
+                    Batch
                   </TableHead>
+                 
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-gray-200 bg-white">
@@ -367,7 +398,9 @@ const CourseUsersManagement: React.FC = () => {
                     onGenerateCertificate={handleGenerateCertificate}
                     onSendEmail={handleSendCertificateEmail}
                     onDownloadCertificate={handleDownloadCertificate}
+                    onBatchChange={handleBatchChange}
                     actionLoading={actionLoading}
+                    batchUpdating={batchUpdating}
                     getProgressColor={getProgressColor}
                     getProgressIcon={getProgressIcon}
                   />
@@ -400,7 +433,9 @@ const UserRow: React.FC<{
   onGenerateCertificate: (userId: number, userName: string) => void;
   onSendEmail: (certificateId: number, userName: string) => void;
   onDownloadCertificate: (url: string, code: string, userName: string) => void;
+  onBatchChange: (enrollmentId: number, newBatch: string, userName: string) => void;
   actionLoading: number | null;
+  batchUpdating: number | null;
   getProgressColor: (progress: number) => string;
   getProgressIcon: (progress: number, isCompleted: boolean) => React.ReactNode;
 }> = ({
@@ -408,11 +443,13 @@ const UserRow: React.FC<{
   onGenerateCertificate,
   onSendEmail,
   onDownloadCertificate,
+  onBatchChange,
   actionLoading,
+  batchUpdating,
   getProgressColor,
   getProgressIcon,
 }) => {
-  const { user, progress, certificate, actions } = userProgress;
+  const { user, progress, certificate, actions, enrollment } = userProgress;
 
   // FIX: Always allow download and email if certificate exists and is issued
   const canDownload = certificate && certificate.status === "issued";
@@ -508,89 +545,36 @@ const UserRow: React.FC<{
         )}
       </td>
 
-      {/* Actions - FIXED: Use frontend logic instead of backend actions */}
-      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-        <div className="flex items-center space-x-2">
-          {/* Generate Certificate Button */}
-          {canGenerate && (
-            <button
-              onClick={() => onGenerateCertificate(user.id, user.fullName)}
-              disabled={actionLoading === user.id}
-              className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:opacity-50"
-            >
-              {actionLoading === user.id ? (
-                <div className="mr-1 h-3 w-3 animate-spin rounded-full border-b-2 border-white"></div>
-              ) : (
-                <Award className="mr-1 h-3 w-3" />
-              )}
-              Generate
-            </button>
+      {/* Batch */}
+      <td className="px-6 py-4">
+        <div className="flex flex-col items-center">
+          <select
+            value={enrollment.batch}
+            onChange={(e) => onBatchChange(enrollment.id, e.target.value, user.fullName)}
+            disabled={batchUpdating === enrollment.id}
+            className="rounded-md border border-indigo-300 bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-800 cursor-pointer focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {[1, 2, 3, 4, 5, 6].map((batch) => (
+              <option key={batch} value={batch.toString()}>
+                Batch {batch}
+              </option>
+            ))}
+          </select>
+          {batchUpdating === enrollment.id && (
+            <div className="mt-2 h-3 w-3 animate-spin rounded-full border-b-2 border-indigo-600"></div>
           )}
-
-          {/* Download Certificate Button - ALWAYS SHOW IF CERTIFICATE EXISTS */}
-          {canDownload && (
-            <button
-              onClick={() =>
-                onDownloadCertificate(
-                  certificate.certificate_url,
-                  certificate.certificate_code,
-                  user.fullName,
-                )
-              }
-              className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-50"
-            >
-              <Download className="mr-1 h-3 w-3" />
-              Download
-            </button>
-          )}
-
-          {/* Send Email Button - ALWAYS SHOW IF CERTIFICATE EXISTS */}
-          {canSendEmail && (
-            <button
-              onClick={() => onSendEmail(certificate.id, user.fullName)}
-              disabled={actionLoading === certificate.id}
-              className="inline-flex items-center rounded-md border border-transparent bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-green-700 disabled:opacity-50"
-            >
-              {actionLoading === certificate.id ? (
-                <div className="mr-1 h-3 w-3 animate-spin rounded-full border-b-2 border-white"></div>
-              ) : (
-                <Send className="mr-1 h-3 w-3" />
-              )}
-              Email
-            </button>
-          )}
-
-          {/* Revoke Certificate Button */}
-          {/* {actions.can_revoke_certificate && certificate && (
-            <button
-              onClick={() => {
-              }}
-              className="inline-flex items-center rounded-md border border-transparent bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors duration-200 hover:bg-red-700"
-            >
-              <XCircle className="mr-1 h-3 w-3" />
-              Revoke
-            </button>
-          )} */}
-
-          {/* {process.env.NODE_ENV === "development" && (
-            <div className="text-xs text-gray-400">
-              CanDownload: {canDownload ? "Yes" : "No"}, CanSendEmail:{" "}
-              {canSendEmail ? "Yes" : "No"}, CanGenerate:{" "}
-              {canGenerate ? "Yes" : "No"}
-            </div>
-          )} */}
-
-          {/* Show message if no actions available */}
-          {!canGenerate &&
-            !canDownload &&
-            !canSendEmail &&
-            !actions.can_revoke_certificate && (
-              <span className="text-xs italic text-gray-500">
-                No actions available
-              </span>
-            )}
+          <div className="mt-2 text-xs text-gray-500 text-center">
+            {enrollment.batch === '1' && '10:00 AM - 11:00 AM'}
+            {enrollment.batch === '2' && '11:00 AM - 12:00 PM'}
+            {enrollment.batch === '3' && '12:00 PM - 1:00 PM'}
+            {enrollment.batch === '4' && '3:00 PM - 4:00 PM'}
+            {enrollment.batch === '5' && '4:00 PM - 5:00 PM'}
+            {enrollment.batch === '6' && '5:00 PM - 6:00 PM'}
+          </div>
         </div>
       </td>
+
+  
     </TableRow>
   );
 };
