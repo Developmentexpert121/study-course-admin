@@ -297,7 +297,7 @@ export default function AdminDashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="name" stroke="#6b7280dd" textAnchor="end"/>
                   <YAxis stroke="#6b7280" />
-                  <Tooltip />
+                  <Tooltip /> 
                   <Legend />
                   <Bar
                     dataKey="enrollments"
