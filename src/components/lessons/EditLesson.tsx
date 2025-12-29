@@ -357,17 +357,17 @@ const EditLesson = ({ basePath }: { basePath: string }) => {
         // Auto-detect lesson type
         const lessonType = detectLessonType();
 
-        // Validate video_url for video lessons
-        if (
-            lessonType === "video" &&
-            formData.video_urls.length === 0 &&
-            uploadedVideoUrls.length === 0
-        ) {
-            toasterError(
-                "Please add at least one video or video URL for video lessons",
-            );
-            return;
-        }
+        // // Validate video_url for video lessons
+        // if (
+        //     lessonType === "video" &&
+        //     formData.video_urls.length === 0 &&
+        //     uploadedVideoUrls.length === 0
+        // ) {
+        //     toasterError(
+        //         "Please add at least one video or video URL for video lessons",
+        //     );
+        //     return;
+        // }
 
         if (
             !uploadedImageUrls.length &&

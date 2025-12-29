@@ -12,9 +12,9 @@ import chaptersReducer from './slices/adminslice/chaptersSlice'
 import userManagementReducer from './slices/adminslice/userManagement'
 import dashboardStatsReducer from './slices/adminslice/dashboardStatsSlice'
 import courseAuditLogReducer from './slices/adminslice/auditcourselog';
-import userReducer  from './slices/profile/profileinfo';
+import userReducer from './slices/profile/profileinfo';
 import usereditReducer from './slices/profile/profileedit';
-import  homepageinfo from './slices/homepage/homepage';
+import homepageinfo from './slices/homepage/homepage';
 import ratingReducer from './slices/adminslice/ratinguser';
 import emailReducer from './slices/homepage/emailSlice';
 import bulkEmailReducer from "./slices/adminslice/emailsent";
@@ -22,10 +22,10 @@ import ratingshowhide from "./slices/adminslice/ratinghideshow";
 import softdeleteratings from "./slices/adminslice/ratingsoftdelete";
 import admminratings from "./slices/adminslice/reviewhideadmin";
 import superadmininfos from "./slices/adminslice/courseEnrollmentsSlice";
-import  coursesReducer from "./slices/adminslice/userprogress";
+import coursesReducer from "./slices/adminslice/userprogress";
 import instructorDashboardReducer from "./slices/adminslice/admindashboard";
-// import progressReducer from"./slices/adminslice/completechapter";
-
+import certificateReducer from "./slices/adminslice/certificate"
+import certificateApprovalReducer from "./slices/adminslice/approvalcertificate"
 
 const placeholderSlice = createSlice({
   name: "placeholder",
@@ -50,15 +50,16 @@ export const makeStore = () => {
       useredit: usereditReducer,
       homepage: homepageinfo,
       ratings: ratingReducer,
-       email: emailReducer,
-       bulkEmail: bulkEmailReducer,
-       ratingsuperadmin:ratingshowhide,
-       ratingsoftdelete:softdeleteratings,
-       ratingadmin:admminratings,
-       coursedetails:superadmininfos,
-        courses: coursesReducer,
-         instructorDashboard: instructorDashboardReducer,
-        //  progress: progressReducer,
+      email: emailReducer,
+      bulkEmail: bulkEmailReducer,
+      ratingsuperadmin: ratingshowhide,
+      ratingsoftdelete: softdeleteratings,
+      ratingadmin: admminratings,
+      coursedetails: superadmininfos,
+      courses: coursesReducer,
+      instructorDashboard: instructorDashboardReducer,
+      certificate: certificateReducer,
+      certificateApproval: certificateApprovalReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
