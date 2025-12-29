@@ -46,16 +46,28 @@ export default function CertificatesPage() {
   const error = useAppSelector(selectError);
   const count = useAppSelector(selectCount);
 
-console.log("11111111111111",certificates)
 
 
-
-
+const [approvalLoading, setApprovalLoading] = useState<Record<string, boolean>>({});
+const [rejectionLoading, setRejectionLoading] = useState<Record<string, boolean>>({});
 const handleApprove = async (id: any) => {
-    
-    dispatch(approveCertificate(id));
-    dispatch(fetchAllCertificates())
-  };
+  setApprovalLoading(prev => ({ ...prev, [id]: true }));
+  try {
+    const res = await dispatch(approveCertificate(id));
+    if (approveCertificate.fulfilled.match(res)) {
+      dispatch(fetchAllCertificates());
+      // Optional: Show success toast/notification
+    } else {
+      // Handle error
+      console.error("Approval failed");
+    }
+  } catch (error) {
+    console.error("Error approving certificate:", error);
+  } finally {
+    setApprovalLoading(prev => ({ ...prev, [id]: false }));
+  }
+};
+
 
 const handleReject = async (userId: any) => {
    const reason = prompt("Provide a reason for rejection");
@@ -65,19 +77,26 @@ const handleReject = async (userId: any) => {
     alert("Please provide a reason for rejection");
     return;
   }
-  
+  setRejectionLoading(prev => ({ ...prev, [userId]: true }));
   // Dispatch with correct payload structure
-  dispatch(rejectCertificate({ 
+  const res = await dispatch(rejectCertificate({ 
     userId,      // or use cert.user.id if calling from onClick
     reason: reason.trim(),
     role 
   }));
+
+   if (rejectCertificate.fulfilled.match(res)) {
+    dispatch(fetchAllCertificates());
+     setRejectionLoading(prev => ({ ...prev, [userId]: false }));
+  }
+  
   
   // Refresh the list after rejection
-  dispatch(fetchAllCertificates());
+  
 };
 
   
+
 
 
 
@@ -555,21 +574,39 @@ const handleReject = async (userId: any) => {
                               return (
                                 <div className="flex items-center gap-2">
                                   <button
-                                    onClick={() =>handleApprove(cert.id) }
-                                    // disabled={actionLoading[admin.id]}
-                                    className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                  >
-                                    {/* <Check className="mr-1 h-3.5 w-3.5" /> */}
-                                        Approve
-                                  </button>
+  onClick={() => handleApprove(cert.id)}
+  disabled={approvalLoading[cert.id] || loading}
+  className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {approvalLoading[cert.id] ? (
+    <>
+      <svg className="mr-1.5 h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Approving...
+    </>
+  ) : (
+    "Approve"
+  )}
+</button>
                                   <button
-                                    onClick={() => handleReject(cert.user.id)}
-                                    // disabled={actionLoading[admin.id]}
-                                    className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                  >
-                                    {/* <X className="mr-1 h-3.5 w-3.5" /> */}
-                                        Reject
-                                  </button>
+  onClick={() => handleReject(cert.user.id)}
+  disabled={rejectionLoading[cert.user.id] || loading}
+  className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {rejectionLoading[cert.user.id] ? (
+    <>
+      <svg className="mr-1.5 h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Rejecting...
+    </>
+  ) : (
+    "Reject"
+  )}
+</button>
                                 </div>
                               );
                             case "issued":
@@ -583,22 +620,40 @@ const handleReject = async (userId: any) => {
                               );
                            case "admin_approved":
                             return(<div className="flex items-center gap-2">
+                                 <button
+  onClick={() => handleApprove(cert.id)}
+  disabled={approvalLoading[cert.id] || loading}
+  className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {approvalLoading[cert.id] ? (
+    <>
+      <svg className="mr-1.5 h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Approving...
+    </>
+  ) : (
+    "Approve"
+  )}
+</button>
                                   <button
-                                    onClick={() =>handleApprove(cert.id) }
-                                    // disabled={actionLoading[admin.id]}
-                                    className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                  >
-                                    {/* <Check className="mr-1 h-3.5 w-3.5" /> */}
-                                        Approve
-                                  </button>
-                                  <button
-                                    onClick={() => handleReject(cert.user.id)}
-                                    // disabled={actionLoading[admin.id]}
-                                    className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                  >
-                                    {/* <X className="mr-1 h-3.5 w-3.5" /> */}
-                                        Reject
-                                  </button>
+  onClick={() => handleReject(cert.user.id)}
+  disabled={rejectionLoading[cert.user.id] || loading}
+  className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {rejectionLoading[cert.user.id] ? (
+    <>
+      <svg className="mr-1.5 h-3.5 w-3.5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Rejecting...
+    </>
+  ) : (
+    "Reject"
+  )}
+</button>
                                 </div>);
                            case "admin_rejected":
                             return(

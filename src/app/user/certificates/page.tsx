@@ -335,7 +335,7 @@ const CertificateCard = ({
     case "admin rejected":
       return "Admin Rejected reason is sended on youre mail";
     case "super-admin_approved":
-      return "super-admin Approved"; 
+      return "super-admin Approved wait for admin approval"; 
      case "super-admin_rejected":
       return "super-admin Rejected reason is sended on youre mail";   
     default:
