@@ -295,9 +295,9 @@ export default function AdminDashboardPage() {
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={topCoursesChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="name" stroke="#6b7280" />
+                  <XAxis dataKey="name" stroke="#6b7280dd" textAnchor="end"/>
                   <YAxis stroke="#6b7280" />
-                  <Tooltip />
+                  <Tooltip /> 
                   <Legend />
                   <Bar
                     dataKey="enrollments"

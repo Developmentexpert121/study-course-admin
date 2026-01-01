@@ -30,6 +30,7 @@ import {
   List,
   Rocket,
   Zap,
+   Wifi, WifiOff 
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -760,20 +761,20 @@ const CourseCard = ({
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-500 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 ${isCourseAvailable && !isEnrolled
+      className={`group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-500 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 ${
+        isCourseAvailable && !isEnrolled
           ? "cursor-pointer hover:-translate-y-1"
           : "cursor-default"
-        }`}
+      }`}
       onClick={() => !isEnrolled && isCourseAvailable && onClick()}
     >
       {/* Course Image with Gradient Overlay */}
       <div className="relative h-48 w-full overflow-hidden">
         {course.image ? (
-          <Image
+          <img
             src={course.image}
             alt={course.title}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600">
@@ -797,12 +798,13 @@ const CourseCard = ({
         {/* Status Badges */}
         <div className="absolute left-4 top-4 flex flex-col gap-2">
           <span
-            className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${courseStatus.color === "gray"
+            className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${
+              courseStatus.color === "gray"
                 ? "bg-gray-900/80 text-white"
                 : courseStatus.color === "orange"
                   ? "bg-orange-500/90 text-white"
                   : "bg-green-500/90 text-white"
-              }`}
+            }`}
           >
             {courseStatus.status === "inactive" && <Lock className="h-3 w-3" />}
             {courseStatus.status === "under_development" && (
@@ -813,6 +815,29 @@ const CourseCard = ({
             )}
             {courseStatus.label}
           </span>
+
+          {/* Course Mode Badge */}
+          {course.mode && (
+            <span
+              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${
+                course.mode === "online"
+                  ? "bg-blue-500/90 text-white"
+                  : "bg-purple-500/90 text-white"
+              }`}
+            >
+              {course.mode === "online" ? (
+                <>
+                  <Wifi className="h-3 w-3" />
+                  Online Course
+                </>
+              ) : (
+                <>
+                  <WifiOff className="h-3 w-3" />
+                  Offline Course
+                </>
+              )}
+            </span>
+          )}
 
           {isEnrolled && (
             <span className="rounded-full bg-blue-500/90 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
@@ -825,10 +850,11 @@ const CourseCard = ({
         <button
           onClick={onWishlistToggle}
           disabled={wishlistLoading}
-          className={`absolute right-4 top-4 rounded-full p-2.5 backdrop-blur-sm transition-all duration-300 ${isInWishlist
+          className={`absolute right-4 top-4 rounded-full p-2.5 backdrop-blur-sm transition-all duration-300 ${
+            isInWishlist
               ? "bg-red-500 text-white shadow-lg hover:bg-red-600"
               : "bg-white/90 text-gray-600 shadow-lg hover:bg-white hover:text-red-500"
-            } ${wishlistLoading ? "cursor-not-allowed opacity-50" : ""}`}
+          } ${wishlistLoading ? "cursor-not-allowed opacity-50" : ""}`}
           title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >
           {wishlistLoading ? (
@@ -843,10 +869,11 @@ const CourseCard = ({
         {/* Price Badge */}
         <div className="absolute right-4 top-16">
           <span
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${course.price_type === "free"
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${
+              course.price_type === "free"
                 ? "bg-green-500/90 text-white"
                 : "bg-blue-500/90 text-white"
-              }`}
+            }`}
           >
             {course.price_type === "free" ? "FREE" : `$${course.price}`}
           </span>
@@ -951,30 +978,17 @@ const CourseCard = ({
                   Continue
                 </button>
               </div>
-
-              {/* Progress Below Buttons */}
-              {/* <div className="mt-2">
-                <div className="flex items-center justify-between text-sm font-bold text-gray-900 dark:text-white">
-                  <span>Progress</span>
-                  <span>{progress}%</span>
-                </div>
-                <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div
-                    className="h-2 bg-gradient-to-r from-green-500 to-emerald-600 transition-all duration-500"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-              </div> */}
             </>
           ) : (
             // For not enrolled
             <button
               onClick={() => isCourseAvailable && onClick()}
               disabled={!isCourseAvailable}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-300 ${isCourseAvailable
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                isCourseAvailable
                   ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
                   : "cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
-                }`}
+              }`}
             >
               {isInactive ? (
                 <>

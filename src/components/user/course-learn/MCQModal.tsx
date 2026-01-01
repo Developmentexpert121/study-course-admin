@@ -73,7 +73,7 @@ const MCQModal: React.FC<MCQModalProps> = ({
         className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
-
+ 
       {/* Enhanced Modal */}
       <div className="relative max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-800">
         {/* Enhanced Header */}
