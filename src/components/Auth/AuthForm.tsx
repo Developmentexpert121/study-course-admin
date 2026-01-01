@@ -22,7 +22,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     role: "user", // Default role
   });
   const router = useRouter();
-
+ const [errors, setErrors] = useState({});
   const searchParams = useSearchParams();
   const api = useApiClient();
 
@@ -72,7 +72,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
 
   const handleRoleChange = (role: string) => {
@@ -82,37 +90,44 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (type === "register") {
-      const { password, confirmPassword } = formData;
+  
 
-      if (password.length < 6) {
-        toasterError(
-          "Password must be at least 6 characters.",
-          2000,
-          "weak-password",
-        );
-        return;
+
+     const { name, email, password, confirmPassword } = formData;
+      let newErrors: any = {};
+
+      if (!name) newErrors.name = "Full name is required";
+      if (!email) newErrors.email = "Email is required";
+      if (!password) newErrors.password = "Password is required";
+      if (!confirmPassword)
+        newErrors.confirmPassword = "Confirm password is required";
+
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        newErrors.email = "Please enter a valid email address";
       }
 
-      if (password !== confirmPassword) {
-        toasterError(
-          "Password and Confirm Password must match.",
-          2000,
-          "password-mismatch",
-        );
-        return;
+      if (password && password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters";
       }
 
-      const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-      if (!strongPasswordRegex.test(password)) {
-        toasterError(
-          "Password must include uppercase, lowercase, and a number.",
-          2000,
-          "strong-password",
-        );
+      if (password) {
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+        if (!strongPasswordRegex.test(password)) {
+          newErrors.password =
+            "Password must include uppercase, lowercase, and a number";
+        }
+      }
+
+      if (password && confirmPassword && password !== confirmPassword) {
+        newErrors.confirmPassword = "Passwords do not match";
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
         return;
       }
-    }
+      setErrors({});
+
 
     let endpoint = "";
     let payload: any = {};
@@ -266,7 +281,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
               : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
           }`}
         >
-          👤 User Account
+          👤 Student Account
         </button>
         <button
           type="button"
@@ -277,7 +292,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
               : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
           }`}
         >
-          ⚙️ Admin Account
+          ⚙️ Teacher Account
         </button>
       </div>
 
@@ -396,8 +411,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                 placeholder="Enter your name"
                 onChange={handleChange}
                 className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                required
+                // required
               />
+               {errors.name && (
+                <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+              )}
             </div>
           )}
 
@@ -429,8 +447,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                 placeholder="Enter your email"
                 onChange={handleChange}
                 className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                required
+                // required
               />
+               {errors.email && (
+                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+              )}
             </div>
           )}
 
@@ -448,8 +469,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                   placeholder="Enter your password"
                   onChange={handleChange}
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                  required
+                  // required
                 />
+                 {errors.password && (
+                <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+              )}
                 <button
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
@@ -511,8 +535,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                   placeholder="Confirm your password"
                   onChange={handleChange}
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                  required
+                  // required
                 />
+                 {errors.password && (
+                <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+              )}
                 <button
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
