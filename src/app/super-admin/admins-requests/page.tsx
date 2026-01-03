@@ -71,8 +71,36 @@ export default function AdminUsersPage() {
   // Local state for search input
   const [localSearchTerm, setLocalSearchTerm] = useState(searchQuery || '');
 
+
+  const buildFetchPayload = (
+  page: number = 1,
+  search?: string,
+  status?: string,
+  email?: string,
+  name?: string
+) => {
+  const payload: any = {
+    page: page || 1,
+    limit: 10,
+  };
+
+  if (search) payload.search = search;
+  if (status) payload.status = status;
+  if (email) payload.email = email;
+  if (name) payload.name = name;
+
+  return payload;
+};
+
+// useEffect(() => {
+  
+//   dispatch(fetchAdmins(payload));
+// }, [dispatch, searchQuery, filters]);
+
+
   // Fetch admins on component mount and when search/filters change
   useEffect(() => {
+    const payload = buildFetchPayload(1, searchQuery, filters.status, filters.email, filters.name);
     dispatch(fetchAdmins({
       page: 1,
       search: searchQuery,
@@ -83,15 +111,10 @@ export default function AdminUsersPage() {
   }, [dispatch, searchQuery, filters]);
 
   // Handle page change
-  const handlePageChange = (page: number) => {
-    dispatch(fetchAdmins({
-      page,
-      search: searchQuery,
-      status: filters.status,
-      email: filters.email,
-      name: filters.name
-    }));
-  };
+const handlePageChange = (page: number) => {
+  const payload = buildFetchPayload(page, searchQuery, filters.status, filters.email, filters.name);
+  dispatch(fetchAdmins(payload));
+};
 
   // Handle search
   const handleSearch = () => {
@@ -225,7 +248,7 @@ export default function AdminUsersPage() {
           <div className="rounded-lg border-2 border-red-200 bg-red-50 p-6 text-center dark:border-red-500/50 dark:bg-red-900/20">
             <XCircle className="mx-auto mb-3 h-12 w-12 text-red-500" />
             <h3 className="mb-2 text-lg font-semibold text-red-800 dark:text-red-400">
-              Error Loading Admins
+              Error Loading Teacher
             </h3>
             <p className="mb-4 text-red-700 dark:text-red-300">{error}</p>
             <button
@@ -249,7 +272,7 @@ export default function AdminUsersPage() {
           <div>
             <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
               <Shield className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />
-              Admin Users Management
+              Teacher Users Management
             </h1>
             <p className="mt-2 text-gray-600 dark:text-white">
               View and manage all administrator accounts
@@ -264,13 +287,71 @@ export default function AdminUsersPage() {
           </button>
         </div>
 
+
+
+  {/* Stats Cards */}
+        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+          {/* Total Admins */}
+          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-white">
+                  Total Teacher
+                </p>
+                <p className="mt-1 text-3xl font-bold text-[#02517b] dark:text-[#43bf79]">
+                  {totaluser}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#02517b]/10 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
+                <Shield className="h-6 w-6 text-[#02517b] dark:text-[#43bf79]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Verified */}
+          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-white">
+                  Verified
+                </p>
+                <p className="mt-1 text-3xl font-bold text-green-600 dark:text-[#43bf79]">
+                  {totalactive}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
+                <CheckCircle className="h-6 w-6 text-green-600 dark:text-[#43bf79]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Rejected */}
+          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-white">
+                  Rejected
+                </p>
+                <p className="mt-1 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+                  {totaluser - totalactive}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 transition-transform duration-300 group-hover:scale-110 dark:bg-yellow-500/20">
+                <XCircle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
         {/* Search and Filter Section */}
         <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             {/* Search Input */}
             <div className="flex-1">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Search Admins
+                Search Teacher
               </label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
@@ -356,59 +437,7 @@ export default function AdminUsersPage() {
         {/* Rest of your component remains the same... */}
         {/* Stats Cards, Table, Pagination, etc. */}
 
-        {/* Stats Cards */}
-        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {/* Total Admins */}
-          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 dark:text-white">
-                  Total Admins
-                </p>
-                <p className="mt-1 text-3xl font-bold text-[#02517b] dark:text-[#43bf79]">
-                  {totaluser}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#02517b]/10 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
-                <Shield className="h-6 w-6 text-[#02517b] dark:text-[#43bf79]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Verified */}
-          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 dark:text-white">
-                  Verified
-                </p>
-                <p className="mt-1 text-3xl font-bold text-green-600 dark:text-[#43bf79]">
-                  {totalactive}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
-                <CheckCircle className="h-6 w-6 text-green-600 dark:text-[#43bf79]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Rejected */}
-          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 dark:text-white">
-                  Rejected
-                </p>
-                <p className="mt-1 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                  {totaluser - totalactive}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 transition-transform duration-300 group-hover:scale-110 dark:bg-yellow-500/20">
-                <XCircle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
-            </div>
-          </div>
-        </div>
+      
 
         {/* Table */}
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
@@ -417,7 +446,7 @@ export default function AdminUsersPage() {
               <thead className="bg-gray-50 dark:bg-gray-900/50">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                    Admin Details
+                    Teacher Details
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
                     Email Address
@@ -439,7 +468,7 @@ export default function AdminUsersPage() {
                     <td colSpan={5} className="px-6 py-12 text-center">
                       <User className="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600" />
                       <p className="font-medium text-gray-500 dark:text-white">
-                        {hasActiveFilters ? "No admins match your filters" : "No admin users found"}
+                        {hasActiveFilters ? "No Teacher match your filters" : "No admin users found"}
                       </p>
                       <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
                         {hasActiveFilters ? "Try adjusting your search or filters" : "Admin accounts will appear here once created"}
@@ -508,7 +537,7 @@ export default function AdminUsersPage() {
                                       <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
                                       <div>
                                         <p className="mb-1 font-semibold">
-                                          Rejected Admin
+                                          Rejected Teacher
                                         </p>
                                       </div>
                                     </div>
@@ -548,7 +577,7 @@ export default function AdminUsersPage() {
                                       <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
                                       <div>
                                         <p className="mb-1 font-semibold">
-                                          Approved Admin
+                                          Approved Teacher
                                         </p>
                                       </div>
                                     </div>
@@ -560,7 +589,7 @@ export default function AdminUsersPage() {
                               return (
                                 <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-400">
                                   <Shield className="mr-1.5 h-4 w-4" />
-                                  Admin
+                                  Teacher
                                 </span>
                               );
                           }

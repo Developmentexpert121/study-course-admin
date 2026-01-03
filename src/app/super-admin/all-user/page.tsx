@@ -44,6 +44,7 @@ export default function UsersWithProgressPage({ className }: any) {
     verificationStatus,
     totalUsers,
     activeUsers,
+    unverifiedUsers
   } = useAppSelector((state) => state.users);
   const limit = 5;
   const [processingUserId, setProcessingUserId] = useState<string | null>(null);
@@ -211,7 +212,7 @@ export default function UsersWithProgressPage({ className }: any) {
           <div>
             <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
               <Shield className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />
-              Users Management
+              Student Management
             </h1>
             <p className="mt-2 text-gray-600 dark:text-white">
               View and manage all user accounts
@@ -235,13 +236,91 @@ export default function UsersWithProgressPage({ className }: any) {
           </button>
         </div>
 
+
+
+    {/* Stats Cards */}
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+          {/* Total Users */}
+          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-white">
+                  Total Student
+                </p>
+                <p className="mt-1 text-3xl font-bold text-[#02517b] dark:text-[#43bf79]">
+                  {totalCount}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#02517b]/10 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
+                <User className="h-6 w-6 text-[#02517b] dark:text-[#43bf79]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Active Users */}
+          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-white">
+                  Active Student
+                </p>
+                <p className="mt-1 text-3xl font-bold text-green-600 dark:text-[#43bf79]">
+                  {activeCount}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
+                <CheckCircle className="h-6 w-6 text-green-600 dark:text-[#43bf79]" />
+              </div>
+            </div>
+          </div>
+
+
+    {/* Unverified Users */}
+          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-white">
+                  Unverified Student
+                </p>
+                <p className="mt-1 text-3xl font-bold text-red-600 dark:text-red-400">
+                  {unverifiedUsers}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 transition-transform duration-300 group-hover:scale-110 dark:bg-red-500/20">
+                <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* Deactivate Users */}
+          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-white">
+                  Deactivate Student
+                </p>
+                <p className="mt-1 text-3xl font-bold text-red-600 dark:text-red-400">
+                  {inactiveCount}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 transition-transform duration-300 group-hover:scale-110 dark:bg-red-500/20">
+                <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+
+
         {/* Search and Filter Section */}
         <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             {/* Search Input */}
             <div className="flex-1">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Search Users
+                Search Student
               </label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
@@ -266,7 +345,7 @@ export default function UsersWithProgressPage({ className }: any) {
                 onChange={(e) => setLocalVerificationStatus(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
               >
-                <option value="all">All Users</option>
+                <option value="all">All Student</option>
                 <option value="verified">Verified</option>
                 <option value="unverified">Unverified</option>
               </select>
@@ -316,59 +395,7 @@ export default function UsersWithProgressPage({ className }: any) {
           )}
         </div>
 
-        {/* Stats Cards */}
-        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {/* Total Users */}
-          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 dark:text-white">
-                  Total Users
-                </p>
-                <p className="mt-1 text-3xl font-bold text-[#02517b] dark:text-[#43bf79]">
-                  {totalCount}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#02517b]/10 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
-                <User className="h-6 w-6 text-[#02517b] dark:text-[#43bf79]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Active Users */}
-          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 dark:text-white">
-                  Active Users
-                </p>
-                <p className="mt-1 text-3xl font-bold text-green-600 dark:text-[#43bf79]">
-                  {activeCount}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 transition-transform duration-300 group-hover:scale-110 dark:bg-[#43bf79]/20">
-                <CheckCircle className="h-6 w-6 text-green-600 dark:text-[#43bf79]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Inactive Users */}
-          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-600 dark:text-white">
-                  Inactive Users
-                </p>
-                <p className="mt-1 text-3xl font-bold text-red-600 dark:text-red-400">
-                  {inactiveCount}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 transition-transform duration-300 group-hover:scale-110 dark:bg-red-500/20">
-                <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
-              </div>
-            </div>
-          </div>
-        </div>
+    
 
         {/* Table */}
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">

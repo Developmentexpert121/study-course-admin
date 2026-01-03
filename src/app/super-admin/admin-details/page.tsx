@@ -139,7 +139,7 @@ export default function UserCoursesPage() {
           <div>
             <h1 className="flex items-center text-3xl font-bold text-gray-900 dark:text-white">
               <Book className="mr-3 h-8 w-8 text-blue-600 dark:text-blue-500" />
-              User Courses Management
+              Teacher Courses Management
             </h1>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
               View and manage all courses created by this user
@@ -274,7 +274,7 @@ export default function UserCoursesPage() {
                         filters.category ||
                         filters.status !== "active"
                           ? "Try adjusting your filters"
-                          : "This user has not created any courses yet"}
+                          : "This Teacher has not created any courses yet"}
                       </p>
                     </td>
                   </tr>

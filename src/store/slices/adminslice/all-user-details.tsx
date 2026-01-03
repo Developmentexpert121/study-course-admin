@@ -20,6 +20,7 @@ interface UsersState {
   totalUsers: number;
   activeUsers: number;
   inactiveUsers: number;
+  unverifiedUsers: number;
   filteredUsersCount: number;
   loading: boolean;
   error: string | null;
@@ -34,6 +35,7 @@ const initialState: UsersState = {
   totalUsers: 0,
   activeUsers: 0,
   inactiveUsers: 0,
+  unverifiedUsers: 0,
   filteredUsersCount: 0,
   loading: false,
   error: null,
@@ -87,6 +89,7 @@ export const fetchUsers = createAsyncThunk(
         totalUsers: res.data?.data?.totalUsers || 0,
         activeUsers: res.data?.data?.activeUsers || 0,
         inactiveUsers: res.data?.data?.inactiveUsers || 0,
+        unverifiedUsers: res.data?.data?.unverifiedUsers || 0,
         filteredUsersCount: res.data?.data?.filteredUsersCount || 0,
         searchTerm: search,
         verificationStatus: verificationStatus,
@@ -121,6 +124,9 @@ const usersSlice = createSlice({
     setInactiveUsers: (state, action: PayloadAction<number>) => {
       state.inactiveUsers = action.payload;
     },
+    setUnverifiedUsers: (state, action: PayloadAction<number>) => {
+      state.unverifiedUsers = action.payload;
+    },
     clearError: (state) => {
       state.error = null;
     },
@@ -134,6 +140,7 @@ const usersSlice = createSlice({
       state.totalUsers = 0;
       state.activeUsers = 0;
       state.inactiveUsers = 0;
+      state.unverifiedUsers = 0;
       state.filteredUsersCount = 0;
     },
   },
@@ -151,6 +158,7 @@ const usersSlice = createSlice({
         state.totalUsers = action.payload.totalUsers;
         state.activeUsers = action.payload.activeUsers;
         state.inactiveUsers = action.payload.inactiveUsers;
+        state.unverifiedUsers = action.payload.unverifiedUsers;
         state.filteredUsersCount = action.payload.filteredUsersCount;
         state.searchTerm = action.payload.searchTerm;
         state.verificationStatus = action.payload.verificationStatus;
@@ -169,6 +177,7 @@ export const {
   setTotalUsers,
   setActiveUsers,
   setInactiveUsers,
+  setUnverifiedUsers,
   clearError,
   clearSearch,
   resetUserCounts,
