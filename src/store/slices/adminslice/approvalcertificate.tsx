@@ -134,20 +134,20 @@ const certificateApprovalSlice = createSlice({
 
     // ✅ FIXED: Correctly access userId from the object parameter
     builder
-      .addCase(rejectCertificate.pending, (state, action) => {
-        const { userId } = action.meta.arg; // Extract userId from object
+      .addCase(rejectCertificate.pending, (state : any, action : any) => {
+        const { userId  } = action.meta.arg; // Extract userId from object
         state.rejectionLoading[userId] = true;
         state.error = null;
         state.successMessage = null;
       })
-      .addCase(rejectCertificate.fulfilled, (state, action) => {
+      .addCase(rejectCertificate.fulfilled, (state: any, action: any) => {
         const { userId } = action.meta.arg; // Extract userId from object
         state.rejectionLoading[userId] = false;
         state.lastRejectedCertificate = action.payload;
         state.successMessage = 'Certificates rejected successfully';
         state.error = null;
       })
-      .addCase(rejectCertificate.rejected, (state, action) => {
+      .addCase(rejectCertificate.rejected, (state : any, action : any) => {
         const { userId } = action.meta.arg; // Extract userId from object
         state.rejectionLoading[userId] = false;
         state.error = action.payload as string;

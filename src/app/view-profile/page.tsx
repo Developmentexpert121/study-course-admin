@@ -475,7 +475,7 @@ export default function UserProfilePage({ className }: any) {
                   variant="outline"
                   onClick={() => {
                     setShowResetForm(false);
-                    setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+                    setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" , userId:userId,});
                     dispatch(clearPasswordError());
                   }}
                   disabled={isResetting}

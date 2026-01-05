@@ -93,7 +93,7 @@ const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>)
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleSearch();
+      handleVerificationStatusChange;
     }
   };
 

@@ -30,6 +30,7 @@ const AddChapter = ({ basePath }: { basePath: string }) => {
   const [uploadedVideoUrls, setUploadedVideoUrls] = useState<string[]>([]);
   const [imageUploadLoading, setImageUploadLoading] = useState(false);
   const [videoUploadLoading, setVideoUploadLoading] = useState(false);
+  const [errors, setErrors] = useState<any>({});
 
   useEffect(() => {
     fetchCourses();
@@ -112,10 +113,19 @@ const AddChapter = ({ basePath }: { basePath: string }) => {
 
     const { title, content, course_id, order } = formData;
 
-    if (!title.trim() || !content.trim() || !course_id || !order) {
-      toasterError("Please fill in all required fields ❌");
+    let newErrors: any = {};
+    if (!title) newErrors.title = "Title is required";
+    if (!content) newErrors.content = "Course Description is required";
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+    setErrors({});
+
+    if (!title.trim() || !content.trim() || !course_id) {
+      return;
+    }
+
 
     try {
       const payload = {
@@ -132,8 +142,8 @@ const AddChapter = ({ basePath }: { basePath: string }) => {
       if (res.success) {
         toasterSuccess("Chapter created successfully", 2000, "id");
         router.push(
-          `/${basePath}/chapters?course=${courseName}&course_id=${courseId}`,
-        );
+          `/${basePath}/lessons/list/create-lessons?chapter_id=${res.data?.data?.chapter.id}&course_id=${courseId}&courseName=${courseName}`,
+        )
       } else {
         toasterError(res.error?.code || "Something went wrong ❌", 2000, "id");
       }
@@ -149,35 +159,43 @@ const AddChapter = ({ basePath }: { basePath: string }) => {
       <ShowcaseSection title="Add Chapter" className="!p-7">
         <form onSubmit={handleSubmit}>
           <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
-            <InputGroup
-              className="w-full sm:w-1/2"
-              type="text"
-              name="title"
-              label="Chapter Title"
-              placeholder="Enter Chapter Title"
-              value={formData.title}
-              onChange={handleChange}
-              icon={<BookOpen />}
-              iconPosition="left"
-              height="sm"
-            />
+            <div className="w-full">
+              <InputGroup
+                type="text"
+                name="title"
+                label="Chapter Title*"
+                placeholder="Enter Chapter Title"
+                value={formData.title}
+                onChange={handleChange}
+                icon={<BookOpen />}
+                iconPosition="left"
+                height="sm"
+              />
+              {errors.title && (
+                <p className="mt-1 text-sm text-red-500">{errors.title}</p>
+              )}
+            </div>
+            {/* <div className="w-full sm:w-1/2">
+              <InputGroup
+                type="number"
+                name="order"
+                label="Chapter Order*"
+                placeholder="Enter Order Number"
+                value={formData.order}
+                onChange={handleChange}
+                icon={<ListOrdered />}
+                iconPosition="left"
+                height="sm"
+                min={1}
+                step={1}
+              />
+              {errors.order && (
+                <p className="mt-1 text-sm text-red-500">{errors.order}</p>
+              )}
+            </div> */}
 
-            <InputGroup
-              className="w-full sm:w-1/2"
-              type="number"
-              name="order"
-              label="Chapter Order"
-              placeholder="Enter Order Number"
-              value={formData.order}
-              onChange={handleChange}
-              icon={<ListOrdered />}
-              iconPosition="left"
-              height="sm"
-              min={1}
-              step={1}
-            />
           </div>
-          <div>
+          <div className="mb-4">
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
               Select Course
             </label>
@@ -203,6 +221,9 @@ const AddChapter = ({ basePath }: { basePath: string }) => {
             placeholder="Write chapter content..."
             minHeight="300px"
           />
+          {errors.content && (
+            <p className="mt-1 text-sm text-red-500">{errors.content}</p>
+          )}
           {/* <div className="mb-10">
             <label className="mb-3 block text-lg font-semibold text-gray-800 dark:text-white">
               📷 Upload Chapter Images

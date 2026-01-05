@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { getDecryptedItem } from "@/utils/storageHelper";
 import { useApiClient } from "@/lib/api";
+import { FaPlus } from "react-icons/fa";
 
 interface Category {
     id: number;
@@ -65,6 +66,7 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
     const [isCreatingCategory, setIsCreatingCategory] = useState(false);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+    const [errors, setErrors] = useState<any>({});
 
     // Load categories on component mount
     useEffect(() => {
@@ -165,19 +167,19 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
 
         if ((name === "image" || name === "introVideo") && files && files[0]) {
             await handleFileUpload(name, files[0]);
-        } 
-        
-        else if (name === "duration") {
-         // Allow any text input, but prevent purely negative number entries
-        // This allows "8 weeks", "30 hours", "8 weeks, 30 hours" but prevents "-5"
-        const trimmedValue = value.trim();
-        
-        // Allow empty string or if it doesn't start with a minus sign
-        if (trimmedValue === "" || !trimmedValue.match(/^\s*-/)) {
-            setFormData((prev: any) => ({ ...prev, [name]: value }));
         }
-    }
-        
+
+        else if (name === "duration") {
+            // Allow any text input, but prevent purely negative number entries
+            // This allows "8 weeks", "30 hours", "8 weeks, 30 hours" but prevents "-5"
+            const trimmedValue = value.trim();
+
+            // Allow empty string or if it doesn't start with a minus sign
+            if (trimmedValue === "" || !trimmedValue.match(/^\s*-/)) {
+                setFormData((prev: any) => ({ ...prev, [name]: value }));
+            }
+        }
+
         else if (name !== "category") {
             setFormData((prev: any) => ({ ...prev, [name]: value }));
         }
@@ -250,7 +252,6 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         const {
             title,
             description,
@@ -262,31 +263,22 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
             duration,
             status,
             courseMode,
+            image
         } = formData;
 
-        if (!title) {
-            toasterError("Please fill all the title fields ❌", 2000, "id");
-            return;
-        }
+        let newErrors: any = {};
+        if (!title) newErrors.title = "Title is required";
+        if (!duration) newErrors.duration = "Duration is required";
+        if (!category) newErrors.category = "Please Select a Category";
+        if (!courseFeatures.length) newErrors.courseFeatures = "Please add atleast one course feature";
+        if (!image) newErrors.image = "Image is Required";
+        if (!description) newErrors.description = "Course Description is Required";
 
-        if (priceType === "paid" && (!price || Number(price) <= 0)) {
-            toasterError(
-                "Please enter a valid price for paid courses ❌",
-                2000,
-                "id",
-            );
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             return;
         }
-
-        if (courseFeatures.length === 0) {
-            toasterError("Please add at least one course feature ❌", 2000, "id");
-            return;
-        }
-
-        if (!formData.image) {
-            toasterError("Please upload a thumbnail image ❌", 2000, "id");
-            return;
-        }
+        setErrors({});
 
         try {
             const payload = {
@@ -308,7 +300,9 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
             const data = await api.post("course/create-course", payload);
             if (data.success) {
                 toasterSuccess("Course created successfully", 2000, "id");
-                router.push(`/${basePath}/courses`);
+                router.push(
+                    `/${basePath}/chapters/add-chapters?course_id=${data.data.data.course.id}&course=${data.data.data.course.title}`,
+                )
             } else {
                 toasterError(data.error?.code || "Failed to create course", 2000, "id");
             }
@@ -332,34 +326,36 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                 <form onSubmit={handleSubmit}>
                     {/* Title and Creator Row */}
                     <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
-                        <InputGroup
-                            className="w-full sm:w-1/2"
-                            type="text"
-                            name="creator"
-                            label="Creator Name"
-                            placeholder="Add Your Name Here"
-                            value={userNames}
-                            disabled
-                            onChange={handleChange}
-                            icon={<UserIcon />}
-                            iconPosition="left"
-                            height="sm"
-                            required
-                        />
-
-                        <InputGroup
-                            className="w-full sm:w-1/2"
-                            type="text"
-                            name="title"
-                            label="Title"
-                            placeholder="Add Title Here"
-                            value={formData.title}
-                            onChange={handleChange}
-                            icon={<TicketsPlaneIcon />}
-                            iconPosition="left"
-                            height="sm"
-                            required
-                        />
+                        <div className="w-full sm:w-1/2">
+                            <InputGroup
+                                type="text"
+                                name="creator"
+                                label="Creator Name"
+                                placeholder="Add Your Name Here"
+                                value={userNames}
+                                disabled
+                                onChange={handleChange}
+                                icon={<UserIcon />}
+                                iconPosition="left"
+                                height="sm"
+                            />
+                        </div>
+                        <div className="w-full sm:w-1/2">
+                            <InputGroup
+                                type="text"
+                                name="title"
+                                label="Title*"
+                                placeholder="Add Title Here"
+                                value={formData.title}
+                                onChange={handleChange}
+                                icon={<TicketsPlaneIcon />}
+                                iconPosition="left"
+                                height="sm"
+                            />
+                            {errors.title && (
+                                <p className="mt-1 text-sm text-red-500">{errors.title}</p>
+                            )}
+                        </div>
                     </div>
 
                     {/* Subtitle and Category Row */}
@@ -395,7 +391,6 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                                             }
                                             placeholder="Select or create a category"
                                             className="w-full rounded-lg border border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
-                                            required
                                         />
                                         {formData.category && (
                                             <button
@@ -485,6 +480,9 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                                     </div>
                                 )}
                             </div>
+                            {errors.category && (
+                                <p className="mt-1 text-sm text-red-500">{errors.category}</p>
+                            )}
                         </div>
                     </div>
 
@@ -499,7 +497,6 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                                 value={formData.courseMode}
                                 onChange={handleChange}
                                 className="w-full rounded-lg border border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
-                                required
                             >
                                 <option value="online">Online</option>
                                 <option value="offline">Offline</option>
@@ -516,7 +513,6 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                                 value={formData.priceType}
                                 onChange={handleChange}
                                 className="w-full rounded-lg border border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
-                                required
                             >
                                 <option value="free">Free</option>
                                 <option value="paid">Paid</option>
@@ -527,51 +523,52 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                     <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                         {formData.priceType === "paid" && (
                             <InputGroup
-                                className="w-full sm:w-1/2"
+                                className="w-full sm:w-1/2 pl-1"
                                 type="number"
                                 name="price"
                                 label="Price (₹)"
                                 placeholder="0.00"
                                 value={formData.price}
                                 onChange={handleChange}
-                                icon={<span className="text-lg font-bold">₹</span>}
-                                iconPosition="left"
                                 height="sm"
                                 min="0.01"
                                 step="0.01"
-                                required={formData.priceType === "paid"}
                             />
                         )}
-
-                        <InputGroup
-                            className={formData.priceType === "paid" ? "w-full sm:w-1/2" : "w-full"}
-                            type="text"
-                            name="duration"
-                            label="Duration"
-                            placeholder="e.g., 8 weeks, 30 hours"
-                            value={formData.duration}
-                            onChange={handleChange}
-                            icon={<Clock className="h-4 w-4" />}
-                            iconPosition="left"
-                            height="sm"
-                            required
-                        />
+                        <div className={formData.priceType === "paid" ? "w-full sm:w-1/2" : "w-full"}>
+                            <InputGroup
+                                type="text"
+                                name="duration"
+                                label="Duration"
+                                placeholder="e.g., 8 weeks, 30 hours"
+                                value={formData.duration}
+                                onChange={handleChange}
+                                icon={<Clock className="h-4 w-4" />}
+                                iconPosition="left"
+                                height="sm"
+                            />
+                            {errors.duration && (
+                                <p className="mt-1 text-sm text-red-500">{errors.duration}</p>
+                            )}
+                        </div>
                     </div>
 
                     {/* Course Features with Rich Text Editor */}
                     <div className="mb-5.5">
-                        <div className="mb-4 flex items-center justify-between">
+                        <div className="mb-5 flex items-center justify-between">
                             <label className="block text-sm font-medium text-gray-700 dark:text-white">
                                 Course Features/Highlights *
                             </label>
-                            <button
-                                type="button"
-                                onClick={addRichTextFeature}
-                                className="flex items-center gap-2 rounded-lg bg-[#02517b] px-4 py-2 text-white hover:bg-[#55afdf]"
-                            >
-                                <Plus className="h-4 w-4" />
-                                Add Feature
-                            </button>
+                            {courseFeatures.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={addRichTextFeature}
+                                    className="flex items-center gap-2 rounded-lg bg-[#02517b] px-4 py-2 text-white hover:bg-[#55afdf]"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add More Features
+                                </button>
+                            )}
                         </div>
 
                         {/* Rich Text Features */}
@@ -605,14 +602,17 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                         ))}
 
                         {courseFeatures.length === 0 && (
-                            <div className="rounded-lg bg-gray-50 p-6 text-center text-gray-500 dark:bg-dark-3 dark:text-gray-400">
-                                <ListIcon className="mx-auto mb-2 h-8 w-8" />
+                            <div onClick={addRichTextFeature} className="rounded-lg bg-gray-50 p-6 text-center text-gray-500 dark:bg-dark-3 dark:text-gray-400 cursor-pointer">
+                                <FaPlus className="mx-auto mb-2 h-8 w-8 border-4" />
                                 <p>No features added yet.</p>
                                 <p className="text-sm">
-                                    Click "Add Feature" to create detailed features with rich text
+                                    Click Here to create detailed features with rich text
                                     formatting.
                                 </p>
                             </div>
+                        )}
+                        {errors.courseFeatures && (
+                            <p className="mt-1 text-sm text-red-500">{errors.courseFeatures}</p>
                         )}
                     </div>
 
@@ -668,6 +668,9 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                                     />
                                 </div>
                             )}
+                        {errors.image && (
+                            <p className="mt-1 text-sm text-red-500">{errors.image}</p>
+                        )}
                     </div>
 
                     {/* Intro Video */}
@@ -716,6 +719,9 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                             minHeight="300px"
                         />
                     </div>
+                    {errors.description && (
+                        <p className="mt-1 text-sm text-red-500">{errors.description}</p>
+                    )}
 
                     <div className="flex justify-end gap-3">
                         <button
@@ -727,7 +733,7 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                         </button>
 
                         <button
-                            className="rounded-lg bg-primary px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="rounded-lg bg-primary px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-secondary"
                             type="submit"
                         >
                             {isUploading || isVideoUploading ? "Uploading..." : "ADD COURSE"}

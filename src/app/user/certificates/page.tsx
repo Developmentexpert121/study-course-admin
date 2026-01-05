@@ -22,7 +22,7 @@ interface Certificate {
   certificate_code: string;
   certificate_url: string;
   issued_date: string;
-  status: "issued" | "revoked";
+  status: "issued" | "revoked" | "super-admin_rejected" | "pending"| "admin_approved" |"admin_rejected" |"wait for admin approval" | 'wait for super-admin approval'|'super-admin_approved'|'super-admin_rejected'|'issued';
   download_count: number;
   certificate_course?: {
     // ✅ Fixed: Changed from 'course' to 'certificate_course'
@@ -332,7 +332,7 @@ const CertificateCard = ({
       return "✓ Active";
     case "admin_approved":
       return "Admin approved but Super-Admin is pending for approval";
-    case "admin rejected":
+    case "admin_rejected":
       return "Admin Rejected reason is sended on youre mail";
     case "super-admin_approved":
       return "super-admin Approved wait for admin approval"; 

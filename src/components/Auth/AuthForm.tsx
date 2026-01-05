@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { setEncryptedItem } from "@/utils/storageHelper";
 import { useApiClient } from "@/lib/api";
+import { useLoader } from "@/contexts/LoaderContext";
+import LoadingSpinner from "../LoadingSpinner";
 interface AuthFormProps {
   type: "login" | "register" | "forgot-password" | "reset-password";
 }
@@ -22,9 +24,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     role: "user", // Default role
   });
   const router = useRouter();
- const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<any>({});
   const searchParams = useSearchParams();
   const api = useApiClient();
+  const { loading, showLoader, hideLoader } = useLoader();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [isVerifyingToken, setIsVerifyingToken] = useState(false);
 
@@ -77,7 +82,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       ...prev,
       [name]: value,
     }));
-    setErrors((prev) => ({
+    setErrors((prev : any) => ({
       ...prev,
       [name]: "",
     }));
@@ -89,49 +94,45 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const { name, email, password, newPassword, confirmPassword } = formData;
+    let newErrors: any = {};
+    if (!name && type === "register") newErrors.name = "Full name is required";
+    if (!email) newErrors.email = "Email is required";
+    if (!password && !newPassword && type !== "forgot-password") newErrors.password = "Password is required";
+    if (!confirmPassword && (type == "register" || type == "reset-password"))
+      newErrors.confirmPassword = "Confirm password is required";
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
 
-  
+    if (password && password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
 
-
-     const { name, email, password, confirmPassword } = formData;
-      let newErrors: any = {};
-
-      if (!name) newErrors.name = "Full name is required";
-      if (!email) newErrors.email = "Email is required";
-      if (!password) newErrors.password = "Password is required";
-      if (!confirmPassword)
-        newErrors.confirmPassword = "Confirm password is required";
-
-      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        newErrors.email = "Please enter a valid email address";
+    if (password && type !== "login") {
+      const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+      if (!strongPasswordRegex.test(password)) {
+        newErrors.password =
+          "Password must include uppercase, lowercase, and a number";
       }
+    }
 
-      if (password && password.length < 6) {
-        newErrors.password = "Password must be at least 6 characters";
-      }
+    const actualPassword =
+      type === "reset-password" ? newPassword : password;
 
-      if (password) {
-        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-        if (!strongPasswordRegex.test(password)) {
-          newErrors.password =
-            "Password must include uppercase, lowercase, and a number";
-        }
-      }
+    if (actualPassword && confirmPassword && actualPassword !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
 
-      if (password && confirmPassword && password !== confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match";
-      }
-
-      if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors);
-        return;
-      }
-      setErrors({});
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
 
 
     let endpoint = "";
     let payload: any = {};
-
     switch (type) {
       case "register":
         endpoint = "user/signup";
@@ -187,9 +188,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         break;
     }
 
+    showLoader();
     const response = await api.post(endpoint, payload);
-
     if (response.success) {
+      hideLoader();
       if (type === "register") {
         // Check if it's an admin registration
         if (formData.role === "admin") {
@@ -229,6 +231,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         }
       }
     } else {
+      hideLoader();
       const messageMap: Record<string, string> = {
         ERR_AUTH_USERNAME_OR_EMAIL_ALREADY_EXIST: "Email Already Exists.",
         ERR_INVALID_CREDENTIALS: "Invalid email or password.",
@@ -275,22 +278,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         <button
           type="button"
           onClick={() => handleRoleChange("user")}
-          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
-            formData.role === "user"
-              ? "bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"
-              : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-          }`}
+          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${formData.role === "user"
+            ? "bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"
+            : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
         >
           👤 Student Account
         </button>
         <button
           type="button"
           onClick={() => handleRoleChange("admin")}
-          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
-            formData.role === "admin"
-              ? "bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"
-              : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-          }`}
+          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${formData.role === "admin"
+            ? "bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"
+            : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
         >
           ⚙️ Teacher Account
         </button>
@@ -315,7 +316,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             <div className="absolute -inset-1 animate-ping rounded-full bg-purple-400 opacity-20 blur-xl"></div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="z-10 h-14 w-14 text-purple-600 dark:text-purple-400"
+              className="z-10 h-14 w-14 text-purple-600"
+              style={{ color: "rgb(3 75 114)" }}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -329,7 +331,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             </svg>
           </div>
 
-          <h1 className="text-4xl font-extrabold tracking-tight text-purple-800 dark:text-purple-300">
+          <h1 className="text-4xl font-extrabold tracking-tight" style={{ color: "rgb(3 75 114)" }}>
             Admin Account Created
           </h1>
           <p className="mx-auto w-full text-lg leading-relaxed text-gray-700 dark:text-gray-300 sm:w-3/4 md:w-2/3 lg:w-1/2">
@@ -338,7 +340,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           </p>
 
           <Link href="/auth/login">
-            <button className="mt-2 inline-flex items-center justify-center rounded-full bg-purple-600 px-8 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:scale-105 hover:bg-purple-700">
+            <button className="mt-2 inline-flex items-center justify-center rounded-full bg-purple-600 px-8 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:scale-105" style={{ backgroundColor: "rgb(3 75 114)" }}>
               Go to Login
             </button>
           </Link>
@@ -411,9 +413,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                 placeholder="Enter your name"
                 onChange={handleChange}
                 className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                // required
+              // required
               />
-               {errors.name && (
+              {errors.name && (
                 <p className="mt-1 text-sm text-red-500">{errors.name}</p>
               )}
             </div>
@@ -437,91 +439,111 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           {(type === "login" ||
             type === "register" ||
             type === "forgot-password") && (
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Email Address
-              </label>
-              <input
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                onChange={handleChange}
-                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Email Address
+                </label>
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                 // required
-              />
-               {errors.email && (
-                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-              )}
-            </div>
-          )}
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
+            )}
 
           {(type === "login" ||
             type === "register" ||
             type === "reset-password") && (
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  name={type === "reset-password" ? "newPassword" : "password"}
-                  type="password"
-                  placeholder="Enter your password"
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    name={type === "reset-password" ? "newPassword" : "password"}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   // required
-                />
-                 {errors.password && (
-                <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-              )}
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
-                  onClick={(e) => {
-                    const button = e.currentTarget;
-                    const input =
-                      button.previousElementSibling as HTMLInputElement;
-                    if (input && input.type === "password") {
-                      input.type = "text";
-                      button.innerHTML = `
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-            </svg>
-          `;
-                    } else {
-                      input.type = "password";
-                      button.innerHTML = `
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          `;
-                    }
-                  }}
-                >
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                  />
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                  )}
+                  <button
+                    type="button"
+                    className="absolute right-3 top-4 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
+                    onClick={() => setShowPassword(prev => !prev)}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                </button>
+                    {showPassword ? (
+                      /* Eye Off */
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3.98 8.223A10.477 10.477 0 001.934 12
+       C3.226 16.338 7.244 19.5 12 19.5
+       c1.524 0 2.977-.337 4.273-.94"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6.228 6.228A10.45 10.45 0 0112 4.5
+       c4.756 0 8.773 3.162 10.065 7.498
+       a10.523 10.523 0 01-4.293 5.774"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 3l18 18"
+                        />
+                      </svg>
+
+                    ) : (
+                      /* Eye */
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5
+           12 5c4.478 0 8.268 2.943
+           9.542 7-1.274 4.057-5.064 7
+           -9.542 7-4.477 0-8.268-2.943
+           -9.542-7z"
+                        />
+                      </svg>
+                    )}
+                  </button>
+
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {(type === "register" || type === "reset-password") && (
             <div>
@@ -531,60 +553,80 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
               <div className="relative">
                 <input
                   name="confirmPassword"
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm your password"
                   onChange={handleChange}
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                  // required
+                // required
                 />
-                 {errors.password && (
-                <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-              )}
+                {errors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-500">{errors.confirmPassword}</p>
+                )}
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
-                  onClick={(e) => {
-                    const button = e.currentTarget;
-                    const input =
-                      button.previousElementSibling as HTMLInputElement;
-                    if (input && input.type === "password") {
-                      input.type = "text";
-                      button.innerHTML = `
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-          </svg>
-        `;
-                    } else {
-                      input.type = "password";
-                      button.innerHTML = `
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-        `;
-                    }
-                  }}
+                  className="absolute right-3 top-4 transform text-gray-500 transition-colors duration-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-300"
+                  onClick={() => setShowConfirmPassword(prev => !prev)}
                 >
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
+                  {showConfirmPassword ? (
+                    /* Eye Off */
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3.98 8.223A10.477 10.477 0 001.934 12
+       C3.226 16.338 7.244 19.5 12 19.5
+       c1.524 0 2.977-.337 4.273-.94"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6.228 6.228A10.45 10.45 0 0112 4.5
+       c4.756 0 8.773 3.162 10.065 7.498
+       a10.523 10.523 0 01-4.293 5.774"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 3l18 18"
+                      />
+                    </svg>
+
+                  ) : (
+                    /* Eye */
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5
+           12 5c4.478 0 8.268 2.943
+           9.542 7-1.274 4.057-5.064 7
+           -9.542 7-4.477 0-8.268-2.943
+           -9.542-7z"
+                      />
+                    </svg>
+                  )}
                 </button>
+
               </div>
             </div>
           )}
@@ -593,7 +635,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             type="submit"
             className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#02517b] via-[#0482b8] to-[#02517b] py-3 font-semibold text-white shadow-[0_0_25px_rgba(2,81,123,0.6)] transition-all duration-500 hover:scale-105 focus:outline-none"
           >
-            <span className="relative z-10">{renderTitle()}</span>
+            <span className="relative z-10">{loading ? <LoadingSpinner /> : renderTitle()}</span>
 
             {/* Animated gradient overlay */}
             <span className="animate-gradientFlow absolute inset-0 bg-[linear-gradient(270deg,#02517b,#0482b8,#02a7d0,#02517b)] bg-[length:400%_400%] opacity-80"></span>
