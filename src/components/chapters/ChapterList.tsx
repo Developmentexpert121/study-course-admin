@@ -49,15 +49,15 @@ export default function ChaptersList({ basePath }: any) {
     const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
 
 
-    const handleCompleteChapter = async () => {
-        await dispatch(
-            markChapterComplete({
-                userId: 1,
-                courseId: 2,
-                chapterId: 3,
-            })
-        );
-    };
+    // const handleCompleteChapter = async () => {
+    //     await dispatch(
+    //         markChapterComplete({
+    //             userId: 1,
+    //             courseId: 2,
+    //             chapterId: 3,
+    //         })
+    //     );
+    // };
 
 
     const searchParams = useSearchParams();

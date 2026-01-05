@@ -24,7 +24,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     role: "user", // Default role
   });
   const router = useRouter();
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<any>({});
   const searchParams = useSearchParams();
   const api = useApiClient();
   const { loading, showLoader, hideLoader } = useLoader();
@@ -82,7 +82,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       ...prev,
       [name]: value,
     }));
-    setErrors((prev) => ({
+    setErrors((prev : any) => ({
       ...prev,
       [name]: "",
     }));
