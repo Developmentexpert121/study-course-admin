@@ -1,4 +1,5 @@
 import AuthForm from "@/components/Auth/AuthForm";
+import { LoaderProvider } from "@/contexts/LoaderContext";
 import type { Metadata } from "next";
 
 
@@ -8,6 +9,8 @@ export const metadata: Metadata = {
 
 export default function SignIn() {
   return (
-  <AuthForm type="login" />
+    <LoaderProvider>
+      <AuthForm type="login" />
+    </LoaderProvider>
   );
 }

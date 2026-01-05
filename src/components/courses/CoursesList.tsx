@@ -113,9 +113,19 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
     }
   };
 
-  const handleToggleStatus = async (id: number) => {
+  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>, courseId: number) => {
+    const newStatus = event.target.value;
+
+    // Call your API or state update function here to save the new status
+    handleToggleStatus(courseId, newStatus); // Replace with your actual function to update status
+
+  };
+
+  const handleToggleStatus = async (id: number, status: string) => {
     try {
-      const res = await api.put(`course/${id}/status`, {});
+      const res = await api.put(`course/${id}/status`, {
+        status
+      });
 
       if (res.success) {
         toasterSuccess("Status updated successfully", 2000, "id");
@@ -445,19 +455,23 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                   {/* Status Badge with Toggle Button */}
                   <TableCell className="py">
                     <div className="flex justify-center">
-                      {course.course_readiness.has_chapters &&
-                      course.course_readiness.has_lessons &&
-                      course.course_readiness.has_mcqs ? (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleStatus(course.id);
-                          }}
-                          className={`flex rounded-full p-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${toggleButton.color}`}
-                          title={toggleButton.title}
-                        >
-                          {toggleButton.icon} {statusBadge.label}
-                        </button>
+                      {course.course_readiness.has_chapters && course.course_readiness.has_lessons && course.course_readiness.has_mcqs ? (
+                        // Dropdown for changing status instead of button
+                        <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+                          <select
+                            value={course.status} // assuming `course.status` holds the current status
+                            onChange={(e) => {
+                              handleStatusChange(e, course.id); // Call your status change handler
+                            }}
+                            className="rounded-full p-1.5 transition-colors bg-white text-sm font-medium text-gray-700 border border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
+                            title="Select status"
+                          >
+                            <option value="inactive">Inactive</option>
+                            <option value="active">Active</option>
+                            <option value="draft">Draft</option>
+                            {/* Add more status options as needed */}
+                          </select>
+                        </div>
                       ) : (
                         <div className="flex flex-col items-center gap-1">
                           <div
