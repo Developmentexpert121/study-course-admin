@@ -9,53 +9,25 @@ const CertificateSection: React.FC = () => {
 
   return (
     <section
-      className="relative overflow-hidden bg-[#02527c05] bg-center bg-no-repeat py-20"
-      style={{ backgroundImage: "url('/images/bg.jpg')" }}
+      className="relative overflow-hidden bg-gradient-to-br from-primary to-[#ec4899]   bg-center bg-no-repeat py-20"
+      // style={{ backgroundImage: "url('/images/bg.jpg')" }}
     >
-      {/* Moving dotted circle left */}
-      <div className="absolute left-0 top-1/4 h-24 w-24">
-        <div className="relative h-full w-full">
-          {/* Spinning background circle */}
-          <div className="spin-circle absolute left-7 h-24 w-24 rounded-full border-2 bg-[#02517b]"></div>
-
-          {/* Moving top-to-bottom circle */}
-          <div className="move-circle absolute left-4 top-0 h-16 w-16 rounded-full bg-white opacity-50"></div>
-        </div>
-      </div>
-
-      {/* Moving dotted grid right */}
-      <div className="absolute right-0 top-1/4 h-24 w-24">
-        <div className="mobile grid grid-cols-4 gap-1">
-          <div className="h-2 w-2 animate-pulse rounded-full bg-[#02517b]"></div>
-          <div className="h-2 w-2 animate-pulse rounded-full bg-[#02517b] delay-75"></div>
-          <div className="h-2 w-2 animate-pulse rounded-full bg-[#02517b] delay-150"></div>
-          <div className="bg-[#02517b]delay-200 h-2 w-2 animate-pulse rounded-full"></div>
-          <div className="delay-50 h-2 w-2 animate-pulse rounded-full bg-[#02517b]"></div>
-          <div className="bg-[#02517b]delay-100 h-2 w-2 animate-pulse rounded-full"></div>
-          <div className="h-2 w-2 animate-pulse rounded-full bg-[#02517b] delay-150"></div>
-          <div className="bg-[#02517b]delay-200 h-2 w-2 animate-pulse rounded-full"></div>
-          <div className="bg-[#02517b]delay-75 h-2 w-2 animate-pulse rounded-full"></div>
-          <div className="delay-125 h-2 w-2 animate-pulse rounded-full bg-[#02517b]"></div>
-          <div className="delay-175 h-2 w-2 animate-pulse rounded-full bg-[#02517b]"></div>
-          <div className="delay-225 h-2 w-2 animate-pulse rounded-full bg-[#02517b]"></div>
-          <div className="delay-50 h-2 w-2 animate-pulse rounded-full bg-[#02517b]"></div>
-          <div className="h-2 w-2 animate-pulse rounded-full bg-[#02517b] delay-100"></div>
-          <div className="h-2 w-2 animate-pulse rounded-full bg-[#02517b] delay-150"></div>
-          <div className="h-2 w-2 animate-pulse rounded-full bg-[#02517b] delay-200"></div>
-        </div>
-      </div>
-
+ 
       {/* Hero content */}
-      <div className="relative z-10 mx-auto max-w-2xl px-4 text-center">
-        <h1 className="mb-4 text-center text-2xl font-extrabold leading-tight text-gray-900 sm:text-3xl md:text-4xl lg:text-5xl">
+      <div className="relative z-10 mx-auto max-w-3xl px-4 text-center py-10">
+        <svg className="svg-inline--fa fa-certificate w-20 h-20 text-white mx-auto mb-5" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="certificate" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M211 7.3C205 1 196-1.4 187.6 .8s-14.9 8.9-17.1 17.3L154.7 80.6l-62-17.5c-8.4-2.4-17.4 0-23.5 6.1s-8.5 15.1-6.1 23.5l17.5 62L18.1 170.6c-8.4 2.1-15 8.7-17.3 17.1S1 205 7.3 211l46.2 45L7.3 301C1 307-1.4 316 .8 324.4s8.9 14.9 17.3 17.1l62.5 15.8-17.5 62c-2.4 8.4 0 17.4 6.1 23.5s15.1 8.5 23.5 6.1l62-17.5 15.8 62.5c2.1 8.4 8.7 15 17.1 17.3s17.3-.2 23.4-6.4l45-46.2 45 46.2c6.1 6.2 15 8.7 23.4 6.4s14.9-8.9 17.1-17.3l15.8-62.5 62 17.5c8.4 2.4 17.4 0 23.5-6.1s8.5-15.1 6.1-23.5l-17.5-62 62.5-15.8c8.4-2.1 15-8.7 17.3-17.1s-.2-17.3-6.4-23.4l-46.2-45 46.2-45c6.2-6.1 8.7-15 6.4-23.4s-8.9-14.9-17.3-17.1l-62.5-15.8 17.5-62c2.4-8.4 0-17.4-6.1-23.5s-15.1-8.5-23.5-6.1l-62 17.5L341.4 18.1c-2.1-8.4-8.7-15-17.1-17.3S307 1 301 7.3L256 53.5 211 7.3z"></path></svg>
+        <h1 className="mb-4 text-center text-2xl font-extrabold leading-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
           Earn a Professional{" "}
-          <span className="text-[#02517b]">Certificate</span> and Advance Your
+          <span className="text-white">Certificate</span> and Advance Your
           Skills
         </h1>
+        <p className="text-xl text-white mb-8">
+                Complete our comprehensive courses and receive industry-recognized certifications that boost your career prospects
+            </p>
 
         <a
           onClick={() => router.push("/auth/register")}
-          className="inline-block rounded-lg bg-[#02517b] px-6 py-3 font-medium text-white transition hover:bg-[#5687a1bf]"
+          className="inline-flex items-center space-x-2 bg-white text-primary px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-2xl transition-all hover:scale-105"
         >
           Get started now →
         </a>

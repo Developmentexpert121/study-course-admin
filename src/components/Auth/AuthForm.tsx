@@ -87,47 +87,40 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     setFormData({ ...formData, role });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-  
+    if (type === "register") {
+      const { password, confirmPassword } = formData;
 
-
-     const { name, email, password, confirmPassword } = formData;
-      let newErrors: any = {};
-
-      if (!name) newErrors.name = "Full name is required";
-      if (!email) newErrors.email = "Email is required";
-      if (!password) newErrors.password = "Password is required";
-      if (!confirmPassword)
-        newErrors.confirmPassword = "Confirm password is required";
-
-      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        newErrors.email = "Please enter a valid email address";
-      }
-
-      if (password && password.length < 6) {
-        newErrors.password = "Password must be at least 6 characters";
-      }
-
-      if (password) {
-        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-        if (!strongPasswordRegex.test(password)) {
-          newErrors.password =
-            "Password must include uppercase, lowercase, and a number";
-        }
-      }
-
-      if (password && confirmPassword && password !== confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match";
-      }
-
-      if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors);
+      if (password.length < 6) {
+        toasterError(
+          "Password must be at least 6 characters.",
+          2000,
+          "weak-password",
+        );
         return;
       }
-      setErrors({});
 
+      if (password !== confirmPassword) {
+        toasterError(
+          "Password and Confirm Password must match.",
+          2000,
+          "password-mismatch",
+        );
+        return;
+      }
+
+      const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+      if (!strongPasswordRegex.test(password)) {
+        toasterError(
+          "Password must include uppercase, lowercase, and a number.",
+          2000,
+          "strong-password",
+        );
+        return;
+      }
+    }
 
     let endpoint = "";
     let payload: any = {};

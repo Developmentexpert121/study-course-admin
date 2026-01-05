@@ -46,6 +46,10 @@ const CoursesPage = () => {
   const [sortBy, setSortBy] = useState<string>("popular");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
+  const [isPriceOpen, setIsPriceOpen] = useState(true);
+  const [isRatingOpen, setIsRatingOpen] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Extract categories from actual course data
   const categories = useMemo(() => {
@@ -191,7 +195,7 @@ const CoursesPage = () => {
       <Header name={name} role={role} />
 
       {/* Compact Hero Section */}
-      <section
+      {/* <section
         className="relative overflow-hidden py-12 text-white md:py-16 lg:py-20"
         style={{
           backgroundImage: "url('/images/img1.jpg')",
@@ -270,24 +274,29 @@ const CoursesPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 py-12 bg[#f9fafb]">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Sidebar Filters - Desktop */}
-          <aside className="flex-shrink-0 lg:w-80">
+          <aside className="flex-shrink-0 lg:w-72">
             <div className="sticky top-24 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-                {activeFiltersCount > 0 && (
-                  <button
-                    onClick={clearAllFilters}
-                    className="text-sm font-medium text-blue-600 hover:text-blue-700"
-                  >
-                    Clear all
-                  </button>
-                )}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-[#8b5cf6]   flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sliders-horizontal w-5 h-5 text-white"><line x1="21" x2="14" y1="4" y2="4"></line><line x1="10" x2="3" y1="4" y2="4"></line><line x1="21" x2="12" y1="12" y2="12"></line><line x1="8" x2="3" y1="12" y2="12"></line><line x1="21" x2="16" y1="20" y2="20"></line><line x1="12" x2="3" y1="20" y2="20"></line><line x1="14" x2="14" y1="2" y2="6"></line><line x1="8" x2="8" y1="10" y2="14"></line><line x1="16" x2="16" y1="18" y2="22"></line></svg>
+                  </div>
+                  <h2 className="font-heading font-bold text-xl text-foreground">Filters</h2>
+                </div>
+                {/* {activeFiltersCount > 0 && ( */}
+                <button
+                  onClick={clearAllFilters}
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                >
+                  Clear all
+                </button>
+                {/* )} */}
               </div>
 
               {activeFiltersCount > 0 && (
@@ -327,7 +336,7 @@ const CoursesPage = () => {
                 </div>
               )}
 
-              <div className="mb-6">
+              {/* <div className="mb-6">
                 <h3 className="mb-3 font-medium text-gray-900">Categories</h3>
                 <div className="space-y-2">
                   {categories.map((category) => (
@@ -376,7 +385,7 @@ const CoursesPage = () => {
                     </span>
                   </label>
                 </div>
-              </div>
+              </div> */}
 
               {/* Remove Level Filter since it's not in API */}
               {/* <div className="mb-6">
@@ -411,7 +420,7 @@ const CoursesPage = () => {
                 </div>
               </div> */}
 
-              <div className="mb-6">
+              {/* <div className="mb-6">
                 <h3 className="mb-3 font-medium text-gray-900">Rating</h3>
                 <div className="space-y-2">
                   {[4, 3, 2, 1].map((rating) => (
@@ -427,11 +436,10 @@ const CoursesPage = () => {
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${
-                              i < rating
+                            className={`h-4 w-4 ${i < rating
                                 ? "fill-current text-yellow-400"
                                 : "text-gray-300"
-                            }`}
+                              }`}
                           />
                         ))}
                         <span className="ml-1">& Up</span>
@@ -451,16 +459,225 @@ const CoursesPage = () => {
                     </span>
                   </label>
                 </div>
+              </div> */}
+              <div className="border-b border-border pb-5 mb-5 last:border-0 last:pb-0 last:mb-0">
+                <button
+                  className="flex items-center justify-between w-full text-left font-heading font-semibold text-foreground mb-4 group"
+                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                >
+                  <span className="group-hover:text-secondary transition-colors">Categories</span>
+                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center group-hover:bg-secondary/10 transition-colors">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`lucide lucide-chevron-up w-4 h-4 transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : 'rotate-0'
+                        }`}
+                    >
+                      <path d="m18 15-6-6-6 6"></path>
+                    </svg>
+                  </div>
+                </button>
+
+                <div
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${isCategoriesOpen
+                    ? 'max-h-96 opacity-100'
+                    : 'max-h-0 opacity-0'
+                    }`}
+                >
+                  <div className="space-y-2">
+                    {/* All Categories option */}
+                    <label className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                      <input
+                        type="radio"
+                        name="category"
+                        checked={selectedCategory === "all"}
+                        onChange={() => setSelectedCategory("all")}
+                        className="h-5 w-5 accent-secondary"
+                      />
+                      <span className="ml-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                        All Categories
+                      </span>
+                    </label>
+
+                    {/* Individual category options */}
+                    {categories.map((category) => (
+                      <label key={category} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                        <input
+                          type="radio"
+                          name="category"
+                          checked={selectedCategory === category}
+                          onChange={() => setSelectedCategory(category)}
+                          className="h-5 w-5 accent-secondary"
+                        />
+                        <span className="ml-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                          {category}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+
+              {/* Price Accordion - Native Radio Buttons */}
+              <div className="border-b border-border pb-5 mb-5 last:border-0 last:pb-0 last:mb-0">
+                <button
+                  className="flex items-center justify-between w-full text-left font-heading font-semibold text-foreground mb-4 group"
+                  onClick={() => setIsPriceOpen(!isPriceOpen)}
+                >
+                  <span className="group-hover:text-secondary transition-colors">Price</span>
+                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center group-hover:bg-secondary/10 transition-colors">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`lucide lucide-chevron-up w-4 h-4 transition-transform duration-300 ${isPriceOpen ? 'rotate-180' : 'rotate-0'
+                        }`}
+                    >
+                      <path d="m18 15-6-6-6 6"></path>
+                    </svg>
+                  </div>
+                </button>
+
+                <div
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${isPriceOpen
+                    ? 'max-h-96 opacity-100'
+                    : 'max-h-0 opacity-0'
+                    }`}
+                >
+                  <div className="space-y-2">
+                    {prices.map((price) => (
+                      <label key={price} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                        <input
+                          type="radio"
+                          name="price"
+                          checked={priceFilter === price.toLowerCase()}
+                          onChange={() => setPriceFilter(price.toLowerCase())}
+                          className="h-4 w-4 text-secondary border-gray-300 focus:ring-secondary"
+                        />
+                        <span className="ml-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                          {price}
+                        </span>
+                      </label>
+                    ))}
+                    <label className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                      <input
+                        type="radio"
+                        name="price"
+                        checked={priceFilter === "all"}
+                        onChange={() => setPriceFilter("all")}
+                        className="h-4 w-4 text-secondary border-gray-300 focus:ring-secondary"
+                      />
+                      <span className="ml-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                        All Prices
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rating Accordion - Native Radio Buttons */}
+              <div className="border-b border-border pb-5 mb-5 last:border-0 last:pb-0 last:mb-0">
+                <button
+                  className="flex items-center justify-between w-full text-left font-heading font-semibold text-foreground mb-4 group"
+                  onClick={() => setIsRatingOpen(!isRatingOpen)}
+                >
+                  <span className="group-hover:text-secondary transition-colors">Rating</span>
+                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center group-hover:bg-secondary/10 transition-colors">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`lucide lucide-chevron-up w-4 h-4 transition-transform duration-300 ${isRatingOpen ? 'rotate-180' : 'rotate-0'
+                        }`}
+                    >
+                      <path d="m18 15-6-6-6 6"></path>
+                    </svg>
+                  </div>
+                </button>
+
+                <div
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${isRatingOpen
+                    ? 'max-h-96 opacity-100'
+                    : 'max-h-0 opacity-0'
+                    }`}
+                >
+                  <div className="space-y-2">
+                    {[4, 3, 2, 1].map((rating) => (
+                      <label key={rating} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                        <input
+                          type="radio"
+                          name="rating"
+                          checked={ratingFilter === rating}
+                          onChange={() => setRatingFilter(rating)}
+                          className="h-5 w-5 text-secondary focus:ring-secondary"
+                        />
+                        <span className="ml-3 flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <svg
+                              key={i}
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill={i < rating ? "currentColor" : "none"}
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className={`lucide lucide-star w-3 h-3 ${i < rating ? "text-yellow-400" : "text-gray-300"
+                                }`}
+                            >
+                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            </svg>
+                          ))}
+                          <span className="ml-1">& Up</span>
+                        </span>
+                      </label>
+                    ))}
+                    <label className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                      <input
+                        type="radio"
+                        name="rating"
+                        checked={ratingFilter === 0}
+                        onChange={() => setRatingFilter(0)}
+                        className="h-5 w-5 text-secondary focus:ring-secondary"
+                      />
+                      <span className="ml-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                        All Ratings
+                      </span>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
           </aside>
 
           {/* Main Content Area */}
           <main className="flex-1">
-            <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-6 ">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
+                  <h2 className="font-heading text-2xl font-bold text-foreground">
                     {filteredCourses.length} Courses Found
                   </h2>
                   {activeFiltersCount > 0 && (
@@ -475,21 +692,19 @@ const CoursesPage = () => {
                   <div className="flex rounded-lg border border-gray-300 p-1">
                     <button
                       onClick={() => setViewMode("grid")}
-                      className={`rounded-md p-2 ${
-                        viewMode === "grid"
-                          ? "bg-blue-100 text-blue-600"
-                          : "text-gray-500 hover:text-gray-700"
-                      }`}
+                      className={`rounded-md p-2 ${viewMode === "grid"
+                        ? "bg-blue-100 text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
+                        }`}
                     >
                       <Grid3X3 className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`rounded-md p-2 ${
-                        viewMode === "list"
-                          ? "bg-blue-100 text-blue-600"
-                          : "text-gray-500 hover:text-gray-700"
-                      }`}
+                      className={`rounded-md p-2 ${viewMode === "list"
+                        ? "bg-blue-100 text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
+                        }`}
                     >
                       <List className="h-4 w-4" />
                     </button>
@@ -528,7 +743,7 @@ const CoursesPage = () => {
 
             {/* Courses Grid/List */}
             {loading ? (
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div
                     key={i}
@@ -563,7 +778,7 @@ const CoursesPage = () => {
                 </div>
               </div>
             ) : viewMode === "grid" ? (
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredCourses.map((course) => (
                   <CourseCard key={course.id} course={course} view="grid" />
                 ))}
@@ -575,73 +790,82 @@ const CoursesPage = () => {
                 ))}
               </div>
             )}
+
+            {/* Highlight Sections */}
+            <div className="bg-gray-50 py-16">
+              <div className="container mx-auto px-6">
+                <section className="mb-16">
+                  <div className="mb-8 flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Trending Courses
+                    </h2>
+                    <button className="font-medium text-blue-600 hover:text-blue-700">
+                      View all
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                    {filteredCourses.slice(0, 4).map((course) => (
+                      <CourseCard key={course.id} course={course} view="grid" />
+                    ))}
+                  </div>
+                </section>
+
+                {/* Free Courses Section */}
+                <section>
+                  <div className="mb-8 flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-gray-900">Free Courses</h2>
+                    <button className="font-medium text-blue-600 hover:text-blue-700">
+                      View all
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                    {filteredCourses
+                      .filter(
+                        (course) =>
+                          course.price_type === "free" || Number(course.price) === 0,
+                      )
+                      .slice(0, 4)
+                      .map((course) => (
+                        <CourseCard key={course.id} course={course} view="grid" />
+                      ))}
+                  </div>
+                </section>
+              </div>
+            </div>
           </main>
         </div>
       </div>
 
-      {/* Highlight Sections */}
-      <div className="bg-gray-50 py-16">
-        <div className="container mx-auto px-6">
-          <section className="mb-16">
-            <div className="mb-8 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Trending Courses
-              </h2>
-              <button className="font-medium text-blue-600 hover:text-blue-700">
-                View all
-              </button>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {filteredCourses.slice(0, 4).map((course) => (
-                <CourseCard key={course.id} course={course} view="grid" />
-              ))}
-            </div>
-          </section>
 
-          {/* Free Courses Section */}
-          <section>
-            <div className="mb-8 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Free Courses</h2>
-              <button className="font-medium text-blue-600 hover:text-blue-700">
-                View all
-              </button>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {filteredCourses
-                .filter(
-                  (course) =>
-                    course.price_type === "free" || Number(course.price) === 0,
-                )
-                .slice(0, 4)
-                .map((course) => (
-                  <CourseCard key={course.id} course={course} view="grid" />
-                ))}
-            </div>
-          </section>
-        </div>
-      </div>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-br from-[#02517b] via-[#045a81] to-[#078cc0] py-16 text-white shadow-md">
-        <div className="container mx-auto px-6 text-center">
+      <section className="py-16 md:py-24">
+        <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white text-center shadow-lg mx-4 md:mx-12 lg:mx-24">
+
+          <div className="inline-flex items-center gap-2 bg-secondary/20 backdrop-blur-sm text-secondary px-4 py-2 rounded-full mb-8"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles w-4 h-4"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path></svg><span className="text-sm font-semibold">Start Learning Today</span></div>
           <h2 className="mb-4 text-3xl font-bold">Ready to Start Learning?</h2>
           <p className="mx-auto mb-8 max-w-2xl text-xl text-blue-100">
             Join thousands of learners who are advancing their careers with our
             courses
           </p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+          <div className="flex flex-col justify-center gap-2 ">
             <button
               onClick={() => router.push("/auth/register")}
-              className="rounded-lg bg-white px-8 py-3 font-semibold text-blue-600 transition-colors hover:bg-blue-50"
+              className="w-max mx-auto inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 font-body bg-white text-primary button-shadow hover:bg-secondary/90 hover:translate-y-[-2px] active:translate-y-0 active:scale-[0.98] h-14 rounded-xl px-10 text-lg group"
             >
               Sign Up Free
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right w-5 h-5 group-hover:translate-x-1 transition-transform"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
             </button>
-            <button
-              onClick={() => router.push("/auth/login")}
-              className="rounded-lg border-2 border-white px-8 py-3 font-semibold text-white transition-colors hover:bg-white hover:text-blue-600"
-            >
-              Already have an account? Login
-            </button>
+            <p className="text-primary-foreground/60 text-sm mt-6">
+              Already have an account?
+              <button
+                onClick={() => router.push("/auth/login")}
+                className=" ml-1 font-medium text-white underline hover:text-white/80"
+              >
+                <span>Login</span>
+              </button>
+            </p>
+
           </div>
         </div>
       </section>
@@ -815,11 +1039,10 @@ const CourseCard = ({
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`h-4 w-4 ${
-                          star <= Math.floor(course.ratings || 0)
-                            ? "fill-current text-yellow-400"
-                            : "text-gray-300"
-                        }`}
+                        className={`h-4 w-4 ${star <= Math.floor(course.ratings || 0)
+                          ? "fill-current text-yellow-400"
+                          : "text-gray-300"
+                          }`}
                       />
                     ))}
                   </div>
@@ -871,7 +1094,7 @@ const CourseCard = ({
         />
         <div className="absolute left-3 top-3">
           {isFreeCourse ? (
-            <span className="rounded bg-green-500 px-2 py-1 text-xs font-medium text-white">
+            <span className=" bg-[#10b981] text-white text-xs font-bold px-3 py-1 rounded-full">
               FREE
             </span>
           ) : (
@@ -906,25 +1129,9 @@ const CourseCard = ({
           {cleanDescription}
         </p>
 
-        <div className="mb-4 flex items-center gap-2">
-          <div className="flex items-center">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={`h-4 w-4 ${
-                  star <= Math.floor(course.ratings || 0)
-                    ? "fill-current text-yellow-400"
-                    : "text-gray-300"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-sm text-gray-600">
-            ({course.ratings ? course.ratings.toFixed(1) : "No ratings"})
-          </span>
-        </div>
 
-        <div className="flex items-center justify-between">
+
+        <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <img
               src="/images/user2.png"
@@ -933,23 +1140,40 @@ const CourseCard = ({
             />
             <span className="text-sm text-gray-700">{instructorName}</span>
           </div>
-          <div className="text-right">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <Star className="h-4 w-4 fill-current text-yellow-400" />
+
+              <span className="text-sm font-medium text-gray-800">
+                {course.ratings ? course.ratings.toFixed(1) : "0.0"}
+              </span>
+
+
+            </div>
+
+          </div>
+
+        </div>
+        <div className="flex items-center justify-between pt-4 border-t border-border">
+          <div className="">
             {isFreeCourse ? (
-              <span className="text-lg font-bold text-green-600">Free</span>
+              <span className="  text-black text-xs font-bold  py-1 ">
+                FREE
+              </span>
             ) : (
-              <span className="text-lg font-bold text-gray-900">
-                ${Number(course.price).toFixed(2)}
+              <span className=" text-black  py-1 text-xs font-medium ">
+                PREMIUM
               </span>
             )}
           </div>
-        </div>
 
-        <button
-          onClick={() => router.push(`/auth/courses/${course.id}`)}
-          className="mt-4 w-full rounded-lg bg-blue-600 py-2 font-medium text-white transition-colors hover:bg-blue-700"
-        >
-          {isFreeCourse ? "Enroll Now" : "Buy Now"}
-        </button>
+          <button
+            onClick={() => router.push(`/auth/courses/${course.id}`)}
+            className="bg-gradient-to-r from-primary to-[#8b5cf6] text-white inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 font-body bg-secondary text-secondary-foreground button-shadow hover:bg-secondary/90 active:scale-[0.98] h-8 rounded-md px-3"
+          >
+            {isFreeCourse ? "Enroll Now" : "Buy Now"}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -72,10 +72,11 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
   const visibleRatings = ratingsArray;
 
   // Calculate slides per view based on screen size
-  const getSlidesPerView = () => {
+ const getSlidesPerView = () => {
     if (typeof window === "undefined") return 3;
-    if (window.innerWidth < 768) return 1;
-    if (window.innerWidth < 1024) return 2;
+    const width = window.innerWidth;
+    if (width < 640) return 1;
+    if (width < 1024) return 2;
     return 3;
   };
 
@@ -123,7 +124,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
   if (visibleRatings.length === 0) {
     return (
       <section className="bg-gradient-to-br from-slate-50 to-blue-50/30 py-20">
-        <div className="container mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700">
               <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
@@ -167,7 +168,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
             onClick={prevSlide}
             onMouseEnter={() => setIsAutoPlaying(false)}
             onMouseLeave={() => setIsAutoPlaying(true)}
-            className="absolute -left-12 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-gray-50 hover:shadow-xl"
+            className="absolute  top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-gray-50 hover:shadow-xl"
             aria-label="Previous testimonials"
           >
             <svg
@@ -189,7 +190,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
             onClick={nextSlide}
             onMouseEnter={() => setIsAutoPlaying(false)}
             onMouseLeave={() => setIsAutoPlaying(true)}
-            className="absolute -right-12 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-gray-50 hover:shadow-xl"
+            className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg transition-all hover:bg-gray-50 hover:shadow-xl"
             aria-label="Next testimonials"
           >
             <svg
@@ -213,7 +214,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
               className="flex transition-transform duration-500 ease-in-out"
               style={{
                 transform: `translateX(-${currentSlide * (100 / slidesPerView)}%)`,
-                width: `${(visibleRatings.length / slidesPerView) * 100}%`,
+                // width: `${(visibleRatings.length / slidesPerView) * 100}%`,
               }}
             >
               {visibleRatings.map((rating: any) => (
@@ -307,11 +308,6 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
                         </svg>
                         Verified
                       </div>
-                    </div>
-
-                    {/* Decorative corner */}
-                    <div className="absolute right-0 top-0 h-8 w-8 overflow-hidden">
-                      <div className="absolute right-0 top-0 h-16 w-16 -translate-y-1/2 translate-x-1/2 rotate-45 transform bg-gradient-to-br from-blue-500/10 to-purple-600/10"></div>
                     </div>
                   </div>
                 </div>
