@@ -9,6 +9,7 @@ import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { BookOpen, ListOrdered, Image, Video, FileText } from "lucide-react";
 import { useApiClient } from "@/lib/api";
 import RichTextEditor from "@/components/RichTextEditor";
+import { FaPlus } from "react-icons/fa";
 
 const CreateLessons = ({ basePath }: { basePath: string }) => {
     const api = useApiClient();
@@ -19,6 +20,7 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
     const searchParams = useSearchParams();
     const chapterId = searchParams.get("chapter_id");
     const courseId = searchParams.get("course_id");
+    const courseName = searchParams.get("courseName");
 
     const [formData, setFormData] = useState({
         title: "",
@@ -40,6 +42,7 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
     const [videoUploadLoading, setVideoUploadLoading] = useState(false);
     const [resourceInput, setResourceInput] = useState("");
     const [videoUrlInputs, setVideoUrlInputs] = useState<string[]>([""]);
+    const [errors, setErrors] = useState<any>({});
 
     // Validate video URL
     const isValidVideoUrl = (url: string): boolean => {
@@ -277,9 +280,15 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const { title, content, chapter_id, order } = formData;
-
-        if (!title.trim() || !content.trim() || !chapter_id || !order || !content) {
-            toasterError("Please fill in all required fields ❌");
+        let newErrors: any = {};
+        if (!title) newErrors.title = "Title is required";
+        if (!content) newErrors.content = "Lesson Content is required";
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+        setErrors({});
+        if (!title.trim() || !content.trim() || !chapter_id || !content) {
             return;
         }
 
@@ -325,7 +334,7 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
             if (res.success) {
                 toasterSuccess("Lesson created successfully", 2000);
                 router.push(
-                    `/${basePath}/lessons/list?chapter_id=${chapter_id}&course_id=${formData.course_id}`,
+                    `/${basePath}/mcq?chapter_id=${chapterId}&course_id=${courseId}&name=${courseName}`,
                 );
             } else {
                 toasterError(res.error?.code || "Something went wrong ❌");
@@ -398,35 +407,23 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                     </div>
 
                     <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
-                        <InputGroup
-                            className="w-full sm:w-1/2"
-                            type="text"
-                            name="title"
-                            label="Lesson Title"
-                            placeholder="Enter Lesson Title"
-                            value={formData.title}
-                            onChange={handleChange}
-                            icon={<BookOpen />}
-                            iconPosition="left"
-                            height="sm"
-                            required
-                        />
+                        <div className="w-full">
+                            <InputGroup
+                                type="text"
+                                name="title"
+                                label="Lesson Title"
+                                placeholder="Enter Lesson Title"
+                                value={formData.title}
+                                onChange={handleChange}
+                                icon={<BookOpen />}
+                                iconPosition="left"
+                                height="sm"
+                            />
 
-                        <InputGroup
-                            className="w-full sm:w-1/2"
-                            type="number"
-                            name="order"
-                            label="Lesson Order"
-                            placeholder="Enter Order Number"
-                            value={formData.order}
-                            onChange={handleChange}
-                            icon={<ListOrdered />}
-                            iconPosition="left"
-                            height="sm"
-                            min={1}
-                            step={1}
-                            required
-                        />
+                            {errors.title && (
+                                <p className="mt-1 text-sm text-red-500">{errors.title}</p>
+                            )}
+                        </div>
                     </div>
 
                     <div className="mb-5.5 grid grid-cols-1 gap-5.5 sm:grid-cols-2">
@@ -440,7 +437,6 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                                 onChange={handleChange}
                                 disabled
                                 className="dark:bg-boxdark w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-sm outline-none focus:border-primary disabled:cursor-not-allowed dark:border-dark-3"
-                                required
                             >
                                 <option value="">-- Select Course --</option>
                                 {courses.map((course: any) => (
@@ -461,7 +457,6 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                                 onChange={handleChange}
                                 disabled
                                 className="dark:bg-boxdark w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-sm outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-3"
-                                required
                             >
                                 <option value="">-- Select Chapter --</option>
                                 {chapter && <option value={chapter.id}>{chapter.title}</option>}
@@ -470,7 +465,7 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                     </div>
 
                     {/* Duration */}
-                    <div className="mb-5.5">
+                    <div className="mb-5.5 pl-1">
                         <InputGroup
                             type="number"
                             name="duration"
@@ -478,7 +473,6 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                             placeholder="Enter duration in minutes"
                             value={formData.duration}
                             onChange={handleChange}
-                            iconPosition="left"
                             height="sm"
                             min={1}
                             step={1}
@@ -494,7 +488,7 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                         </p>
                         <div className="space-y-4">
                             {videoUrlInputs.map((url, index) => (
-                                <div key={index} className="rounded-lg border border-stroke p-4 dark:border-dark-3">
+                                <div key={index} className="rounded-lg pl-0 pt-0 pb-0 border-stroke p-4 dark:border-dark-3">
                                     <div className="flex items-center gap-2 mb-3">
                                         <input
                                             type="url"
@@ -552,6 +546,9 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                             placeholder="Write Lesson content..."
                             minHeight="300px"
                         />
+                        {errors.content && (
+                            <p className="mt-1 text-sm text-red-500">{errors.content}</p>
+                        )}
                     </div>
 
                     <div className="mb-5.5">
@@ -612,7 +609,8 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                                             className="hidden"
                                         />
                                         <div>
-                                            <div className="text-sm text-gray-600 dark:text-gray-300">
+                                            <div className="text-sm text-gray-600 p-6 m-6 dark:text-gray-300">
+                                                <FaPlus className="mx-auto mb-2 h-8 w-8 border-4" />
                                                 {uploadedImageUrls[index]
                                                     ? "Change Image"
                                                     : "Click to upload image"}
@@ -683,7 +681,8 @@ const CreateLessons = ({ basePath }: { basePath: string }) => {
                                             className="hidden"
                                         />
                                         <div>
-                                            <div className="text-sm text-gray-600 dark:text-gray-300">
+                                            <div className="text-sm text-gray-600 p-6 m-6 dark:text-gray-300">
+                                                <FaPlus className="mx-auto mb-2 h-8 w-8 border-4" />
                                                 {uploadedVideoUrls[index]
                                                     ? "Change Video"
                                                     : "Click to upload video"}

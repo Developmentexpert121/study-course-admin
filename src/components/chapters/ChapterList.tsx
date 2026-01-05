@@ -25,10 +25,10 @@ import { useApiClient } from "@/lib/api";
 import SafeHtmlRenderer from "@/components/SafeHtmlRenderer";
 
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  markChapterComplete, 
-  fetchCourseProgress,
-  resetProgress 
+import {
+    markChapterComplete,
+    fetchCourseProgress,
+    resetProgress
 } from '@/store/slices/adminslice/completechapter';
 
 export default function ChaptersList({ basePath }: any) {
@@ -40,7 +40,7 @@ export default function ChaptersList({ basePath }: any) {
         type: "image",
         items: [],
     });
-    
+
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [limit] = useState(5);
@@ -50,14 +50,14 @@ export default function ChaptersList({ basePath }: any) {
 
 
     const handleCompleteChapter = async () => {
-    await dispatch(
-      markChapterComplete({
-        userId: 1,
-        courseId: 2,
-        chapterId: 3,
-      })
-    );
-  };
+        await dispatch(
+            markChapterComplete({
+                userId: 1,
+                courseId: 2,
+                chapterId: 3,
+            })
+        );
+    };
 
 
     const searchParams = useSearchParams();
@@ -478,7 +478,7 @@ export default function ChaptersList({ basePath }: any) {
                             </button>
 
                             <button
-                               
+
                                 // onClick={() => handleCompleteChapter()}
                                 className="flex items-center gap-3 px-4 py-3 text-left text-sm text-emerald-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                             >

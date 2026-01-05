@@ -63,7 +63,7 @@ const role = getDecryptedItem("role");
       setLoading(false);
     }
   };
-
+console.log("rating",ratings)
   useEffect(() => {
     fetchRatings();
   }, [courseId]);
@@ -120,12 +120,16 @@ const role = getDecryptedItem("role");
   const handleAddRating = async (ratingId: number) => {
     setActionLoading(ratingId);
     try {
-      const res = await api.put(`rating/${ratingId}/visibilityactive`);
-      if (res.success) {
-        toasterSuccess("Rating activated", 2000, "id");
-        fetchRatings();
-      }
-    } catch {
+  // Add empty object as second argument
+  const res = await api.put(`rating/${ratingId}/visibilityactive`, {});
+  
+  if (res.success) {
+    toasterSuccess("Rating activated", 2000, "id");
+    fetchRatings();
+  } else {
+    toasterError(res.error || "Failed to activate rating");
+  }
+} catch {
       toasterError("Failed to activate rating", 2000, "id");
     } finally {
       setActionLoading(null);
