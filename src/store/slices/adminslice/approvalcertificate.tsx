@@ -62,14 +62,14 @@ export const approveCertificate = createAsyncThunk(
 // ✅ FIXED: Corrected payload structure and role type
 export const rejectCertificate = createAsyncThunk(
   'certificateApproval/reject',
-  async ({ userId, role,reason  }: { userId: number; role: 'admin' | 'super-admin' ,reason: string; }, { rejectWithValue }) => {
+  async ({ Id, role,reason  }: { Id: number; role: 'admin' | 'super-admin' ,reason: string; }, { rejectWithValue }) => {
     try {
       
       // Try with leading slash if backend route has it
       const response = await reduxApiClient.put(
         `certificate/rejected/of/certificate`,
         { 
-          user_id: userId,
+          id: Id,
           role: role,
           reason:reason,
         }

@@ -73,12 +73,15 @@ export default function UsersWithProgressPage({ className }: any) {
     dispatch(setPage(page));
   };
 
-  const handleSearch = () => {
-    // Reset to page 1 when searching
-    dispatch(setPage(1));
-    dispatch(setSearch(localSearchTerm));
-    dispatch(setVerificationStatus(localVerificationStatus));
-  };
+const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const newStatus = e.target.value;
+  setLocalVerificationStatus(newStatus);
+  
+  // Auto-trigger search when status changes
+  dispatch(setPage(1));
+  dispatch(setVerificationStatus(newStatus));
+  dispatch(setSearch(localSearchTerm)); // Keep current search term
+};
 
   const handleClearSearch = () => {
     setLocalSearchTerm("");
@@ -340,21 +343,21 @@ export default function UsersWithProgressPage({ className }: any) {
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Verification Status
               </label>
-              <select
-                value={localVerificationStatus}
-                onChange={(e) => setLocalVerificationStatus(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
-              >
-                <option value="all">All Student</option>
-                <option value="verified">Verified</option>
-                <option value="unverified">Unverified</option>
-              </select>
+          <select
+  value={localVerificationStatus}
+  onChange={handleVerificationStatusChange}
+  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
+>
+  <option value="all">All Student</option>
+  <option value="verified">Verified</option>
+  <option value="unverified">Unverified</option>
+</select>
             </div>
 
             {/* Action Buttons */}
             <div className="flex gap-2 sm:flex-col">
               <button
-                onClick={handleSearch}
+        
                 disabled={loading}
                 className="inline-flex items-center justify-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#43bf79] dark:hover:bg-[#43bf7999]"
               >
@@ -568,7 +571,7 @@ export default function UsersWithProgressPage({ className }: any) {
         </div>
 
         {/* Pagination Controls */}
-        {totalPages > 1 && (
+        {totalUsers > 1 && (
           <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
             <div className="block items-center justify-between gap-4 sm:flex">
               <div className="mb-3 text-center text-sm text-gray-600 dark:text-white sm:mb-0 sm:text-left">

@@ -26,7 +26,7 @@ import coursesReducer from "./slices/adminslice/userprogress";
 import instructorDashboardReducer from "./slices/adminslice/admindashboard";
 import certificateReducer from "./slices/adminslice/certificate";
 import certificateApprovalReducer from "./slices/adminslice/approvalcertificate";
-
+import password from "./slices/password/password"
 
 
 const placeholderSlice = createSlice({
@@ -62,6 +62,7 @@ export const makeStore = () => {
       instructorDashboard: instructorDashboardReducer,
       certificate: certificateReducer,
       certificateApproval: certificateApprovalReducer,
+      passwordReset:password,
   
     },
     middleware: (getDefaultMiddleware) =>

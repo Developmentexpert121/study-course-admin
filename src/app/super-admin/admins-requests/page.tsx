@@ -20,6 +20,7 @@ import {
   X as CloseIcon,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
+import Pagination from "@/components/pagination/pagination";
 import {
   fetchAdmins,
   approveAdmin,
@@ -677,7 +678,7 @@ const handlePageChange = (page: number) => {
         </div>
 
         {/* Pagination Controls */}
-        {totalPages > 1 && (
+        {totaluser > 1 && (
           <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
             <div className="block items-center justify-between gap-4 sm:flex">
               {/* Page Info */}
