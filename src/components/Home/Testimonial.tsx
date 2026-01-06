@@ -144,7 +144,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
   }
 
   return (
-    <section className="bg-gradient-to-br from-slate-50 to-blue-50/30 py-20">
+    <section className="bg-gradient-to-br from-slate-50 to-blue-50/30 py-12">
       <div className="container mx-auto px-6">
         {/* Header */}
         <div className="mb-16 text-center">
@@ -327,7 +327,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
                 onMouseLeave={() => setIsAutoPlaying(true)}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   index === currentSlide
-                    ? "w-6 bg-blue-500"
+                    ? "w-6 bg-gradient-to-br from-primary to-[#ec4899] "
                     : "w-2 bg-gray-300 hover:bg-gray-400"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
@@ -414,11 +414,11 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
 
         {/* CTA Section */}
         <div className="mt-12 text-center">
-          <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white">
-            <h3 className="mb-3 text-2xl font-bold">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600  text-white max-w-4xl mx-auto py-12">
+            <h2 className="mb-3 text-4xl font-bold">
               Ready to Start Your Learning Journey?
-            </h3>
-            <p className="mx-auto mb-6 max-w-md text-blue-100">
+            </h2>
+            <p className="mx-auto mb-6 max-w-md text-blue-100 text-lg">
               Join our community of learners and transform your career with
               industry-relevant courses
             </p>

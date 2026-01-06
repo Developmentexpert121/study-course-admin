@@ -72,7 +72,7 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
     // </section>
     <section id="courses" className="py-20 bg-gradient-to-br from-gray-50 to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 ">
-        <h2 className="text-5xl font-bold text-gray-900 mb-4 text-center">
+        <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl text-center">
           Explore My Courses
         </h2>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12 text-center">

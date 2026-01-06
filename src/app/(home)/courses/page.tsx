@@ -25,6 +25,7 @@ import {
   List,
 } from "lucide-react";
 import { getDecryptedItem } from "@/utils/storageHelper";
+import { clearLogoutState } from "@/store/slices/adminslice/adminlogout";
 
 const CoursesPage = () => {
 
@@ -979,7 +980,7 @@ const CourseCard = ({
   view: "grid" | "list";
 }) => {
   const router = useRouter();
-
+  
   // Helper function to determine if course is free
   const isFreeCourse =
     course.price_type === "free" || Number(course.price) === 0;
@@ -1085,7 +1086,9 @@ const CourseCard = ({
 
   // Grid View
   return (
-    <div className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg">
+    <div
+      onClick={() => router.push(`/auth/courses/${course.id}`)}
+      className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg">
       <div className="relative">
         <img
           src={courseImage}
@@ -1103,12 +1106,18 @@ const CourseCard = ({
             </span>
           )}
         </div>
-        <button className="absolute right-3 top-3 rounded-full bg-black bg-opacity-50 p-2 text-white opacity-0 transition-all hover:bg-opacity-70 group-hover:opacity-100">
+        {/* <button className="absolute right-3 top-3 rounded-full bg-black bg-opacity-50 p-2 text-white opacity-0 transition-all hover:bg-opacity-70 group-hover:opacity-100">
           <PlayCircle className="h-5 w-5" />
-        </button>
+        </button> */}
       </div>
 
-      <div className="p-5">
+      <div className="p-3">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-6 h-6 rounded-full bg-[#2ec2b333] flex items-center justify-center">
+          <span className="text-xs font-bold text-secondary">KS</span>
+        </div>
+        <span className="text-xs text-muted-foreground font-medium">Karanveer singh</span>
+        </div>
         <div className="mb-3 flex items-start justify-between">
           <span className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
             {course.category || "General"}
@@ -1121,30 +1130,23 @@ const CourseCard = ({
           )}
         </div>
 
-        <h3 className="mb-2 line-clamp-2 h-14 cursor-pointer font-semibold text-gray-900 group-hover:text-blue-600">
+        <h3 className="mb-2 line-clamp-2  cursor-pointer font-semibold text-gray-900 group-hover:text-blue-600">
           {course.title}
         </h3>
 
-        <p className="mb-4 line-clamp-2 h-10 text-sm text-gray-600">
+        <p className="mb-4 line-clamp-2  text-sm text-gray-600">
           {cleanDescription}
         </p>
 
 
 
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            <img
-              src="/images/user2.png"
-              alt={instructorName}
-              className="h-8 w-8 rounded-full"
-            />
-            <span className="text-sm text-gray-700">{instructorName}</span>
-          </div>
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-5">
+
+          <div className="flex items-center gap-2 bg-[#f3f4f6] px-2 py-1 rounded-full">
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-current text-yellow-400" />
 
-              <span className="text-sm font-medium text-gray-800">
+              <span className="text-sm font-medium ">
                 {course.ratings ? course.ratings.toFixed(1) : "0.0"}
               </span>
 
@@ -1152,6 +1154,20 @@ const CourseCard = ({
             </div>
 
           </div>
+          <div className="flex items-center gap-2">
+            {/* <img
+              src="/images/user2.png"
+              alt={instructorName}
+              className="h-8 w-8 rounded-full"
+            />
+            <span className="text-sm text-gray-700">{instructorName}</span> */}
+            <div className="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users w-3.5 h-3.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span className="text-sm">12,500</span></div>
+          </div>
+          <div className="flex items-center gap-1.5">
+           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-book-open w-4 h-4"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3-3z"></path></svg>
+            <span className="text-sm">48 lessons</span></div>
 
         </div>
         <div className="flex items-center justify-between pt-4 border-t border-border">
