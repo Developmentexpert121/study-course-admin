@@ -30,6 +30,52 @@ import {
     fetchCourseProgress,
     resetProgress
 } from '@/store/slices/adminslice/completechapter';
+import {
+    DndContext,
+    closestCenter,
+    DraggableSyntheticListeners
+} from "@dnd-kit/core";
+import {
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+    arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { AiOutlineDrag } from "react-icons/ai";
+
+type SortableRowProps = {
+    id: number;
+    children: (listeners: DraggableSyntheticListeners) => React.ReactNode;
+};
+
+
+function SortableRow({ id, children }: SortableRowProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+    } = useSortable({ id });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <TableRow
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            className="text-center text-base font-medium text-dark dark:text-white"
+        >
+            {children(listeners)}
+        </TableRow>
+    );
+}
+
 
 export default function ChaptersList({ basePath }: any) {
     const router = useRouter();
@@ -168,6 +214,37 @@ export default function ChaptersList({ basePath }: any) {
         };
     };
 
+    const handleDragEnd = async (event: any) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+
+        setChapters((items) => {
+            const oldIndex = items.findIndex(i => i.id === active.id);
+            const newIndex = items.findIndex(i => i.id === over.id);
+
+            const moved = arrayMove(items, oldIndex, newIndex);
+
+            const reordered = moved.map((item, index) => ({
+                ...item,
+                order: index + 1,
+            }));
+
+            // 🔥 Persist order
+            api.patch("chapter/order", {
+                chapters: reordered.map(c => ({
+                    id: c.id,
+                    order: c.order,
+                })),
+            }).then(() => {
+                toasterSuccess("Chapter order updated");
+            }).catch(() => {
+                toasterError("Failed to update order");
+            });
+            return reordered;
+        });
+    };
+
+
     return (
         <div
             className={cn(
@@ -284,155 +361,118 @@ export default function ChaptersList({ basePath }: any) {
             )}
 
             <div className="relative">
-                <Table>
-                    <TableHeader>
-                        <TableRow className="border-none uppercase [&>th]:text-center">
-                            <TableHead>Order</TableHead>
-                            <TableHead className="!text-left">Title</TableHead>
-                            <TableHead>Content</TableHead>
-                            <TableHead>Course Name</TableHead>
-                            {/* <TableHead>Images</TableHead>
+                <DndContext
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext
+                        items={chapters.map(ch => ch.id)}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-none uppercase [&>th]:text-center">
+                                    <TableHead>Order</TableHead>
+                                    <TableHead className="!text-left">Title</TableHead>
+                                    <TableHead>Content</TableHead>
+                                    <TableHead>Course Name</TableHead>
+                                    {/* <TableHead>Images</TableHead>
               <TableHead>Videos</TableHead> */}
-                            <TableHead>Created At</TableHead>
-                            <TableHead>Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-
-                    <TableBody>
-                        {chapters.length > 0 ? (
-                            chapters.map((chapter: any) => (
-                                <TableRow
-                                    key={chapter.id}
-                                    className="text-center text-base font-medium text-dark dark:text-white"
-                                >
-                                    <TableCell
-                                        className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                                        onClick={() =>
-                                            router.push(
-                                                `/${basePath}/lessons/list?course_id=${courseId}&chapter_id=${chapter.id}`,
-                                            )
-                                        }
-                                    >
-                                        Chapter{chapter.order}
-                                    </TableCell>
-                                    <TableCell
-                                        className="cursor-pointer !text-left hover:bg-gray-50 dark:hover:bg-gray-800"
-                                        onClick={() =>
-                                            router.push(
-                                                `/${basePath}/lessons/list?course_id=${courseId}&chapter_id=${chapter.id}`,
-                                            )
-                                        }
-                                    >
-                                        {chapter.title}
-                                    </TableCell>
-                                    <TableCell
-                                        className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                                        onClick={() =>
-                                            router.push(
-                                                `/${basePath}/lessons/list?course_id=${courseId}&chapter_id=${chapter.id}`,
-                                            )
-                                        }
-                                    >
-                                        <SafeHtmlRenderer
-                                            html={chapter.content}
-                                            maxLength={100}
-                                            className="text-sm leading-6"
-                                            showMoreButton={false}
-                                        />
-                                    </TableCell>
-                                    <TableCell
-                                        className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                                        onClick={() =>
-                                            router.push(
-                                                `/${basePath}/lessons/list?course_id=${courseId}&chapter_id=${chapter.id}`,
-                                            )
-                                        }
-                                    >
-                                        {chapter.title}
-                                    </TableCell>
-                                    {/* <TableCell className="text-center">
-                    {chapter.images?.length > 0 ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveMedia({
-                            type: "image",
-                            items: chapter.images,
-                          });
-                          setShowMediaModal(true);
-                        }}
-                        className="text-blue-600 underline"
-                      >
-                        View Images
-                      </button>
-                    ) : (
-                      <span>---</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {chapter.videos?.length > 0 ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveMedia({
-                            type: "video",
-                            items: chapter.videos,
-                          });
-                          setShowMediaModal(true);
-                        }}
-                        className="text-green-600 underline"
-                      >
-                        View Videos
-                      </button>
-                    ) : (
-                      <span>---</span>
-                    )}
-                  </TableCell> */}
-                                    <TableCell
-                                        className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                                        onClick={() =>
-                                            router.push(
-                                                `/${basePath}/lessons/list?course_id=${courseId}&chapter_id=${chapter.id}`,
-                                            )
-                                        }
-                                    >
-                                        {new Intl.DateTimeFormat("en-GB", {
-                                            day: "2-digit",
-                                            month: "2-digit",
-                                            year: "numeric",
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                            second: "2-digit",
-                                            hour12: true,
-                                        }).format(new Date(chapter.createdAt))}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center justify-center">
-                                            <div className="relative">
-                                                <button
-                                                    ref={(el: any) =>
-                                                        (buttonRefs.current[chapter.id] = el)
-                                                    }
-                                                    onClick={(e) => toggleDropdown(e, chapter.id)}
-                                                    className="flex items-center justify-center rounded-lg border border-gray-300 p-2 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800"
-                                                    title="Actions"
-                                                >
-                                                    <MoreVertical size={18} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </TableCell>
+                                    <TableHead>Created At</TableHead>
+                                    <TableHead>Actions</TableHead>
                                 </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={8} className="text-center">
-                                    No chapters found
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                            </TableHeader>
+
+
+                            <TableBody>
+                                {chapters.length > 0 ? (
+                                    chapters.map((chapter) => (
+                                        <SortableRow key={chapter.id} id={chapter.id}>
+                                            {(listeners: any) => (
+                                                <>
+                                                    {/* Order / Drag handle */}
+                                                    <TableCell
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="flex items-center justify-center gap-2 ml-2"
+                                                    >
+                                                        <AiOutlineDrag
+                                                            {...listeners}
+                                                            className="cursor-grab text-dark-500 hover:text-gray-800 mr-5"
+                                                            style={{ fontSize: "26px" }}
+                                                        />
+                                                        {chapter.order}
+                                                    </TableCell>
+
+                                                    {/* EVERYTHING ELSE UNCHANGED */}
+                                                    <TableCell
+                                                        className="cursor-pointer !text-left hover:bg-gray-50 dark:hover:bg-gray-800"
+                                                        onClick={() =>
+                                                            router.push(
+                                                                `/${basePath}/lessons/list?course_id=${courseId}&chapter_id=${chapter.id}`,
+                                                            )
+                                                        }
+                                                    >
+                                                        {chapter.title}
+                                                    </TableCell>
+
+                                                    <TableCell
+                                                        className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                                                        onClick={() =>
+                                                            router.push(
+                                                                `/${basePath}/lessons/list?course_id=${courseId}&chapter_id=${chapter.id}`,
+                                                            )
+                                                        }
+                                                    >
+                                                        <SafeHtmlRenderer
+                                                            html={chapter.content}
+                                                            maxLength={100}
+                                                            showMoreButton={false}
+                                                        />
+                                                    </TableCell>
+
+                                                    <TableCell>{chapter.title}</TableCell>
+
+                                                    <TableCell>
+                                                        {new Intl.DateTimeFormat("en-GB", {
+                                                            day: "2-digit",
+                                                            month: "2-digit",
+                                                            year: "numeric",
+                                                        }).format(new Date(chapter.createdAt))}
+                                                    </TableCell>
+
+                                                    <TableCell>
+                                                        <div className="flex items-center justify-center">
+                                                            <div className="relative">
+                                                                <button
+                                                                    ref={(el: any) =>
+                                                                        (buttonRefs.current[chapter.id] = el)
+                                                                    }
+                                                                    onClick={(e) => toggleDropdown(e, chapter.id)}
+                                                                    className="flex items-center justify-center rounded-lg border border-gray-300 p-2 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800"
+                                                                    title="Actions"
+                                                                >
+                                                                    <MoreVertical size={18} />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </TableCell>
+                                                </>
+                                            )}
+                                        </SortableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={7} className="text-center">
+                                            No chapters found
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+
+
+                        </Table>
+                    </SortableContext>
+                </DndContext>
 
                 {/* Dropdown rendered outside the table but positioned relative to buttons */}
                 {activeDropdown && (
