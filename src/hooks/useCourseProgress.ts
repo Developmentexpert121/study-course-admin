@@ -2,6 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useApiClient } from '@/lib/api';
 import { getDecryptedItem } from '@/utils/storageHelper';
+import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 
 export const useCourseProgress = (courseId: string | null, setCourse: React.Dispatch<React.SetStateAction<any | null>>) => {
     const api = useApiClient();
@@ -148,9 +149,9 @@ export const useCourseProgress = (courseId: string | null, setCourse: React.Disp
 
                 // Show appropriate message
                 if (mcqResult.passed) {
-                    alert('🎉 Congratulations! You passed the MCQ test!');
+                    toasterSuccess("Congratulations! You passed the MCQ test!", 3000);
                 } else {
-                    alert(`❌ You scored ${mcqResult.score}% but need ${mcqResult.passing_threshold}% to pass. You can reattempt the test.`);
+                    toasterError(`❌ You scored ${mcqResult.score}% but need ${mcqResult.passing_threshold}% to pass. You can reattempt the test.`, 3000);
                 }
 
                 // Return the result for immediate UI update

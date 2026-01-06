@@ -384,10 +384,10 @@ const CourseUsersManagement: React.FC = () => {
                   <TableHead className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Certificate Status
                   </TableHead>
-                  <TableHead className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  {/* <TableHead className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Batch
-                  </TableHead>
-                 
+                  </TableHead> */}
+
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-gray-200 bg-white">
@@ -449,104 +449,104 @@ const UserRow: React.FC<{
   getProgressColor,
   getProgressIcon,
 }) => {
-  const { user, progress, certificate, actions, enrollment } = userProgress;
+    const { user, progress, certificate, actions, enrollment } = userProgress;
 
-  // FIX: Always allow download and email if certificate exists and is issued
-  const canDownload = certificate && certificate.status === "issued";
-  const canSendEmail = certificate && certificate.status === "issued";
-  const canGenerate = progress.course_completed && !certificate;
+    // FIX: Always allow download and email if certificate exists and is issued
+    const canDownload = certificate && certificate.status === "issued";
+    const canSendEmail = certificate && certificate.status === "issued";
+    const canGenerate = progress.course_completed && !certificate;
 
-  return (
-    <TableRow className="transition-colors duration-150 hover:bg-gray-50">
-      {/* User Info */}
-      <td className="whitespace-nowrap px-6 py-4">
-        <div className="flex items-center">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-medium text-white">
-            {user.profileImage ? (
-              <img
-                className="h-10 w-10 rounded-full"
-                src={user.profileImage}
-                alt={user.fullName}
-              />
-            ) : (
-              user.fullName
-                .split(" ")
-                .map((n: any) => n[0])
-                .join("")
-                .toUpperCase()
-                .substring(0, 2)
+    return (
+      <TableRow className="transition-colors duration-150 hover:bg-gray-50">
+        {/* User Info */}
+        <td className="whitespace-nowrap px-6 py-4">
+          <div className="flex items-center">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-medium text-white">
+              {user.profileImage ? (
+                <img
+                  className="h-10 w-10 rounded-full"
+                  src={user.profileImage}
+                  alt={user.fullName}
+                />
+              ) : (
+                user.fullName
+                  .split(" ")
+                  .map((n: any) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .substring(0, 2)
+              )}
+            </div>
+            <div className="ml-4">
+              <div className="text-sm font-medium text-gray-900">
+                {user.fullName}
+              </div>
+              <div className="text-sm text-gray-500">{user.email}</div>
+              <div className="text-xs text-gray-400">
+                Enrolled:{" "}
+                {new Date(
+                  userProgress.enrollment.enrolled_at,
+                ).toLocaleDateString()}
+              </div>
+            </div>
+          </div>
+        </td>
+
+        {/* Progress */}
+        <td className="whitespace-nowrap px-6 py-4">
+          <div className="flex items-center">
+            {getProgressIcon(
+              progress.overall_progress,
+              progress.course_completed,
+            )}
+            <div className="mx-3 h-2 w-32 rounded-full bg-gray-200">
+              <div
+                className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(progress.overall_progress)}`}
+                style={{ width: `${progress.overall_progress}%` }}
+              ></div>
+            </div>
+            <span className="min-w-12 text-sm font-medium text-gray-900">
+              {progress.overall_progress}%
+            </span>
+          </div>
+          <div className="mt-1 text-xs text-gray-500">
+            {progress.completed_chapters}/{progress.total_chapters} chapters
+            {progress.course_completed && (
+              <span className="ml-2 text-green-600">✓ Completed</span>
             )}
           </div>
-          <div className="ml-4">
-            <div className="text-sm font-medium text-gray-900">
-              {user.fullName}
-            </div>
-            <div className="text-sm text-gray-500">{user.email}</div>
-            <div className="text-xs text-gray-400">
-              Enrolled:{" "}
-              {new Date(
-                userProgress.enrollment.enrolled_at,
-              ).toLocaleDateString()}
-            </div>
-          </div>
-        </div>
-      </td>
+        </td>
 
-      {/* Progress */}
-      <td className="whitespace-nowrap px-6 py-4">
-        <div className="flex items-center">
-          {getProgressIcon(
-            progress.overall_progress,
-            progress.course_completed,
-          )}
-          <div className="mx-3 h-2 w-32 rounded-full bg-gray-200">
-            <div
-              className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(progress.overall_progress)}`}
-              style={{ width: `${progress.overall_progress}%` }}
-            ></div>
-          </div>
-          <span className="min-w-12 text-sm font-medium text-gray-900">
-            {progress.overall_progress}%
-          </span>
-        </div>
-        <div className="mt-1 text-xs text-gray-500">
-          {progress.completed_chapters}/{progress.total_chapters} chapters
-          {progress.course_completed && (
-            <span className="ml-2 text-green-600">✓ Completed</span>
-          )}
-        </div>
-      </td>
-
-      {/* Certificate Status */}
-      <td className="whitespace-nowrap px-6 py-4">
-        {certificate ? (
-          <div className="flex items-center">
-            <Award className="mr-2 h-4 w-4 text-green-600" />
-            <div>
-              <div className="text-sm font-medium text-gray-900">Issued</div>
-              <div className="text-xs text-gray-500">
-                {new Date(certificate.issued_date).toLocaleDateString()}
-              </div>
-              <div className="text-xs text-gray-400">
-                Code: {certificate.certificate_code}
+        {/* Certificate Status */}
+        <td className="whitespace-nowrap px-6 py-4">
+          {certificate ? (
+            <div className="flex items-center">
+              <Award className="mr-2 h-4 w-4 text-green-600" />
+              <div>
+                <div className="text-sm font-medium text-gray-900">Issued</div>
+                <div className="text-xs text-gray-500">
+                  {new Date(certificate.issued_date).toLocaleDateString()}
+                </div>
+                <div className="text-xs text-gray-400">
+                  Code: {certificate.certificate_code}
+                </div>
               </div>
             </div>
-          </div>
-        ) : progress.course_completed ? (
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
-            <Award className="mr-1 h-3 w-3" />
-            Ready to Issue
-          </span>
-        ) : (
-          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-            <Clock className="mr-1 h-3 w-3" />
-            In Progress
-          </span>
-        )}
-      </td>
+          ) : progress.course_completed ? (
+            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+              <Award className="mr-1 h-3 w-3" />
+              Ready to Issue
+            </span>
+          ) : (
+            <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+              <Clock className="mr-1 h-3 w-3" />
+              In Progress
+            </span>
+          )}
+        </td>
 
-      {/* Batch */}
-      <td className="px-6 py-4">
+        {/* Batch */}
+        {/* <td className="px-6 py-4">
         <div className="flex flex-col items-center">
           <select
             value={enrollment.batch}
@@ -572,11 +572,11 @@ const UserRow: React.FC<{
             {enrollment.batch === '6' && '5:00 PM - 6:00 PM'}
           </div>
         </div>
-      </td>
+      </td> */}
 
-  
-    </TableRow>
-  );
-};
+
+      </TableRow>
+    );
+  };
 
 export default CourseUsersManagement;

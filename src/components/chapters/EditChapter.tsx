@@ -195,7 +195,7 @@ const EditChapter = ({ basePath }: { basePath: string }) => {
         <form onSubmit={handleSubmit}>
           <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
             <InputGroup
-              className="w-full sm:w-1/2"
+              className="w-full"
               type="text"
               name="title"
               label="Chapter Title"
@@ -203,20 +203,6 @@ const EditChapter = ({ basePath }: { basePath: string }) => {
               value={formData.title}
               onChange={handleChange}
               icon={<CallIcon />}
-              iconPosition="left"
-              height="sm"
-            />
-
-            <InputGroup
-              className="w-full sm:w-1/2"
-              type="number"
-              name="order"
-              disabled
-              label="Chapter Order"
-              placeholder="Enter Order Number"
-              value={formData.order}
-              onChange={handleChange}
-              icon={<EmailIcon />}
               iconPosition="left"
               height="sm"
             />
