@@ -424,9 +424,9 @@ export default function CourseAuditLogsPage() {
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       User
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    {/* <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       Status
-                    </th>
+                    </th> */}
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                       Timestamp
                     </th>
@@ -470,7 +470,7 @@ export default function CourseAuditLogsPage() {
                             <span className="text-sm text-gray-500 dark:text-gray-400">System</span>
                           )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        {/* <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getStatusColor(log.is_active_status)}`}
                           >
@@ -480,7 +480,7 @@ export default function CourseAuditLogsPage() {
                                 ? 'Active'
                                 : 'Inactive'}
                           </span>
-                        </td>
+                        </td> */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm">
                             <p className="text-gray-900 dark:text-white">

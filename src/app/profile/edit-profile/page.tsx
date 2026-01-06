@@ -471,19 +471,13 @@ export default function EditProfilePage({ className }: any) {
             {/* Profile Image */}
             <div className="group relative">
               <div className="flex h-24 w-24 items-center justify-center rounded-full">
-                {profileImage ? (
+               
                   <Editprofile />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-                    <span className="text-2xl font-bold text-white">
-                      {userData.username?.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
+              
 
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                {/* <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                   <Camera className="h-6 w-6 text-white" />
-                </div>
+                </div> */}
               </div>
 
               {imageLoading && (
@@ -658,14 +652,14 @@ export default function EditProfilePage({ className }: any) {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <span className="text-gray-600 dark:text-gray-400">
                     User ID:
                   </span>
                   <span className="rounded bg-gray-200 px-2 py-1 font-mono text-sm text-gray-900 dark:bg-gray-700 dark:text-gray-100">
                     #{userData.id}
                   </span>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
