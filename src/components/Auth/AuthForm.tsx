@@ -92,7 +92,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     setFormData({ ...formData, role });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { name, email, password, newPassword, confirmPassword } = formData;
     let newErrors: any = {};

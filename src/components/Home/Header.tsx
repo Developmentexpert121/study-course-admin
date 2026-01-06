@@ -34,38 +34,38 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
 
   return (
     <header className="sticky top-0 z-50 border-b bg-white/80 shadow-sm backdrop-blur-md">
-      <div className="container mx-auto flex items-center justify-between px-6 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
         {/* Logo */}
         <div
-          className="flex cursor-pointer items-center gap-2"
+          className="flex cursor-pointer items-center gap-2 py-4"
           onClick={() => router.push("/")}
         >
           <img src="/images/logo.png" className="h-10 w-10" alt="Logo" />
-          <span className="text-xl font-bold tracking-tight text-blue-700">
+          <span className="text-xl font-bold tracking-tight text-[#00537e]">
             Devex Course
           </span>
         </div>
 
         {/* Desktop Nav - FIXED: Using Link instead of anchor tags */}
-        <nav className="hidden items-center gap-8 font-medium text-gray-700 md:flex">
-          <Link href="/" className="transition-colors hover:text-blue-600">
+        <nav className="hidden items-center gap-8 font-medium text-gray-700 md:flex ">
+          <Link href="/" className="transition-colors  text-gray-700 hover:text-primary font-medium">
             Home
           </Link>
           <Link
             href="/courses"
-            className="transition-colors hover:text-blue-600"
+            className="transition-colors text-gray-700 hover:text-primary font-medium "
           >
             Courses
           </Link>
           <Link
             href="/#about"
-            className="transition-colors hover:text-blue-600"
+            className=" transition-colors text-gray-700 hover:text-primary font-medium"
           >
             About
           </Link>
           <Link
             href="/#footer"
-            className="transition-colors hover:text-blue-600"
+            className="transition-colors text-gray-700 hover:text-primary font-medium"
           >
             Contact
           </Link>
@@ -125,13 +125,13 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
           <div className="hidden items-center gap-4 md:flex">
             <button
               onClick={() => router.push("/auth/login")}
-              className="font-medium text-gray-700 transition-colors hover:text-blue-600"
+              className="font-medium text-gray-700 transition-colors hover:text-[#00537e]"
             >
               Login
             </button>
             <button
               onClick={() => router.push("/auth/register")}
-              className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-blue-700"
+              className="bg-gradient-to-r from-primary to-[#8b5cf6] text-white px-6 py-2.5 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105"
             >
               Sign Up
             </button>
