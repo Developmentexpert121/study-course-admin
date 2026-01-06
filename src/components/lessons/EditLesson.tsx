@@ -9,6 +9,7 @@ import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { BookOpen, ListOrdered, Image, Video, FileText } from "lucide-react";
 import { useApiClient } from "@/lib/api";
 import RichTextEditor from "@/components/RichTextEditor";
+import { FaPlus } from "react-icons/fa";
 
 const EditLesson = ({ basePath }: { basePath: string }) => {
     const router = useRouter();
@@ -513,7 +514,7 @@ const EditLesson = ({ basePath }: { basePath: string }) => {
 
                     <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                         <InputGroup
-                            className="w-full sm:w-1/2"
+                            className="w-full"
                             type="text"
                             name="title"
                             label="Lesson Title"
@@ -523,22 +524,6 @@ const EditLesson = ({ basePath }: { basePath: string }) => {
                             icon={<BookOpen />}
                             iconPosition="left"
                             height="sm"
-                            required
-                        />
-
-                        <InputGroup
-                            className="w-full sm:w-1/2"
-                            type="number"
-                            name="order"
-                            label="Lesson Order"
-                            placeholder="Enter Order Number"
-                            value={formData.order}
-                            onChange={handleChange}
-                            icon={<ListOrdered />}
-                            iconPosition="left"
-                            height="sm"
-                            min={1}
-                            step={1}
                             required
                         />
                     </div>
@@ -728,7 +713,9 @@ const EditLesson = ({ basePath }: { basePath: string }) => {
                                             className="hidden"
                                         />
                                         <div>
-                                            <div className="text-sm text-gray-600 dark:text-gray-300">
+                                            <div className="text-sm text-gray-600 p-6 m-6 dark:text-gray-300">
+                                                <FaPlus className="mx-auto mb-2 h-8 w-8 border-4" />
+
                                                 {uploadedImageUrls[index]
                                                     ? "Change Image"
                                                     : "Click to upload image"}
@@ -800,7 +787,9 @@ const EditLesson = ({ basePath }: { basePath: string }) => {
                                             className="hidden"
                                         />
                                         <div>
-                                            <div className="text-sm text-gray-600 dark:text-gray-300">
+                                            <div className="text-sm text-gray-600 p-6 m-6 dark:text-gray-300">
+                                                <FaPlus className="mx-auto mb-2 h-8 w-8 border-4" />
+
                                                 {uploadedVideoUrls[index]
                                                     ? "Change Video"
                                                     : "Click to upload video"}

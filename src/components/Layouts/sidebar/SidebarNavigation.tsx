@@ -67,6 +67,10 @@ export function SidebarNavigation() {
     };
 
     const filteredNavData = getFilteredNavData();
+    const isActiveRoute = (url: string) => {
+        if (url === "/") return pathname === "/";
+        return pathname === url || pathname.startsWith(url + "/");
+    };
 
     return (
         <div className="custom-scrollbar mt-2 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
@@ -132,7 +136,7 @@ export function SidebarNavigation() {
                                                     className="flex items-center gap-3 py-3"
                                                     as="link"
                                                     href={href}
-                                                    isActive={pathname === href}
+                                                    isActive={isActiveRoute(item.url)}
                                                 >
                                                     <item.icon
                                                         className="size-6 shrink-0"
