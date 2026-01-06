@@ -133,7 +133,7 @@ export default function UserCourseDashboard({ className }: any) {
       if (sortBy === "popular") query.append("sort", "-ratings");
 
       const url = `course/list?view_type=user&${query.toString()}`;
-
+      
       const res = await api.get(url);
 
       if (res.success) {

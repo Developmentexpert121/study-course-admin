@@ -71,7 +71,7 @@ console.log("progress",courseProgress)
       const chapterLessons = chapter.lessons || [];
       totalLessons += chapterLessons.length;
       totalDuration += chapter.duration || 0;
-
+console.log("course.chapters",course.chapters)
       // Count completed lessons in this chapter
       const chapterCompletedLessons = chapterLessons.filter(
         (lesson: any) => lesson.completed,
