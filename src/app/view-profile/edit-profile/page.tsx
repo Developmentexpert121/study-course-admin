@@ -478,7 +478,7 @@ export default function EditProfilePage({ className }: any) {
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between gap-6">
             {/* Profile Image */}
-            <div className="group relative">
+            <div className="group relative rounded-full overflow-hidden">
               <div className="flex h-24 w-24 items-center justify-center rounded-full">
                 {profileImage ? (
                   <Editprofile />
