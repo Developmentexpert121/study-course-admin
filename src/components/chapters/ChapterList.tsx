@@ -51,30 +51,32 @@ type SortableRowProps = {
 
 
 function SortableRow({ id, children }: SortableRowProps) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-    } = useSortable({ id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id });
 
-    const style: React.CSSProperties = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
-    return (
-        <TableRow
-            ref={setNodeRef}
-            style={style}
-            {...attributes}
-            className="text-center text-base font-medium text-dark dark:text-white"
-        >
-            {children(listeners)}
-        </TableRow>
-    );
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      className="text-center text-base font-medium text-dark dark:text-white"
+    >
+      {children(listeners)}
+    </tr>
+  );
 }
+
+
 
 
 export default function ChaptersList({ basePath }: any) {
