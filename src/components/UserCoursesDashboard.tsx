@@ -2,6 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+
 import {
   SearchIcon,
   Calendar,
@@ -30,7 +36,7 @@ import {
   List,
   Rocket,
   Zap,
-   Wifi, WifiOff 
+  Wifi, WifiOff
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -39,6 +45,8 @@ import { useApiClient } from "@/lib/api";
 import { useDebounce } from "@/utils/debounce";
 import { CourseMaintenanceMessage } from "./user/courses/CourseMaintenanceMessage";
 import { useWishlist } from "@/hooks/useWishlist";
+import { NavigationOptions } from "swiper/types";
+import { useRef } from "react";
 
 export default function UserCourseDashboard({ className }: any) {
   const router = useRouter();
@@ -55,6 +63,10 @@ export default function UserCourseDashboard({ className }: any) {
   const [limit] = useState(6);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [loading, setLoading] = useState(true);
+  const [newCourses, setNewCourses] = useState<any[]>([]);
+  const [OldCourses, setOldCourses] = useState<any[]>([]);
+  const prevRef = useRef<HTMLButtonElement | null>(null);
+  const nextRef = useRef<HTMLButtonElement | null>(null);
   const [userStats, setUserStats] = useState({
     totalEnrolled: 0,
     completedCourses: 0,
@@ -116,54 +128,110 @@ export default function UserCourseDashboard({ className }: any) {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const query = new URLSearchParams();
-      query.append("page", page.toString());
-      query.append("limit", limit.toString());
 
-      if (search && search.trim() !== "") {
-        query.append("search", search.trim());
-      }
+      const query = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        search,
+        category: categoryFilter,
+        sort: sortBy,
+      });
 
-      if (categoryFilter !== "all") {
-        query.append("category", categoryFilter);
-      }
-
-      if (sortBy === "newest") query.append("sort", "-createdAt");
-      if (sortBy === "oldest") query.append("sort", "createdAt");
-      if (sortBy === "popular") query.append("sort", "-ratings");
-
-      const url = `course/list?view_type=user&${query.toString()}`;
-      
-      const res = await api.get(url);
+      const res = await api.get(
+        `enroll/user/${loggedInuserId}/courses?${query.toString()}`
+      );
 
       if (res.success) {
-        const coursesData = res.data?.data?.courses || [];
-        const filteredCourses = coursesData.filter(
-          (course: any) => course.status !== "draft",
-        );
-        setCourses(filteredCourses);
+        const enrolled = res.data?.enrolledCourses || [];
+        setCourses(enrolled);
 
-        setTotalPages(res.data?.data?.totalPages || 1);
-        setTotalCourses(res.data?.data?.total || 0);
+        if (res.success) {
+          const unenrolled = res.data?.unenrolledCourses || [];
 
-        const uniqueCategories = [
-          ...new Set(
-            filteredCourses
-              .map((course: any) => course.category)
-              .filter(Boolean),
-          ),
-        ] as string[];
-        setCategories(uniqueCategories);
+          const ONE_MONTH_IN_MS = 30 * 24 * 60 * 60 * 1000;
+          const now = Date.now();
 
-        // Calculate user stats from real data
-        calculateUserStats(filteredCourses);
+          const newCourses = unenrolled.filter((course: any) => {
+            if (!course.createdAt) return false;
+            return now - new Date(course.createdAt).getTime() <= ONE_MONTH_IN_MS;
+          });
+
+          const oldCourses = unenrolled;
+          const sortedOldCourses = [...oldCourses].sort((a: any, b: any) => {
+  // Primary: average rating
+  const ratingDiff = (b.average_rating || 0) - (a.average_rating || 0);
+  if (ratingDiff !== 0) return ratingDiff;
+
+  // Secondary: rating count (more reviews first)
+  return (b.rating_count || 0) - (a.rating_count || 0);
+});
+
+
+          setNewCourses(newCourses);
+          setOldCourses(sortedOldCourses);
+        }
+
       }
-    } catch (err) {
-      console.error("Failed to fetch courses:", err);
+    } catch (error) {
+      console.error("Failed to fetch enrolled courses:", error);
     } finally {
       setLoading(false);
     }
   };
+
+
+  // const myfetchCourses = async () => {
+  //   //   try {
+  //   setLoading(true);
+  //   const query = new URLSearchParams();
+  //   query.append("page", page.toString());
+  //   query.append("limit", limit.toString());
+
+  //   if (search && search.trim() !== "") {
+  //     query.append("search", search.trim());
+  //   }
+
+  //   if (categoryFilter !== "all") {
+  //     query.append("category", categoryFilter);
+  //   }
+
+  //   if (sortBy === "newest") query.append("sort", "-createdAt");
+  //   if (sortBy === "oldest") query.append("sort", "createdAt");
+  //   if (sortBy === "popular") query.append("sort", "-ratings");
+
+  //   const url = `course/list?view_type=user&${query.toString()}`;
+
+
+  //   //     const res = await api.get(url);
+
+  //   //     if (res.success) {
+  //   //       const coursesData = res.data?.data?.courses || [];
+  //   //       const filteredCourses = coursesData.filter(
+  //   //         (course: any) => course.status !== "draft",
+  //   //       );
+  //   //       setCourses(filteredCourses);
+
+  //   //       setTotalPages(res.data?.data?.totalPages || 1);
+  //   //       setTotalCourses(res.data?.data?.total || 0);
+
+  //   //       const uniqueCategories = [
+  //   //         ...new Set(
+  //   //           filteredCourses
+  //   //             .map((course: any) => course.category)
+  //   //             .filter(Boolean),
+  //   //         ),
+  //   //       ] as string[];
+  //   //       setCategories(uniqueCategories);
+
+  //   //       // Calculate user stats from real data
+  //   //       calculateUserStats(filteredCourses);
+  //   //     }
+  //   //   } catch (err) {
+  //   //     console.error("Failed to fetch courses:", err);
+  //   //   } finally {
+  //   //     setLoading(false);
+  //   //   }
+  // };
 
   const calculateUserStats = (coursesData: any[]) => {
     if (!loggedInuserId) return;
@@ -209,6 +277,7 @@ export default function UserCourseDashboard({ className }: any) {
 
   useEffect(() => {
     fetchCourses();
+    // myfetchCourses();
     const userRole = getDecryptedItem("role");
     setRole(userRole);
   }, [search, categoryFilter, sortBy, page]);
@@ -242,11 +311,7 @@ export default function UserCourseDashboard({ className }: any) {
   const isUser = role === "user";
   const isEnrolled = (course: any) => {
     if (!loggedInuserId) return false;
-    return (
-      course.enrolled_users?.some(
-        (enrollment: any) => enrollment.user_id === parseInt(loggedInuserId),
-      ) || false
-    );
+    return course.isEnrolledData || false;
   };
 
   const activeCourses = courses.filter(
@@ -272,8 +337,8 @@ export default function UserCourseDashboard({ className }: any) {
           key={i}
           onClick={() => setPage(i)}
           className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 ${page === i
-              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25"
-              : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-blue-500"
+            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25"
+            : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-blue-500"
             }`}
         >
           {i}
@@ -498,8 +563,8 @@ export default function UserCourseDashboard({ className }: any) {
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`rounded-lg p-3 transition-all duration-300 ${viewMode === "grid"
-                      ? "bg-white text-blue-600 shadow-sm dark:bg-gray-600 dark:text-blue-400"
-                      : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    ? "bg-white text-blue-600 shadow-sm dark:bg-gray-600 dark:text-blue-400"
+                    : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                     }`}
                 >
                   <Grid3X3 className="h-5 w-5" />
@@ -507,8 +572,8 @@ export default function UserCourseDashboard({ className }: any) {
                 <button
                   onClick={() => setViewMode("list")}
                   className={`rounded-lg p-3 transition-all duration-300 ${viewMode === "list"
-                      ? "bg-white text-blue-600 shadow-sm dark:bg-gray-600 dark:text-blue-400"
-                      : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    ? "bg-white text-blue-600 shadow-sm dark:bg-gray-600 dark:text-blue-400"
+                    : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                     }`}
                 >
                   <List className="h-5 w-5" />
@@ -557,6 +622,7 @@ export default function UserCourseDashboard({ className }: any) {
           </div>
         ) : (
           <>
+
             {/* Active Courses Section */}
             {activeCourses.length > 0 && (
               <div className="mb-8">
@@ -565,54 +631,211 @@ export default function UserCourseDashboard({ className }: any) {
                     <div className="rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 p-2">
                       <Play className="h-6 w-6 text-white" />
                     </div>
-                    Available Courses
+                    Enrolled courses
                     <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
                       {activeCourses.length}
                     </span>
                   </h3>
                 </div>
+                <div className="w-full min-w-0">
 
-                {viewMode === "grid" ? (
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    {activeCourses.map((course: any) => (
-                      <CourseCard
-                        key={course.id}
-                        course={course}
-                        isEnrolled={isEnrolled(course)}
-                        progress={getCourseProgress(course)}
-                        onClick={() => handleCourseClick(course)}
-                        onWishlistToggle={(e: React.MouseEvent) =>
-                          handleWishlistToggle(course, e)
-                        }
-                        isInWishlist={isInWishlist(course.id)}
-                        wishlistLoading={wishlistLoading}
-                        formatDate={formatDate}
-                        truncateText={truncateText}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {activeCourses.map((course: any) => (
-                      <CourseListItem
-                        key={course.id}
-                        course={course}
-                        isEnrolled={isEnrolled(course)}
-                        progress={getCourseProgress(course)}
-                        onClick={() => handleCourseClick(course)}
-                        onWishlistToggle={(e: React.MouseEvent) =>
-                          handleWishlistToggle(course, e)
-                        }
-                        isInWishlist={isInWishlist(course.id)}
-                        wishlistLoading={wishlistLoading}
-                        formatDate={formatDate}
-                        truncateText={truncateText}
-                      />
-                    ))}
-                  </div>
-                )}
+                  {viewMode === "grid" ? (
+                    <div className="relative">
+                      {/* LEFT BUTTON */}
+                      <button
+                        ref={prevRef}
+                        className="swiper-button-prev-custom absolute -left-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 dark:bg-gray-800"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+
+                      {/* RIGHT BUTTON */}
+                      <button
+                        ref={nextRef}
+                        className="swiper-button-next-custom absolute -right-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 dark:bg-gray-800"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+
+                      <Swiper
+                        modules={[Navigation]}
+                        spaceBetween={24}
+                        slidesPerView={3.2}
+                        onBeforeInit={(swiper) => {
+                          const navigation = swiper.params.navigation as NavigationOptions;
+                          navigation.prevEl = prevRef.current;
+                          navigation.nextEl = nextRef.current;
+                        }}
+                        className="pb-8 w-full min-w-0"
+                      >
+                        {activeCourses.map((course: any) => (
+                          <SwiperSlide key={course.id}>
+                            <CourseCard
+                              course={course}
+                              isEnrolled={isEnrolled(course)}
+                              progress={getCourseProgress(course)}
+                              onClick={() => handleCourseClick(course)}
+                              onWishlistToggle={(e: React.MouseEvent) =>
+                                handleWishlistToggle(course, e)
+                              }
+                              isInWishlist={isInWishlist(course.id)}
+                              wishlistLoading={wishlistLoading}
+                              formatDate={formatDate}
+                              truncateText={truncateText}
+                            />
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {activeCourses.map((course: any) => (
+                        <CourseListItem
+                          key={course.id}
+                          course={course}
+                          isEnrolled={isEnrolled(course)}
+                          progress={getCourseProgress(course)}
+                          onClick={() => handleCourseClick(course)}
+                          onWishlistToggle={(e: React.MouseEvent) =>
+                            handleWishlistToggle(course, e)
+                          }
+                          isInWishlist={isInWishlist(course.id)}
+                          wishlistLoading={wishlistLoading}
+                          formatDate={formatDate}
+                          truncateText={truncateText}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+
+                </div>
               </div>
             )}
+            {newCourses.length > 0 && (
+              <div className="mb-8">
+                <div className="mb-6 flex items-center justify-between">
+                  <h3 className="flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white">
+                    <Sparkles className="h-6 w-6 text-blue-500" />
+                    New Courses
+                    <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      {newCourses.length}
+                    </span>
+                  </h3>
+                </div>
+
+                {/* Swiper Slider for New Courses */}
+                <div className="relative">
+                  {/* LEFT BUTTON */}
+                  <button
+                    ref={prevRef}
+                    className="swiper-button-prev-custom absolute -left-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 dark:bg-gray-800"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+
+                  {/* RIGHT BUTTON */}
+                  <button
+                    ref={nextRef}
+                    className="swiper-button-next-custom absolute -right-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 dark:bg-gray-800"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+
+                  <Swiper
+                    modules={[Navigation]}
+                    spaceBetween={24}
+                    slidesPerView={3.2}
+                    onBeforeInit={(swiper) => {
+                      const navigation = swiper.params.navigation as NavigationOptions;
+                      navigation.prevEl = prevRef.current;
+                      navigation.nextEl = nextRef.current;
+                    }}
+                    className="pb-8 w-full min-w-0"
+                  >
+                    {newCourses.map((course: any) => (
+                      <SwiperSlide key={course.id}>
+                        <CourseCard
+                          course={course}
+                          isEnrolled={false}
+                          onClick={() => handleCourseClick(course)}
+                          onWishlistToggle={(e: React.MouseEvent) =>
+                            handleWishlistToggle(course, e)
+                          }
+                          isInWishlist={isInWishlist(course.id)}
+                          wishlistLoading={wishlistLoading}
+                          formatDate={formatDate}
+                          truncateText={truncateText}
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+              </div>
+            )}
+
+            {OldCourses.length > 0 && (
+              <div className="mb-8">
+                <div className="mb-6 flex items-center justify-between">
+                  <h3 className="flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white">
+                    <BookOpen className="h-6 w-6 text-gray-500" />
+                    Feather Courses
+                    <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                      {OldCourses.length}
+                    </span>
+                  </h3>
+                </div>
+
+                {/* Swiper Slider for Old Courses */}
+                <div className="relative">
+                  {/* LEFT BUTTON */}
+                  <button
+                    ref={prevRef}
+                    className="swiper-button-prev-custom absolute -left-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 dark:bg-gray-800"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+
+                  {/* RIGHT BUTTON */}
+                  <button
+                    ref={nextRef}
+                    className="swiper-button-next-custom absolute -right-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 dark:bg-gray-800"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+
+                  <Swiper
+                    modules={[Navigation]}
+                    spaceBetween={24}
+                    slidesPerView={3.2}
+                    onBeforeInit={(swiper) => {
+                      const navigation = swiper.params.navigation as NavigationOptions;
+                      navigation.prevEl = prevRef.current;
+                      navigation.nextEl = nextRef.current;
+                    }}
+                    className="pb-8 w-full min-w-0"
+                  >
+                    {OldCourses.map((course: any) => (
+                      <SwiperSlide key={course.id}>
+                        <CourseCard
+                          course={course}
+                          isEnrolled={false}
+                          onClick={() => handleCourseClick(course)}
+                          onWishlistToggle={(e: React.MouseEvent) =>
+                            handleWishlistToggle(course, e)
+                          }
+                          isInWishlist={isInWishlist(course.id)}
+                          wishlistLoading={wishlistLoading}
+                          formatDate={formatDate}
+                          truncateText={truncateText}
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+              </div>
+            )}
+
 
             {/* Coming Soon Section (Inactive Courses) */}
             {inactiveCourses.length > 0 && (
@@ -675,7 +898,7 @@ export default function UserCourseDashboard({ className }: any) {
             {courses.length === 0 && <EmptyState search={search} />}
 
             {/* Enhanced Pagination */}
-            {courses.length > 0 && (
+            {/* {courses.length > 0 && (
               <div className="mt-12 flex flex-col items-center justify-between gap-6 rounded-2xl bg-white/80 p-6 shadow-sm backdrop-blur-sm dark:bg-gray-800/80 sm:flex-row">
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   Showing {activeCourses.length} active courses
@@ -705,16 +928,15 @@ export default function UserCourseDashboard({ className }: any) {
                   </button>
                 </div>
               </div>
-            )}
+            )} */}
+
+
           </>
         )}
       </div>
     </div>
   );
 }
-
-// The CourseCard, CourseListItem, CourseCardSkeleton, CourseListItemSkeleton, and EmptyState components remain exactly the same as in the previous implementation
-// [Include all the same helper components here...]
 
 // Enhanced Course Card Component
 const CourseCard = ({
@@ -758,14 +980,12 @@ const CourseCard = ({
 
   const courseStatus = getCourseStatus(course);
   const isCourseAvailable = isActive && isCourseComplete;
-
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-500 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 ${
-        isCourseAvailable && !isEnrolled
-          ? "cursor-pointer hover:-translate-y-1"
-          : "cursor-default"
-      }`}
+      className={`group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-500 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 ${isCourseAvailable && !isEnrolled
+        ? "cursor-pointer hover:-translate-y-1"
+        : "cursor-default"
+        }`}
       onClick={() => !isEnrolled && isCourseAvailable && onClick()}
     >
       {/* Course Image with Gradient Overlay */}
@@ -798,13 +1018,12 @@ const CourseCard = ({
         {/* Status Badges */}
         <div className="absolute left-4 top-4 flex flex-col gap-2">
           <span
-            className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${
-              courseStatus.color === "gray"
-                ? "bg-gray-900/80 text-white"
-                : courseStatus.color === "orange"
-                  ? "bg-orange-500/90 text-white"
-                  : "bg-green-500/90 text-white"
-            }`}
+            className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${courseStatus.color === "gray"
+              ? "bg-gray-900/80 text-white"
+              : courseStatus.color === "orange"
+                ? "bg-orange-500/90 text-white"
+                : "bg-green-500/90 text-white"
+              }`}
           >
             {courseStatus.status === "inactive" && <Lock className="h-3 w-3" />}
             {courseStatus.status === "under_development" && (
@@ -819,11 +1038,10 @@ const CourseCard = ({
           {/* Course Mode Badge */}
           {course.mode && (
             <span
-              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${
-                course.mode === "online"
-                  ? "bg-blue-500/90 text-white"
-                  : "bg-purple-500/90 text-white"
-              }`}
+              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${course.mode === "online"
+                ? "bg-blue-500/90 text-white"
+                : "bg-purple-500/90 text-white"
+                }`}
             >
               {course.mode === "online" ? (
                 <>
@@ -850,11 +1068,10 @@ const CourseCard = ({
         <button
           onClick={onWishlistToggle}
           disabled={wishlistLoading}
-          className={`absolute right-4 top-4 rounded-full p-2.5 backdrop-blur-sm transition-all duration-300 ${
-            isInWishlist
-              ? "bg-red-500 text-white shadow-lg hover:bg-red-600"
-              : "bg-white/90 text-gray-600 shadow-lg hover:bg-white hover:text-red-500"
-          } ${wishlistLoading ? "cursor-not-allowed opacity-50" : ""}`}
+          className={`absolute right-4 top-4 rounded-full p-2.5 backdrop-blur-sm transition-all duration-300 ${isInWishlist
+            ? "bg-red-500 text-white shadow-lg hover:bg-red-600"
+            : "bg-white/90 text-gray-600 shadow-lg hover:bg-white hover:text-red-500"
+            } ${wishlistLoading ? "cursor-not-allowed opacity-50" : ""}`}
           title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >
           {wishlistLoading ? (
@@ -869,11 +1086,10 @@ const CourseCard = ({
         {/* Price Badge */}
         <div className="absolute right-4 top-16">
           <span
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${
-              course.price_type === "free"
-                ? "bg-green-500/90 text-white"
-                : "bg-blue-500/90 text-white"
-            }`}
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold backdrop-blur-sm ${course.price_type === "free"
+              ? "bg-green-500/90 text-white"
+              : "bg-blue-500/90 text-white"
+              }`}
           >
             {course.price_type === "free" ? "FREE" : `$${course.price}`}
           </span>
@@ -930,24 +1146,24 @@ const CourseCard = ({
         </div>
 
         {/* Course Stats */}
-        {course.has_chapters && (
+        {course.course_readiness.has_chapters && (
           <div className="mb-4 grid grid-cols-2 gap-3 text-xs">
             <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-700/50">
               <BookOpen className="h-3 w-3 text-blue-600 dark:text-blue-400" />
               <span className="font-medium text-gray-700 dark:text-gray-300">
-                {course.totalChapters || 0} chapters
+                {course.total_chapters || 0} chapters
               </span>
             </div>
             <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-700/50">
               <Play className="h-3 w-3 text-green-600 dark:text-green-400" />
               <span className="font-medium text-gray-700 dark:text-gray-300">
-                {course.totalLessons || 0} lessons
+                {course.total_lessons || 0} lessons
               </span>
             </div>
             <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-700/50">
               <FileQuestion className="h-3 w-3 text-purple-600 dark:text-purple-400" />
               <span className="font-medium text-gray-700 dark:text-gray-300">
-                {course.totalMCQs || 0} MCQs
+                {course.total_mcqs || 0} MCQs
               </span>
             </div>
             <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-700/50">
@@ -984,11 +1200,10 @@ const CourseCard = ({
             <button
               onClick={() => isCourseAvailable && onClick()}
               disabled={!isCourseAvailable}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-300 ${
-                isCourseAvailable
-                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
-                  : "cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
-              }`}
+              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-300 ${isCourseAvailable
+                ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+                : "cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+                }`}
             >
               {isInactive ? (
                 <>
@@ -1030,8 +1245,8 @@ const CourseListItem = ({
   return (
     <div
       className={`group flex items-start gap-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-500 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 ${isActive && isCourseComplete && !isEnrolled
-          ? "cursor-pointer hover:-translate-y-0.5"
-          : "cursor-default"
+        ? "cursor-pointer hover:-translate-y-0.5"
+        : "cursor-default"
         }`}
       onClick={() => !isEnrolled && isActive && isCourseComplete && onClick()}
     >
@@ -1055,8 +1270,8 @@ const CourseListItem = ({
           onClick={onWishlistToggle}
           disabled={wishlistLoading}
           className={`absolute right-2 top-2 rounded-full p-1.5 backdrop-blur-sm transition-all duration-300 ${isInWishlist
-              ? "bg-red-500 text-white shadow-md hover:bg-red-600"
-              : "bg-white/90 text-gray-600 shadow-md hover:bg-white hover:text-red-500"
+            ? "bg-red-500 text-white shadow-md hover:bg-red-600"
+            : "bg-white/90 text-gray-600 shadow-md hover:bg-white hover:text-red-500"
             } ${wishlistLoading ? "cursor-not-allowed opacity-50" : ""}`}
         >
           {wishlistLoading ? (
@@ -1095,8 +1310,8 @@ const CourseListItem = ({
               )}
               <span
                 className={`rounded-full px-3 py-1 text-xs font-medium ${course.price_type === "free"
-                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                    : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                   }`}
               >
                 {course.price_type === "free" ? "FREE" : `$${course.price}`}
@@ -1161,8 +1376,8 @@ const CourseListItem = ({
                 onClick={onClick}
                 disabled={!isActive || !isCourseComplete}
                 className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${isActive && isCourseComplete
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/25"
-                    : "cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/25"
+                  : "cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
                   }`}
               >
                 {isInactive ? (
@@ -1305,3 +1520,7 @@ const EmptyState = ({ search }: any) => (
     </div>
   </div>
 );
+function setCurrentPage(arg0: any) {
+  throw new Error("Function not implemented.");
+}
+
