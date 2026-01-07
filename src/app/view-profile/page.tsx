@@ -82,23 +82,23 @@ export default function UserProfilePage({ className }: any) {
   const resetError = useAppSelector(selectResetError);
 
   // Use edit data if available, fallback to view data
-  const userData = currentUser?.data || userProfile?.data || userProfile;
+  const userData = currentUser?.data  || userProfile;
   const loading = updateLoading || loadingProfile;
   const error = updateError || errorProfile;
 
-  const userId = getDecryptedItem("userId");
+  const userId = getDecryptedItem<any>("userId");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({
+  const [editMode, setEditMode] = useState<any>(false);
+  const [formData, setFormData] = useState<any>({
     username: "",
     bio: "",
   });
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imageLoading, setImageLoading] = useState(false);
-  const [showResetForm, setShowResetForm] = useState(false);
-  const [showPasswords, setShowPasswords] = useState({
+  const [profileImage, setProfileImage] = useState<any>(null);
+  const [selectedFile, setSelectedFile] = useState<any>(null);
+  const [imageLoading, setImageLoading] = useState<any>(false);
+  const [showResetForm, setShowResetForm] = useState<any>(false);
+  const [showPasswords, setShowPasswords] = useState<any>({
     old: false,
     new: false,
     confirm: false,
@@ -114,6 +114,7 @@ export default function UserProfilePage({ className }: any) {
   useEffect(() => {
     if (userId) {
       dispatch(fetchUserById(Number(userId)));
+      
       dispatch(getUserById(userId));
     }
   }, [dispatch, userId]);
@@ -166,7 +167,7 @@ export default function UserProfilePage({ className }: any) {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
+    setFormData((prev : any) => ({
       ...prev,
       [field]: value,
     }));
