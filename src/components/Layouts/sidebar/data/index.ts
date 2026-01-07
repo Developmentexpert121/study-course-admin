@@ -107,13 +107,6 @@ export const NAV_DATA = [
       },
     
 
-      {
-        title: "Newsletter",
-        url: "/super-admin/mails",
-        icon: Icons.Newsletter,
-        items: [],
-        type: "Super-Admin",
-      },
 
       
       {

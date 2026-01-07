@@ -139,7 +139,7 @@ console.log("datdatdatdatdat",data)
                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
                     <span className="text-2xl font-bold text-white">
                       {/* {userData.username?.charAt(0).toUpperCase()} */}
-                    k
+               
                     </span>
                   </div>
               )}

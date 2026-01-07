@@ -112,7 +112,7 @@ export default function AdminDashboardPage() {
   if (loading && !(stats as any).total_courses) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto ">
           {/* Header Skeleton */}
           <div className="mb-8 h-32 animate-pulse rounded-2xl bg-gradient-to-r from-gray-300 to-gray-400 p-8 shadow-2xl dark:from-gray-700 dark:to-gray-600"></div>
 
