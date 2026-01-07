@@ -208,7 +208,7 @@ export default function DashboardStatsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto ">
         {/* Header with Gradient */}
         <div className="mb-8 rounded-2xl bg-gradient-to-r from-[#02517b] to-[#43bf79] p-8 shadow-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
