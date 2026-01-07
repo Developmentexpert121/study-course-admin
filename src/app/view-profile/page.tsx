@@ -819,7 +819,7 @@ export default function UserProfilePage({ className }: any) {
                       <button
                         type="button"
                         onClick={() =>
-                          setShowPasswords((prev) => ({
+                          setShowPasswords((prev : any) => ({
                             ...prev,
                             [type]: !prev[type as keyof typeof prev],
                           }))
