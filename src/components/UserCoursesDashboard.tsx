@@ -718,7 +718,7 @@ export default function UserCourseDashboard({ className }: any) {
                   <h3 className="flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white">
                     <Sparkles className="h-6 w-6 text-blue-500" />
                     New Courses
-                    <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
                       {newCourses.length}
                     </span>
                   </h3>
@@ -780,7 +780,7 @@ export default function UserCourseDashboard({ className }: any) {
                     <h3 className="flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white">
                       <BookOpen className="h-6 w-6 text-gray-500" />
                       Feature Courses
-                      <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                      <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
                         {OldCourses.length}
                       </span>
                     </h3>
