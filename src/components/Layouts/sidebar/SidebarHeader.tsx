@@ -40,7 +40,7 @@ export function SidebarHeader() {
                     </div>
                     {isOpen && (
                         <span className="ml-2 text-md font-bold text-gray-900 dark:text-white">
-                            Your Brand
+                            Devex Course
                         </span>
                     )}
                 </Link>
