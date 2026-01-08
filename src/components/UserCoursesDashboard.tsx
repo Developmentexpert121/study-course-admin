@@ -779,7 +779,7 @@ export default function UserCourseDashboard({ className }: any) {
                   <div className="mb-6 flex items-center justify-between">
                     <h3 className="flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white">
                       <BookOpen className="h-6 w-6 text-gray-500" />
-                      Feather Courses
+                      Feature Courses
                       <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200">
                         {OldCourses.length}
                       </span>
