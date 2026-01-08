@@ -511,7 +511,7 @@ export default function UserCourseDashboard({ className }: any) {
               </div>
 
               {/* Enhanced Category Filter */}
-              {loading ? (
+              {/* {loading ? (
                 <div className="h-12 w-32 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700"></div>
               ) : categories.length > 0 ? (
                 <div className="relative">
@@ -532,10 +532,10 @@ export default function UserCourseDashboard({ className }: any) {
                     ))}
                   </select>
                 </div>
-              ) : null}
+              ) : null} */}
 
               {/* Enhanced Sort By */}
-              <div className="relative">
+              {/* <div className="relative">
                 <BarChart3 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <select
                   value={sortBy}
@@ -549,7 +549,7 @@ export default function UserCourseDashboard({ className }: any) {
                   <option value="oldest">Oldest First</option>
                   <option value="popular">Most Popular</option>
                 </select>
-              </div>
+              </div> */}
             </div>
 
             {/* Enhanced View Mode Toggle */}
@@ -560,7 +560,7 @@ export default function UserCourseDashboard({ className }: any) {
               </div>
             ) : (
               <div className="flex items-center gap-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-700">
-                <button
+                {/* <button
                   onClick={() => setViewMode("grid")}
                   className={`rounded-lg p-3 transition-all duration-300 ${viewMode === "grid"
                     ? "bg-white text-blue-600 shadow-sm dark:bg-gray-600 dark:text-blue-400"
@@ -577,7 +577,7 @@ export default function UserCourseDashboard({ className }: any) {
                     }`}
                 >
                   <List className="h-5 w-5" />
-                </button>
+                </button> */}
               </div>
             )}
           </div>
@@ -774,67 +774,74 @@ export default function UserCourseDashboard({ className }: any) {
               </div>
             )}
 
-            {OldCourses.length > 0 && (
-              <div className="mb-8">
-                <div className="mb-6 flex items-center justify-between">
-                  <h3 className="flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white">
-                    <BookOpen className="h-6 w-6 text-gray-500" />
-                    Feather Courses
-                    <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                      {OldCourses.length}
-                    </span>
-                  </h3>
+              {OldCourses.length > 0 && (
+                <div className="mb-8">
+                  <div className="mb-6 flex items-center justify-between">
+                    <h3 className="flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white">
+                      <BookOpen className="h-6 w-6 text-gray-500" />
+                      Feather Courses
+                      <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                        {OldCourses.length}
+                      </span>
+                    </h3>
+                     {/* VIEW ALL BUTTON */}
+      <button
+        onClick={() => router.push("/FeatherCoursesPage")}
+        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+      >
+        View All
+      </button>
+                  </div>
+
+                  {/* Swiper Slider for Old Courses */}
+                  <div className="relative">
+                    {/* LEFT BUTTON */}
+                    <button
+                      ref={prevRef}
+                      className="swiper-button-prev-custom absolute -left-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 dark:bg-gray-800"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+
+                    {/* RIGHT BUTTON */}
+                    <button
+                      ref={nextRef}
+                      className="swiper-button-next-custom absolute -right-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 dark:bg-gray-800"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+
+                    <Swiper
+                      modules={[Navigation]}
+                      spaceBetween={24}
+                      slidesPerView={3.2}
+                      onBeforeInit={(swiper) => {
+                        const navigation = swiper.params.navigation as NavigationOptions;
+                        navigation.prevEl = prevRef.current;
+                        navigation.nextEl = nextRef.current;
+                      }}
+                      className="pb-8 w-full min-w-0"
+                    >
+                      {OldCourses.map((course: any) => (
+                        <SwiperSlide key={course.id}>
+                          <CourseCard
+                            course={course}
+                            isEnrolled={false}
+                            onClick={() => handleCourseClick(course)}
+                            onWishlistToggle={(e: React.MouseEvent) =>
+                              handleWishlistToggle(course, e)
+                            }
+                            isInWishlist={isInWishlist(course.id)}
+                            wishlistLoading={wishlistLoading}
+                            formatDate={formatDate}
+                            truncateText={truncateText}
+                          />
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                  </div>
                 </div>
-
-                {/* Swiper Slider for Old Courses */}
-                <div className="relative">
-                  {/* LEFT BUTTON */}
-                  <button
-                    ref={prevRef}
-                    className="swiper-button-prev-custom absolute -left-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 dark:bg-gray-800"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-
-                  {/* RIGHT BUTTON */}
-                  <button
-                    ref={nextRef}
-                    className="swiper-button-next-custom absolute -right-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md hover:bg-gray-100 dark:bg-gray-800"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-
-                  <Swiper
-                    modules={[Navigation]}
-                    spaceBetween={24}
-                    slidesPerView={3.2}
-                    onBeforeInit={(swiper) => {
-                      const navigation = swiper.params.navigation as NavigationOptions;
-                      navigation.prevEl = prevRef.current;
-                      navigation.nextEl = nextRef.current;
-                    }}
-                    className="pb-8 w-full min-w-0"
-                  >
-                    {OldCourses.map((course: any) => (
-                      <SwiperSlide key={course.id}>
-                        <CourseCard
-                          course={course}
-                          isEnrolled={false}
-                          onClick={() => handleCourseClick(course)}
-                          onWishlistToggle={(e: React.MouseEvent) =>
-                            handleWishlistToggle(course, e)
-                          }
-                          isInWishlist={isInWishlist(course.id)}
-                          wishlistLoading={wishlistLoading}
-                          formatDate={formatDate}
-                          truncateText={truncateText}
-                        />
-                      </SwiperSlide>
-                    ))}
-                  </Swiper>
-                </div>
-              </div>
-            )}
+              )}
 
 
             {/* Coming Soon Section (Inactive Courses) */}
