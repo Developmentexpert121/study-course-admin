@@ -100,7 +100,7 @@ const ChapterAccordion: React.FC<ChapterAccordionProps> = ({
         }`}
         onClick={() => !isChapterLocked && setIsOpen(!isOpen)}
       >
-        <div className="flex flex-1 items-center gap-3">
+        <div className="flex flex-1 items-center max-w-full break-words gap-3">
           {/* Status Indicator */}
           <div
             className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${getStatusColor(getChapterStatus())}`}
@@ -131,7 +131,7 @@ const ChapterAccordion: React.FC<ChapterAccordionProps> = ({
               )}
             </div>
             <p
-              className={`truncate text-sm font-medium ${
+              className={` text-sm font-medium ${
                 isChapterLocked
                   ? "text-gray-400 dark:text-gray-500"
                   : "text-slate-700 dark:text-slate-300"
@@ -245,7 +245,7 @@ const ChapterAccordion: React.FC<ChapterAccordionProps> = ({
 
                 <div className="min-w-0 flex-1">
                   <p
-                    className={`truncate text-sm font-medium ${
+                    className={` text-sm font-medium ${
                       isLessonLocked
                         ? "text-gray-400 dark:text-gray-500"
                         : lesson.completed

@@ -41,6 +41,10 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
     "all" | "active" | "inactive" | "draft"
   >("all");
   const [courses, setCourses] = useState<any>([]);
+  const [inactivecourses, setInactivecourses] = useState<any>([]);
+  const [draftcourses, setdraftcourses] = useState<any>([]);
+  const [totalcoursecountwithactive, settotalcoursecountwithactive] = useState<any>([]);
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(5);
@@ -73,8 +77,14 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
 
       const res = await api.get(url);
       if (res.success) {
+        console.log("this is the course ", res.data)
         setCourses(res.data?.data?.courses || []);
         setTotalPages(res.data?.data?.totalPages || 1);
+        setInactivecourses(res.data?.data?.inactivecourseCounttotal);
+        setdraftcourses(res.data?.data?.draftcourseCounttotal);
+        settotalcoursecountwithactive(res.data?.data?.totalcoursecountwithactive)
+
+
       }
     } catch (err) {
       console.error("Failed to fetch courses:", err);
@@ -239,7 +249,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
 
 
 
-         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-center">
             <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900">
@@ -250,7 +260,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                 Total Courses
               </h3>
               <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {courses.length}
+                {totalcoursecountwithactive+draftcourses+inactivecourses}
               </p>
             </div>
           </div>
@@ -266,11 +276,9 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                 Active
               </h3>
               <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {
-                  courses.filter(
-                    (course: { status: string }) => course.status === "active",
-                  ).length
-                }
+                
+                  {totalcoursecountwithactive}
+                
               </p>
             </div>
           </div>
@@ -286,11 +294,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                 Draft
               </h3>
               <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {
-                  courses.filter(
-                    (course: { status: string }) => course.status === "draft",
-                  ).length
-                }
+                {draftcourses}
               </p>
             </div>
           </div>
@@ -306,11 +310,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                 Inactive
               </h3>
               <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {
-                  courses.filter(
-                    (course: { status: string }) =>
-                      course.status === "inactive",
-                  ).length
+                {inactivecourses
                 }
               </p>
             </div>
@@ -318,7 +318,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
         </div>
       </div>
 
-      
+
       <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
         {/* Search and Filter Section */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
@@ -399,7 +399,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
         )}
       </div>
       {/* Stats Cards */}
-   
+
 
       <Table>
         <TableHeader>

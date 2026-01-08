@@ -46,8 +46,7 @@ export default function CourseSidebar({
   return (
     <div className="space-y-6">
       {/* Enrollment Card - Only this one has sticky and high z-index */}
-      <div className="overflow-hidden sticky top-6 z-40 flex flex-col gap-6 ">
-        <div className="bg-white rounded-2xl border border-border/50 shadow-card overflow-hidden">
+      <div className=" top-6 z-40 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
         {isEnrolled ? (
           <>
             <div className="mb-4 text-center">
