@@ -53,6 +53,8 @@ export default function UsersWithProgressPage({ className }: any) {
     verificationStatus || "all",
   );
 
+
+
   // Calculate stats
   const totalCount = totalUsers || 0;
   const activeCount = activeUsers || 0;
@@ -536,16 +538,23 @@ const handleSearch = () => {
                               )}
                             </button>
                           )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewDetails(user.id);
-                            }}
-                            className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
-                          >
-                            <Eye className="mr-1 h-3.5 w-3.5" />
-                            View
-                          </button>
+
+
+                          {user.enrolledCourses.length > 0 ? (
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      handleViewDetails(user.id);
+    }}
+    className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+  >
+    <Eye className="mr-1 h-3.5 w-3.5" />
+    View
+  </button>
+) : (
+  <span className="text-xs text-gray-500">No course enrolled</span>
+)}
+                          
                         </div>
                       </td>
                     </tr>

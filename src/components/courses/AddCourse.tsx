@@ -276,6 +276,9 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
+            toasterError(
+`Please fill ${Object.keys(newErrors).length} required field(s)`
+);
             return;
         }
         setErrors({});
