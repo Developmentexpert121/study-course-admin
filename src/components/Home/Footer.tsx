@@ -7,7 +7,13 @@ import {
   FaTwitter,
   FaInstagram,
   FaLinkedinIn,
+  FaYoutube,
+  FaBehance,
+  FaWhatsapp,
+  FaEnvelope,
+  FaMapMarkerAlt,
 } from "react-icons/fa";
+import { FiMail } from "react-icons/fi";
 
 interface FooterProps {
   email: string;
@@ -22,122 +28,99 @@ const Footer: React.FC<FooterProps> = ({
   handleSubmit,
   loading,
 }) => {
+  const socialLinks = [
+    { icon: <FaTwitter />, label: "Twitter", href: "#" },
+    { icon: <FaLinkedinIn />, label: "LinkedIn", href: "#" },
+    { icon: <FaInstagram />, label: "Instagram", href: "#" },
+    { icon: <FaYoutube />, label: "YouTube", href: "#" },
+    { icon: <FaBehance />, label: "Behance", href: "#" },
+    { icon: <FaFacebookF />, label: "Facebook", href: "#" },
+  ];
+
   return (
     <footer id="footer" className="bg-gradient-to-br from-primary to-[#ec4899] pb-8 pt-16 text-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Top Section */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4 md:gird-cols-2grid grid-cols-1 gap-4 md:gap-6 lg:gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* Logo & Description */}
-          <div>
-            <div className="mt-6 flex space-x-4">
-              <a
-                href="https://www.facebook.com/devexhub"
-                className="text-white transition hover:text-orange-500"
-              >
-                <FaFacebookF />
-              </a>
-              <a
-                href="https://x.com/devexhub"
-                className="transition hover:text-orange-500"
-              >
-                <FaTwitter />
-              </a>
-              <a
-                href="https://www.instagram.com/devexhub/#"
-                className="transition hover:text-orange-500"
-              >
-                <FaInstagram />
-              </a>
-              <a
-                href="https://www.linkedin.com/company/devex-hub"
-                className="transition hover:text-orange-500"
-              >
-                <FaLinkedinIn />
-              </a>
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Intro Text */}
+        <div className="text-center mb-12 animate-fade-in">
+          <h3 className="text-lg md:text-xl font-medium leading-8 max-w-3xl mx-auto text-primary-foreground/90">
+            We are a trustworthy web development and digital marketing company. We believe in delivering
+            High-Quality services to our customers with the ultimate motto of &quot;Happy Clients&quot;.
+          </h3>
+        </div>
+
+        {/* Footer Main Content */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center lg:items-start justify-between">
+
+          {/* Address Section */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left animate-fade-in w-full lg:w-auto" style={{ animationDelay: "100ms" }}>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/20 btn-animate hover:bg-white/30 transition-colors flex-shrink-0">
+              <FaMapMarkerAlt className="text-white text-xl" />
             </div>
-            <p className="mt-4 text-white">
-              Learn in-demand skills and advance your career with our expert-led
-              courses.
-            </p>
+            <div>
+              <p className="text-primary-foreground/80 text-sm  max-w-xs">
+                GR Square, Plot No D-254, 4th Floor,<br />
+                Phase-8A, Mohali, Punjab 160062
+              </p>
+            </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="mb-4 text-xl font-semibold">Quick Links</h3>
-            <ul className="space-y-2 text-gray-400">
-              <li>
-                <a href="#" className="text-white transition">
-                  Home
-                </a>
-              </li>
-              <li>
-                <a href="home#courses" className="text-white transition">
-                  Courses
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-white transition">
-                  About Us
-                </a>
-              </li>
-            </ul>
+          {/* Social Icons */}
+          <div className="flex flex-wrap justify-center gap-3 animate-fade-in w-full lg:w-auto" style={{ animationDelay: "200ms" }}>
+            {socialLinks.map((social, index) => (
+              <a
+                key={index}
+                href={social.href}
+                className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white btn-animate hover:bg-white/30 hover:scale-110 transition-all duration-300"
+                aria-label={social.label}
+              >
+                <span className="text-lg">{social.icon}</span>
+              </a>
+            ))}
           </div>
 
           {/* Contact Info */}
-          <div>
-            <h3 className="mb-4 text-xl font-semibold text-white">
-              Contact Us
-            </h3>
-            <p className="text-white">123 Main Street, Mohali, Punjab</p>
-            <p className="mt-2 text-white">Email: info@devexhub.com</p>
-            <p className="mt-2 text-white">Phone: +91 98765 43210</p>
-          </div>
-
-          {/* Newsletter / Search */}
-          <div>
-            <h3 className="mb-4 text-xl font-semibold">Subscribe / Search</h3>
-            <p className="mb-3 text-white">
-              Enter your email to get latest updates:
-            </p>
-            <form onSubmit={handleSubmit} className="w-full">
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
-                  className="w-full rounded-l-md bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none disabled:opacity-50"
-                  required
-                />
-                <button
-                  type="submit"
-                  disabled={loading || !email.trim()}
-                  className="rounded-r-md bg-[#dcdcdc] px-4 py-2 text-[#000] transition hover:bg-[#c8c8c8] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {loading ? "Subscribing..." : "Subscribe"}
-                </button>
+          <div className="flex justify-center md:justify-between gap-6 animate-fade-in w-full lg:w-auto" style={{ animationDelay: "300ms" }}>
+            {/* Phone */}
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <a
+                href="https://wa.me/919875905952"
+                className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white btn-animate hover:bg-green-700 hover:scale-110 transition-all duration-300"
+                aria-label="WhatsApp"
+              >
+                <FaWhatsapp className="text-xl" />
+              </a>
+              <div className="text-center sm:text-left">
+                <p className="text-primary-foreground/80 text-sm">WhatsApp</p>
+                <a href="tel:+919875905952" className="text-white font-medium hover:underline">
+                  (+91) 9875905952
+                </a>
               </div>
-            </form>
+            </div>
+
+            {/* Email */}
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <a
+                href="mailto:info@devexhub.com"
+                className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white btn-animate hover:bg-white/30 hover:scale-110 transition-all duration-300"
+                aria-label="Email"
+              >
+                <FiMail className="text-xl" />
+              </a>
+              <div className="text-center sm:text-left">
+                <p className="text-primary-foreground/80 text-sm">Email</p>
+                <a href="mailto:info@devexhub.com" className="text-white font-medium hover:underline">
+                  info@devexhub.com
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="mt-10 border-t border-gray-500"></div>
-
-        {/* Bottom Section */}
-        <div className="mt-6 flex flex-col items-center justify-between text-sm text-white md:flex-row">
-          <p>
-            &copy; {new Date().getFullYear()} DevexHub. All rights reserved.
+        {/* Copyright */}
+        <div className="mt-12 pt-6 border-t border-primary-foreground/20 text-center animate-fade-in">
+          <p className="text-primary-foreground/70 text-sm ">
+            Copyright © 2026. Powered by DevexHub.
           </p>
-          <div className="mt-2 flex space-x-4 md:mt-0">
-            <a href="#" className="transition hover:text-[#02517b]">
-              Privacy Policy
-            </a>
-            <a href="#" className="transition hover:text-[#02517b]">
-              Terms of Service
-            </a>
-          </div>
         </div>
       </div>
     </footer>

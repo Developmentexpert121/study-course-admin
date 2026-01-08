@@ -10,7 +10,6 @@ import { useSidebarContext } from "./sidebar-context";
 
 export function Sidebar() {
   const { isMobile, isOpen, isMobileMenuOpen } = useSidebarContext();
-
   if (isMobile) {
     return (
       <>
@@ -26,7 +25,7 @@ export function Sidebar() {
     <aside
       className={cn(
         "group sticky top-0 h-screen overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out dark:border-gray-800 dark:bg-gray-dark",
-        isOpen ? "w-[290px]" : "w-[80px] hover:w-[290px]",
+        isOpen ? "w-[240px] min-w-[240]" : "w-[80px] hover:w-[290px]",
       )}
       aria-label="Main navigation"
     >

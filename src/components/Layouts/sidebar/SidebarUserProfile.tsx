@@ -110,7 +110,7 @@ export function SidebarUserProfile() {
         // Actual User Profile Content
         <>
           <figure
-            className="flex cursor-pointer items-center gap-2.5 rounded-lg px-5 py-3.5 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="flex cursor-pointer items-center gap-2.5 rounded-lg px-5 py-2.5 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
             <div className="relative">

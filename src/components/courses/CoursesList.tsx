@@ -213,11 +213,11 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
   return (
     <div
       className={cn(
-        "grid overflow-auto rounded-[10px] px-7.5 pb-4 pt-7.5 dark:bg-gray-dark",
+        "grid overflow-auto rounded-[10px] px-7.5 pb-4 pt-7.5 dark:bg-gray-dark mt-15",
         className,
       )}
     >
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
             <FileBadge className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />

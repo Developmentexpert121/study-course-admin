@@ -72,7 +72,7 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
     // </section>
     <section id="courses" className="py-20 bg-gradient-to-br from-gray-50 to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 ">
-        <h2 className="text-5xl font-bold text-gray-900 mb-4 text-center">
+        <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl text-center">
           Explore My Courses
         </h2>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12 text-center">
@@ -99,11 +99,13 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
                     Design
                   </span>
 
+
                   <div className="flex items-center text-yellow-500">
                     <FaStar className="text-sm" />
                     <span className="ml-1 text-sm font-semibold text-gray-700">4.8</span>
                   </div>
                 </div>
+                <div className="flex items-center gap-2 mb-3"><div className="w-6 h-6 rounded-full bg-[#2ec2b333] flex items-center justify-center"><span className="text-xs font-bold text-secondary">KS</span></div><span className="text-xs text-muted-foreground font-medium">Karanveer singh</span></div>
 
                 <h3 className="mb-2 text-lg font-semibold text-gray-800">
                   {course.title}
@@ -130,7 +132,7 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
                     onClick={() => router.push(`/auth/courses/${course.id}`)}
                     className="font-semibold text-primary hover:text-[#0388c7] transition-colors"
                   >
-                    View Now →
+                    View →
                   </button>
                 </div>
               </div>

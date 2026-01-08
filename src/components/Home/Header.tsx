@@ -41,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
           onClick={() => router.push("/")}
         >
           <img src="/images/logo.png" className="h-10 w-10" alt="Logo" />
-          <span className="text-xl font-bold tracking-tight text-[#00537e]">
+          <span className="text-xl font-bold tracking-tight text-[#6c4fe4]">
             Devex Course
           </span>
         </div>
@@ -145,7 +145,7 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-6 w-6 text-[#6c4fe4]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -175,28 +175,28 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
           <nav className="flex flex-col space-y-3 px-6 py-4 font-medium text-gray-700">
             <Link
               href="/"
-              className="transition hover:text-blue-600"
+              className="transition hover:text-[#6c4fe4]"
               onClick={() => setMenuOpen(false)}
             >
               Home
             </Link>
             <Link
               href="/courses"
-              className="transition hover:text-blue-600"
+              className="transition hover:text-[#6c4fe4]"
               onClick={() => setMenuOpen(false)}
             >
               Courses
             </Link>
             <Link
               href="/#about"
-              className="transition hover:text-blue-600"
+              className="transition hover:text-[#6c4fe4]"
               onClick={() => setMenuOpen(false)}
             >
               About
             </Link>
             <Link
               href="/#contact"
-              className="transition hover:text-blue-600"
+              className="transition hover:text-[#6c4fe4]"
               onClick={() => setMenuOpen(false)}
             >
               Contact
@@ -208,7 +208,7 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
                   router.push("/auth/login");
                   setMenuOpen(false);
                 }}
-                className="flex-1 rounded-full border border-blue-600 px-5 py-2 font-semibold text-blue-600 transition hover:bg-blue-600 hover:text-white"
+                className="flex-1 rounded-lg border border-[#6c4fe4] px-5 py-2 font-semibold text-[#6c4fe4] transition hover:opacity-90 hover:text[#6c4fe4]"
               >
                 Login
               </button>
@@ -217,7 +217,7 @@ const Header: React.FC<HeaderProps> = ({ name, role }) => {
                   router.push("/auth/register");
                   setMenuOpen(false);
                 }}
-                className="flex-1 rounded-full bg-blue-600 px-5 py-2 font-semibold text-white transition hover:bg-blue-700"
+                className="flex-1 rounded-lg bg-gradient-to-r from-primary to-[#8b5cf6]  px-5 py-2 font-semibold text-white transition hover:opacity-90"
               >
                 Sign Up
               </button>
