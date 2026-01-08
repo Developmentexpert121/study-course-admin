@@ -74,6 +74,7 @@ export default function UsersWithProgressPage({ className }: any) {
   };
 
 const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  
   const newStatus = e.target.value;
   setLocalVerificationStatus(newStatus);
   
@@ -91,12 +92,16 @@ const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>)
     dispatch(setPage(1));
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleVerificationStatusChange;
-    }
-  };
-
+ const handleKeyPress = (e: React.KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    handleSearch();
+  }
+};
+const handleSearch = () => {
+  dispatch(setPage(1));
+  dispatch(setSearch(localSearchTerm));
+  dispatch(setVerificationStatus(localVerificationStatus)); // Keep status filter
+};
   const handleDeactivateUser = async (e: React.MouseEvent, userId: string) => {
     e.stopPropagation();
 
@@ -357,7 +362,7 @@ const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>)
             {/* Action Buttons */}
             <div className="flex gap-2 sm:flex-col">
               <button
-        
+         onClick={handleSearch}
                 disabled={loading}
                 className="inline-flex items-center justify-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#43bf79] dark:hover:bg-[#43bf7999]"
               >
@@ -365,15 +370,15 @@ const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>)
                 Search
               </button>
 
-              {(searchTerm || verificationStatus !== "all") && (
-                <button
-                  onClick={handleClearSearch}
-                  disabled={loading}
-                  className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-                >
-                  Clear
-                </button>
-              )}
+             {(searchTerm || localVerificationStatus !== "all") && (
+  <button
+    onClick={handleClearSearch}
+    disabled={loading}
+    className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+  >
+    Clear
+  </button>
+)}
             </div>
           </div>
 
