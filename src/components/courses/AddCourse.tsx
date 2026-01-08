@@ -503,7 +503,7 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                             >
                                 <option value="online">Online</option>
                                 <option value="offline">Offline</option>
-                                <option value="hybrid">Hybrid (Online + Offline)</option>
+                                {/* <option value="hybrid">Hybrid (Online + Offline)</option> */}
                             </select>
                         </div>
 
