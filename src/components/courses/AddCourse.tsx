@@ -501,9 +501,9 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                                 onChange={handleChange}
                                 className="w-full rounded-lg border border-stroke bg-transparent px-5.5 py-3 text-dark outline-none transition focus:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
                             >
-                                <option value="online">Online</option>
+                                {/* <option value="online">Online</option> */}
                                 <option value="offline">Offline</option>
-                                <option value="hybrid">Hybrid (Online + Offline)</option>
+                                {/* <option value="hybrid">Hybrid (Online + Offline)</option> */}
                             </select>
                         </div>
 
