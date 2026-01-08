@@ -44,12 +44,7 @@ export default function UserCourseDashboard({ className }: any) {
   const [limit] = useState(6);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [loading, setLoading] = useState(true);
-  const [userStats, setUserStats] = useState({
-    totalEnrolled: 0,
-    completedCourses: 0,
-    totalLearningHours: 0,
-    averageProgress: 0,
-  });
+ 
   const api = useApiClient();
   const loggedInuserId: any = getDecryptedItem("userId");
   // Use the wishlist hook
@@ -219,9 +214,6 @@ export default function UserCourseDashboard({ className }: any) {
                       <Play className="h-6 w-6 text-white" />
                     </div>
                     Available Courses
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
-                      {activeCourses.length}
-                    </span>
                   </h3>
                 </div>
 
