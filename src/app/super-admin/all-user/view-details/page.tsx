@@ -145,75 +145,7 @@ export default function UserDetailsPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Total Courses */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Total Courses
-                </p>
-                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalCourses}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-                <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* Enrolled Courses */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Enrolled
-                </p>
-                <p className="mt-2 text-3xl font-bold text-[#02517b] dark:text-[#43bf79]">
-                  {stats.enrolledCourses}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#02517b]/10 dark:bg-[#43bf79]/20">
-                <CheckCircle className="h-6 w-6 text-[#02517b] dark:text-[#43bf79]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Total Chapters */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Total Chapters
-                </p>
-                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalChapters}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
-                <FileText className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* Unlocked Chapters */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all hover:shadow-lg dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Unlocked
-                </p>
-                <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">
-                  {stats.unlockedChapters}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                <Unlock className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </div>
-        </div>
+       
 
         {/* Courses List */}
         <div className="space-y-6">
