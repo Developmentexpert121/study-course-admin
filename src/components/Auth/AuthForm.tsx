@@ -269,7 +269,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         };
 
         const apiErrorCode = response?.error?.code || "";
-        const errorMessage = messageMap[apiErrorCode] || response?.error?.message || "Your account has been suspended. Please contact your teacher.";
+        const errorMessage = messageMap[apiErrorCode] || response?.error?.message || "Wrong Passsword";
 
         if (apiErrorCode.includes("EMAIL") || apiErrorCode.includes("USER_NOT_FOUND")) {
           setErrors(prev => ({ ...prev, email: errorMessage }));
