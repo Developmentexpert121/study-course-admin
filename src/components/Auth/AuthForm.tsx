@@ -310,13 +310,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-4"
+      className="mb-3"
     >
       <div className="text-left mb-3">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">
+        <h3 className="text-md font-semibold text-gray-800 dark:text-white mb-1">
           Select Account Type
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-xs text-gray-600 dark:text-gray-400">
           Choose the type of account you want to create
         </p>
       </div>
@@ -327,20 +327,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => handleRoleChange("user")}
-          className={`relative flex items-center justify-center gap-3 rounded-xl p-3 transition-all duration-200 ${formData.role === "user"
+          className={`relative flex items-center justify-center gap-3 rounded-xl p-1.5 transition-all duration-200 ${formData.role === "user"
             ? "bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-2 border-blue-500 dark:border-blue-400"
             : "border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
             }`}
         >
-          <div className={`rounded-lg p-2 ${formData.role === "user"
+          <div className={`rounded-lg p-1.5 ${formData.role === "user"
             ? "bg-blue-500 text-white"
             : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
             }`}>
-            <HiAcademicCap className="h-5 w-5" />
+            <HiAcademicCap className="h-4 w-4" />
           </div>
           <div className="text-left">
-            <div className="font-medium text-sm text-gray-800 dark:text-white">Student</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Learning access</div>
+            <div className="font-medium text-xs text-gray-800 dark:text-white">Student</div>
+            <div className="text-[10px] text-gray-600 dark:text-gray-400">Learning access</div>
           </div>
         </motion.button>
 
@@ -349,20 +349,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => handleRoleChange("admin")}
-          className={`relative flex items-center justify-center gap-3 rounded-xl p-3 transition-all duration-200 ${formData.role === "admin"
+          className={`relative flex items-center justify-center gap-3 rounded-xl transition-all duration-200 ${formData.role === "admin"
             ? "bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-2 border-purple-500 dark:border-purple-400"
             : "border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
             }`}
         >
-          <div className={`rounded-lg p-2 ${formData.role === "admin"
+          <div className={`rounded-lg p-1.5 ${formData.role === "admin"
             ? "bg-purple-500 text-white"
             : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
             }`}>
-            <HiUserGroup className="h-5 w-5" />
+            <HiUserGroup className="h-4 w-4" />
           </div>
           <div className="text-left">
-            <div className="font-medium text-sm text-gray-800 dark:text-white">Teacher</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Admin tools</div>
+            <div className="font-medium text-xs text-gray-800 dark:text-white">Teacher</div>
+            <div className="text-[10px] text-gray-600 dark:text-gray-400">Admin tools</div>
           </div>
         </motion.button>
       </div>
@@ -413,11 +413,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             animate={{ scale: 1 }}
             className="bg-white dark:bg-gray-800 rounded-2xl p-6"
           >
-            <div className="w-16 h-16 border-4 border-green-200 border-t-green-500 rounded-full animate-spin mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-center text-gray-800 dark:text-white mb-2">
+            <div className="w-16 h-16 border-4 border-green-200 border-t-green-500 rounded-full animate-spin mx-auto mb-3" />
+            <h3 className="text-md font-bold text-center text-gray-800 dark:text-white mb-2">
               Success!
             </h3>
-            <p className="text-gray-600 dark:text-gray-300 text-center text-sm">
+            <p className="text-gray-600 dark:text-gray-300 text-center text-xs">
               {type === "login" && "Redirecting..."}
               {type === "register" && "Account created!"}
             </p>
@@ -429,10 +429,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
   if (type === "reset-password" && isVerifyingToken) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-3" />
+          <h3 className="text-md font-semibold text-gray-800 dark:text-white">
             Verifying reset link...
           </h3>
         </div>
@@ -442,15 +442,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
   if (isAdminRegistered) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 p-6 text-center">
-          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-3">
             <HiUserGroup className="w-8 h-8 text-purple-600 dark:text-purple-300" />
           </div>
           <h1 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
             Account Submitted
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+          <p className="text-gray-600 dark:text-gray-300 text-xs mb-6">
             Your teacher account is under review. You'll receive an email once approved.
           </p>
           <Link href="/auth/login">
@@ -465,15 +465,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
   if (isRegistered) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <div className="h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
         <div className="w-full max-w-md rounded-2xl bg-white dark:bg-gray-800 p-6 text-center">
-          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
             <FiMail className="w-8 h-8 text-blue-600 dark:text-blue-300" />
           </div>
           <h1 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
             Check Your Email
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+          <p className="text-gray-600 dark:text-gray-300 text-xs mb-6">
             Verification link sent to <span className="font-semibold">{formData.email}</span>
           </p>
           <Link href="/auth/login">
@@ -483,7 +483,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           </Link>
           <button
             onClick={() => setIsRegistered(false)}
-            className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-2.5 rounded-lg text-sm"
+            className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-2.5 rounded-lg text-xs"
           >
             Resend Email
           </button>
@@ -493,74 +493,90 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+    <div className="h-screen w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <SuccessAnimation />
-      
-      <div className="w-full max-w-6xl mx-auto">
-        <div className="flex flex-col lg:flex-row rounded-2xl overflow-hidden shadow-2xl">
+
+      <div className="h-full w-full mx-auto">
+        <div className="flex flex-col md:flex-row h-full">
           {/* Left Side - Image with Content */}
-          <div className="lg:w-1/2 bg-gradient-to-br from-gray-900 to-gray-800 relative overflow-hidden">
+          <div className="md:w-1/2 bg-gradient-to-br from-gray-900 to-gray-800 relative hidden lg:block ">
             {/* Image Background with Overlay */}
-            <div 
-              className="absolute inset-0 bg-cover "
+            <div
+              className="absolute inset-0 bg-cover bg-center"
               style={{
-                backgroundImage: "url('https://plus.unsplash.com/premium_photo-1664372145591-f7cc308ff5da?q=80&w=696&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                backgroundImage: "url('https://plus.unsplash.com/premium_photo-1664372145591-f7cc308ff5da?q=80&w=696&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/70 to-gray-900/40" />
             </div>
-            
-            <div className="relative z-10 flex flex-col justify-end p-8 lg:p-12 h-full text-white">
-              <div className="max-w-lg mx-auto">
-              
 
-                {/* Main Content */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="mb-8"
-                >
-                  <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-                    Elevate Your<br />
-                    <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                      Growth Journey
-                    </span>
-                  </h1>
+            <div className="relative z-10 h-full p-8 lg:p-12 flex flex-col justify-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="max-w-lg mx-auto"
+              >
+                <h1 className="text-2xl lg:text-4xl font-bold mb-6 leading-tight text-white">
+                  Elevate Your<br />
+                  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    Growth Journey
+                  </span>
+                </h1>
 
-                  <p className="text-lg lg:text-xl text-gray-300 mb-10 leading-relaxed">
-                    Experience the next generation of exclusive learning platform. 
-                    Premium quality, verified education resources for your academic growth.
-                  </p>
-                </motion.div>
+                <p className="text-md lg:text-xl text-gray-300 mb-10 leading-relaxed">
+                  Experience the next generation of exclusive learning platform.
+                  Premium quality, verified education resources for your academic growth.
+                </p>
 
-            
-              </div>
+                {/* Stats/Features */}
+                {/* <div className="grid grid-cols-2 gap-4 mt-8">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-500/20 p-2 rounded-lg">
+                      <FiUsers className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div className="my-3">
+                      <div className="text-2xl font-bold text-white">10K+</div>
+                      <div className="text-xs text-gray-300">Active Students</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-purple-500/20 p-2 rounded-lg">
+                      <HiAcademicCap className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div className="my-3">
+                      <div className="text-2xl font-bold text-white">10+</div>
+                      <div className="text-xs text-gray-300">Courses</div>
+                    </div>
+                  </div>
+                </div> */}
+              </motion.div>
             </div>
           </div>
 
           {/* Right Side - Form */}
-          <div className="lg:w-1/2 bg-white dark:bg-gray-800 p-8">
-            <div className="max-w-full mx-auto h-full flex flex-col justify-center">
-              
+          <div className="lg:w-1/2 w-full bg-white dark:bg-gray-800 p-6 lg:px-12 lg:py-5 h-full lg:overflow-auto ">
+            <div className="  max-w-lg w-full mx-auto h-full  flex flex-col justify-center">
+              <div className=" rounded-2xl shadow-2xl p-4 lg:rounded-none lg:shadow-none">
+
               {/* Desktop Form Header */}
-              <div className=" mb-6 text-center">
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+              <div className="mb-3 text-center">
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
                   {renderTitle()}
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600 dark:text-gray-400 text-md">
                   {renderDescription()}
                 </p>
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+              <form onSubmit={handleSubmit} className="" noValidate>
                 {type === "register" && <RoleTabs />}
 
                 {/* Name field */}
                 {type === "register" && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <div className="my-3">
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Full Name
                     </label>
                     <div className="relative">
@@ -574,12 +590,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                         className={`w-full rounded-lg border ${errors.name
                           ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                           : "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20"
-                          } bg-white dark:bg-gray-700 px-4 py-3 pl-11 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 transition-all`}
+                          } bg-white dark:bg-gray-700 px-4 py-2.5 pl-11 text-xs placeholder-gray-500 focus:outline-none focus:ring-2 transition-all`}
                       />
                       <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     </div>
                     {errors.name && (
-                      <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                      <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
                         <FiAlertCircle className="w-3 h-3" />
                         {errors.name}
                       </p>
@@ -589,8 +605,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
                 {/* Email field */}
                 {(type === "login" || type === "register" || type === "forgot-password") && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <div className="my-3">
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Email Address
                     </label>
                     <div className="relative">
@@ -604,12 +620,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                         className={`w-full rounded-lg border ${errors.email
                           ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                           : "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20"
-                          } bg-white dark:bg-gray-700 px-4 py-3 pl-11 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 transition-all`}
+                          } bg-white dark:bg-gray-700 px-4 py-2.5 pl-11 text-xs placeholder-gray-500 focus:outline-none focus:ring-2 transition-all`}
                       />
                       <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     </div>
                     {errors.email && (
-                      <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                      <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
                         <FiAlertCircle className="w-3 h-3" />
                         {errors.email}
                       </p>
@@ -619,8 +635,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
                 {/* Password field */}
                 {(type === "login" || type === "register" || type === "reset-password") && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <div className="my-3">
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                       {type === "reset-password" ? "New Password" : "Password"}
                     </label>
                     <div className="relative">
@@ -633,19 +649,19 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                         className={`w-full rounded-lg border ${errors.password
                           ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                           : "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20"
-                          } bg-white dark:bg-gray-700 px-4 py-3 pl-11 pr-11 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 transition-all`}
+                          } bg-white dark:bg-gray-700 px-4 py-2.5 pl-11 pr-11 text-xs placeholder-gray-500 focus:outline-none focus:ring-2 transition-all`}
                       />
                       <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400"
                       >
                         {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
                       </button>
                     </div>
                     {errors.password && (
-                      <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                      <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
                         <FiAlertCircle className="w-3 h-3" />
                         {errors.password}
                       </p>
@@ -656,8 +672,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
                 {/* Confirm Password field */}
                 {(type === "register" || type === "reset-password") && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <div className="my-3">
+                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Confirm Password
                     </label>
                     <div className="relative">
@@ -670,19 +686,19 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                         className={`w-full rounded-lg border ${errors.confirmPassword
                           ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                           : "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20"
-                          } bg-white dark:bg-gray-700 px-4 py-3 pl-11 pr-11 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 transition-all`}
+                          } bg-white dark:bg-gray-700 px-4 py-2.5 pl-11 pr-11 text-xs placeholder-gray-500 focus:outline-none focus:ring-2 transition-all`}
                       />
                       <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400"
                       >
                         {showConfirmPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
                       </button>
                     </div>
                     {errors.confirmPassword && (
-                      <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                      <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
                         <FiAlertCircle className="w-3 h-3" />
                         {errors.confirmPassword}
                       </p>
@@ -698,13 +714,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600"
                       />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Remember me</span>
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Remember me</span>
                     </label>
                     <Link
                       href="/auth/forgot-password"
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      className="text-xs text-blue-600 hover:text-blue-700 font-medium dark:text-blue-400"
                     >
                       Forgot password?
                     </Link>
@@ -715,8 +731,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
-                >
+                  className="w-full text-sm bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 text-base mt-5">
                   {isSubmitting ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -725,52 +740,43 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
                   ) : (
                     <>
                       {type === "login" ? "Sign in" :
-                       type === "register" ? "Create Account" :
-                       type === "forgot-password" ? "Send Reset Link" :
-                       "Reset Password"}
-                      <FiArrowRight className="w-4 h-4" />
+                        type === "register" ? "Create Account" :
+                          type === "forgot-password" ? "Send Reset Link" :
+                            "Reset Password"}
+                      <FiArrowRight className="w-5 h-5" />
                     </>
                   )}
                 </button>
               </form>
 
               {/* Links */}
-              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700 text-center">
                 {type === "login" && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
                     Not a member yet?{" "}
-                    <Link href="/auth/register" className="text-blue-600 font-medium hover:text-blue-700">
+                    <Link href="/auth/register" className="text-blue-600 font-medium hover:text-blue-700 dark:text-blue-400">
                       Create an account
                     </Link>
                   </p>
                 )}
                 {type === "register" && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
                     Already have an account?{" "}
-                    <Link href="/auth/login" className="text-blue-600 font-medium hover:text-blue-700">
+                    <Link href="/auth/login" className="text-blue-600 font-medium hover:text-blue-700 dark:text-blue-400">
                       Sign in
                     </Link>
                   </p>
                 )}
                 {type === "forgot-password" && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
                     Remember your password?{" "}
-                    <Link href="/auth/login" className="text-blue-600 font-medium hover:text-blue-700">
+                    <Link href="/auth/login" className="text-blue-600 font-medium hover:text-blue-700 dark:text-blue-400">
                       Back to login
                     </Link>
                   </p>
                 )}
               </div>
-
-              {/* Privacy note */}
-              {(type === "login" || type === "register") && (
-                <p className="mt-6 text-xs text-center text-gray-500 dark:text-gray-400">
-                  By continuing, you agree to our{" "}
-                  <Link href="/terms" className="text-blue-600 hover:underline">Terms</Link>
-                  {" "}and{" "}
-                  <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
-                </p>
-              )}
+              </div>
             </div>
           </div>
         </div>

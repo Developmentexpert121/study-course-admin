@@ -497,7 +497,7 @@ export default function CourseAuditLogsPage() {
                               setSelectedLog(log);
                               setShowDetails(true);
                             }}
-                            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors"
+                            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colorsinline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             View

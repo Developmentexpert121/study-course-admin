@@ -79,7 +79,7 @@ const Footer: React.FC<FooterProps> = ({
           </div>
 
           {/* Contact Info */}
-          <div className="flex  gap-6 animate-fade-in w-full lg:w-auto" style={{ animationDelay: "300ms" }}>
+          <div className="flex justify-center md:justify-between gap-6 animate-fade-in w-full lg:w-auto" style={{ animationDelay: "300ms" }}>
             {/* Phone */}
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <a
@@ -90,7 +90,7 @@ const Footer: React.FC<FooterProps> = ({
                 <FaWhatsapp className="text-xl" />
               </a>
               <div className="text-center sm:text-left">
-                <p className="text-primary-foreground/80 text-sm">Call/WhatsApp</p>
+                <p className="text-primary-foreground/80 text-sm">WhatsApp</p>
                 <a href="tel:+919875905952" className="text-white font-medium hover:underline">
                   (+91) 9875905952
                 </a>
@@ -119,7 +119,7 @@ const Footer: React.FC<FooterProps> = ({
         {/* Copyright */}
         <div className="mt-12 pt-6 border-t border-primary-foreground/20 text-center animate-fade-in">
           <p className="text-primary-foreground/70 text-sm ">
-            Copyright © 2025. Powered by DevexHub.
+            Copyright © 2026. Powered by DevexHub.
           </p>
         </div>
       </div>

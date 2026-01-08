@@ -69,15 +69,15 @@ export function SidebarNavigation() {
     const filteredNavData = getFilteredNavData();
 
     return (
-        <div className="custom-scrollbar mt-2 flex-1 overflow-y-auto pr-3 min-[850px]:mt-10">
+        <div className="custom-scrollbar mt-5 flex-1 overflow-y-auto pr-3 ">
             {filteredNavData.map((section: any, index: number) => (
                 <div key={index} className="mb-6">
-                    <h2 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">
+                    <h2 className="mb-3 text-sm font-medium text-dark-4 dark:text-dark-6">
                         {section.label}
                     </h2>
 
                     <nav role="navigation" aria-label={section.label}>
-                        <ul className="fvdg space-y-2">
+                        <ul className="fvdg space-y-1">
                             {section.items.map((item: any, index: number) => (
                                 <li key={index}>
                                     {item.items && item.items.length > 0 ? (
@@ -135,7 +135,7 @@ export function SidebarNavigation() {
                                                     isActive={pathname === href}
                                                 >
                                                     <item.icon
-                                                        className="size-6 shrink-0"
+                                                        className="size-5 shrink-0"
                                                         aria-hidden="true"
                                                     />
                                                     <span className={cn(isOpen ? "block" : "hidden group-hover:block")}>

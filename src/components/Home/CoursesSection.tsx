@@ -99,11 +99,13 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
                     Design
                   </span>
 
+
                   <div className="flex items-center text-yellow-500">
                     <FaStar className="text-sm" />
                     <span className="ml-1 text-sm font-semibold text-gray-700">4.8</span>
                   </div>
                 </div>
+                <div className="flex items-center gap-2 mb-3"><div className="w-6 h-6 rounded-full bg-[#2ec2b333] flex items-center justify-center"><span className="text-xs font-bold text-secondary">KS</span></div><span className="text-xs text-muted-foreground font-medium">Karanveer singh</span></div>
 
                 <h3 className="mb-2 text-lg font-semibold text-gray-800">
                   {course.title}
@@ -130,7 +132,7 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
                     onClick={() => router.push(`/auth/courses/${course.id}`)}
                     className="font-semibold text-primary hover:text-[#0388c7] transition-colors"
                   >
-                    View Now →
+                    View →
                   </button>
                 </div>
               </div>

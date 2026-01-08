@@ -420,7 +420,7 @@ export default function UsersWithProgressPage({ className }: any) {
                                 alt={user.username}
                               />
                             ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-blue-300 bg-gradient-to-br from-blue-500 to-blue-700 dark:border-blue-400">
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#b4c0c77a] bg-[#02517b] dark:border-blue-400">
                                 <User className="h-6 w-6 text-white" />
                               </div>
                             )}
@@ -463,7 +463,7 @@ export default function UsersWithProgressPage({ className }: any) {
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           {user.status === "active" ? (
                             <button
                               onClick={(e) => handleDeactivateUser(e, user.id)}

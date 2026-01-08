@@ -11,6 +11,8 @@ import ToastProvider from "@/components/core/ToasterProvider";
 
 import type { PropsWithChildren } from "react";
 import { getDecryptedItem } from "@/utils/storageHelper";
+import { height } from "tailwindcss/defaultTheme";
+import { useSidebarContext } from "./Layouts/sidebar/sidebar-context";
 
 export default function ClientLayoutShell({ children }: PropsWithChildren) {
   const pathname = usePathname();
@@ -36,7 +38,7 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
     setToken(t);
     setRole(r);
   }, [pathname]);
-
+  const { isDesktopMenuOpen, toggleDesktopMenu } = useSidebarContext();
   // Allow public pages (home) even without token
   if (!token && !isAuthPage && !isPublicPage) return null;
 
@@ -55,17 +57,29 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
     <>
       {!isAuthPage && <NextTopLoader color="#5750F1" showSpinner={false} />}
 
-      <div className={isLoggedIn ? "flex min-h-screen" : "min-h-screen"}>
-        {/* Only show sidebar for authenticated users on protected pages */}
-        {isAuthenticated && !isPublicPage && <Sidebar />}
+      <div className={isLoggedIn ? "flex min-h-screen" : "min-h-screen"} style={{ height: "100vh" }}>
 
-        <div className="w-full bg-gray-2 dark:bg-[#020d1a]">
+        {/* Only show sidebar for authenticated users on protected pages */}
+        {isDesktopMenuOpen && isAuthenticated && !isPublicPage && <Sidebar />}
+
+        <div className="w-full bg-gray-2 dark:bg-[#020d1a] h-full " >
+
           {/* Only show header for authenticated users on protected pages */}
           {/* {isAuthenticated && !isPublicPage && <Header />} */}
 
-          <main className="bg-banner isolate mx-auto  w-full md:mt-0">
+          <main className="bg-banner isolate mx-auto  w-full md:mt-0 h-full overflow-auto">
             {/* {showUserDashboard ? <UserCoursesDashboard /> : children} */}
-
+            {!isDesktopMenuOpen && (
+              <button
+                onClick={toggleDesktopMenu}
+                className="inline-flex h-10 w-10 flex-col items-center justify-center rounded-lg px-10 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                aria-label="Open menu"
+              >
+                <span className="mb-1 h-0.5 w-4 bg-gray-700 dark:bg-gray-300"></span>
+                <span className="mb-1 h-0.5 w-4 bg-gray-700 dark:bg-gray-300"></span>
+                <span className="h-0.5 w-4 bg-gray-700 dark:bg-gray-300"></span>
+              </button>
+            )}
             {children}
           </main>
         </div>

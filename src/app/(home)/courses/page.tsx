@@ -1088,7 +1088,7 @@ const CourseCard = ({
   return (
     <div
       onClick={() => router.push(`/auth/courses/${course.id}`)}
-      className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg">
+      className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg cursor-pointer">
       <div className="relative">
         <img
           src={courseImage}

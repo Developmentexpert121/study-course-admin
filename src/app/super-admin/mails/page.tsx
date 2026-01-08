@@ -70,7 +70,7 @@ export default function EmailListPage({ className }: any) {
   return (
     <div
       className={cn(
-        "grid rounded-[10px] bg-white px-7.5 pb-4 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card",
+        "grid  bg-gray-50 px-7.5 pb-4 pt-7.5  dark:bg-gray-dark dark:shadow-card",
         className,
       )}
     >

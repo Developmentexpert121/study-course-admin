@@ -208,9 +208,9 @@ export default function DashboardStatsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto ">
         {/* Header with Gradient */}
-        <div className="mb-8 rounded-2xl bg-gradient-to-r from-[#02517b] to-[#43bf79] p-8 shadow-2xl">
+        <div className="mb-8 rounded-2xl bg-gradient-to-r from-[#02517b] to-[#02517bab] p-8 shadow-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="flex items-center text-3xl font-bold text-white">
@@ -383,7 +383,7 @@ export default function DashboardStatsPage() {
           {/* Course Status Horizontal Bar Chart */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-              <Book className="mr-2 h-5 w-5 text-purple-600" />
+              <Book className="mr-2 h-5 w-5 text-[#02517b]" />
               Course Status Distribution
             </h3>
             <ResponsiveContainer width="100%" height={300}>

@@ -145,7 +145,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
 
   return (
     <section className="bg-gradient-to-br from-slate-50 to-blue-50/30 py-12">
-      <div className="container mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="mb-16 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700">
