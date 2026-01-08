@@ -111,15 +111,10 @@ export default function UserDetailsPage() {
     <div className="min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
+           
         <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.back()}
-              className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </button>
+          <div className="flex  gap-4 ">
+        
             <div>
               <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
                 <GraduationCap className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />
@@ -130,6 +125,14 @@ export default function UserDetailsPage() {
               </p>
             </div>
           </div>
+          <div className="flex gap-2 items-center justify-center">
+             <button
+              onClick={() => router.back()}
+              className="  inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </button>
           <button
             onClick={handleRefresh}
             disabled={loading}
@@ -138,6 +141,7 @@ export default function UserDetailsPage() {
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </button>
+          </div>
         </div>
 
         {/* Stats Cards */}

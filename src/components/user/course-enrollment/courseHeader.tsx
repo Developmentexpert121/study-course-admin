@@ -19,24 +19,33 @@ export default function CourseHeader({
     const mins = minutes % 60;
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   };
-console.log("this is the detail about the course details", courseData)
+  console.log("this is the detail about the course details", courseData)
   // Safe progress calculation - userData.progress is a number, not an object
   const progress = userData?.progress || 0;
   const safeProgress = Math.min(Math.max(Number(progress) || 0, 0), 100);
 
   return (
-    <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm dark:bg-gray-800">
-      <div className="mb-4 flex items-start gap-6">
+    <div className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-card">
+      <div className="relative h-64 md:h-80">
         {courseData.image && (
-          <div className="relative h-32 w-48 flex-shrink-0 overflow-hidden rounded-xl">
-            <Image
-              src={courseData.image}
-              alt={courseData.title}
-              fill
-              className="object-cover"
-            />
-          </div>
+
+          <Image
+            src={courseData.image}
+            alt={courseData.title}
+            fill
+            className="object-cover"
+          />
+
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent"></div>
+        <div className="absolute top-4 left-4 flex gap-2">
+          <div className="inline-flex items-center rounded-full border text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-primary/80 bg-[#0e234ee6] text-white font-semibold px-3 py-1">UI/UX</div>
+          <div className="inline-flex items-center rounded-full border text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-primary/80 bg-primary text-white font-semibold px-3 py-1">6 Months</div>
+        </div>
+
+      </div>
+      <div className="p-6 space-y-4">
+
         <div className="flex-1">
           <div className="mb-2 flex items-center gap-2">
             <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
@@ -54,7 +63,7 @@ console.log("this is the detail about the course details", courseData)
             )}
           </div>
 
-          <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl md:text-3xl font-bold text-black font-display mb-1">
             {courseData.title}
           </h1>
 
@@ -88,8 +97,9 @@ console.log("this is the detail about the course details", courseData)
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-1">
+              <span className="text-[#667085]">By</span>
               <User className="h-4 w-4" />
-              <span>By {courseData.creator.username}</span>
+              <span>{courseData.creator.username}</span>
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
@@ -104,20 +114,21 @@ console.log("this is the detail about the course details", courseData)
               <span>{courseData.ratings || 4}</span>
             </div>
           </div>
+          {/* Course Description */}
+          {courseData.description && (
+            <div className="prose dark:prose-invert  max-w-none mt-2">
+              <div
+                className="text-gray-700 dark:text-gray-300"
+                dangerouslySetInnerHTML={{
+                  __html: courseData.description,
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Course Description */}
-      {courseData.description && (
-        <div className="prose dark:prose-invert mb-6 max-w-none">
-          <div
-            className="text-gray-700 dark:text-gray-300"
-            dangerouslySetInnerHTML={{
-              __html: courseData.description,
-            }}
-          />
-        </div>
-      )}
+
 
       {/* Intro Video Section - Only shown if video exists */}
       {courseData.intro_video && (

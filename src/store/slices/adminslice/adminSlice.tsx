@@ -27,6 +27,8 @@ interface AdminState {
     totalAdmins: number;
     verifiedAdmins: number;
     unverifiedAdmins: number;
+    pendingAdmins: number;
+    rejectedadmin: number;
   };
   // Search state
   searchQuery: string;
@@ -50,6 +52,8 @@ const initialState: AdminState = {
     totalAdmins: 0,
     verifiedAdmins: 0,
     unverifiedAdmins: 0,
+    pendingAdmins: 0,
+    rejectedadmin: 0,
   },
   // Search initial state
   searchQuery: "",
@@ -106,6 +110,8 @@ export const fetchAdmins = createAsyncThunk(
             totalAdmins: 0,
             verifiedAdmins: 0,
             unverifiedAdmins: 0,
+            pendingAdmins: 0,
+            rejectedadmin: 0,
           },
         };
       } else {
@@ -264,6 +270,7 @@ const adminSlice = createSlice({
         state.itemsPerPage = action.payload.itemsPerPage;
         state.stats = action.payload.stats;
         state.error = null;
+       
       })
       .addCase(fetchAdmins.rejected, (state, action) => {
         state.loading = false;
@@ -340,6 +347,10 @@ export const selectVerifiedAdmins = (state: any) =>
   state.admin.stats.verifiedAdmins;
 export const selectUnverifiedAdmins = (state: any) =>
   state.admin.stats.unverifiedAdmins;
+export const selectPendingAdmins = (state: any) =>
+  state.admin.stats.pendingAdmins;
+export const selectRejectedAdmins = (state: any) =>
+  state.admin.stats.rejectedadmin;
 
 // Search and filter selectors
 export const selectSearchQuery = (state: any) => state.admin.searchQuery;

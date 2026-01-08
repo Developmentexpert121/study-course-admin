@@ -636,6 +636,10 @@ input[type="search"]::-webkit-search-cancel-button {
     transform: translateY(-100%);
   }
 }
+.swiper-button-next,
+.swiper-button-prev {
+  color: #2563eb; /* blue-600 */
+}
 
 /* Hover effect: scale + glowing pulse */
 .btn-corners:hover {
@@ -673,7 +677,6 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 .swiper-wrapper {
   overflow: visible;
-  padding-bottom: 72px;
 }
 .swiper-button-prev {
   display: none !important;

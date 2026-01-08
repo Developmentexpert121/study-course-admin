@@ -44,6 +44,9 @@ import {
   setNameFilter,
   clearFilters,
   setPage,
+  selectPendingAdmins,
+  selectRejectedAdmins
+  
 } from "@/store/slices/adminslice/adminSlice";
 import { useRouter } from "next/navigation";
 import { join } from "path";
@@ -64,7 +67,8 @@ export default function AdminUsersPage() {
   const rejectedCount = useAppSelector(selectRejectedCount);
   const totaluser = useAppSelector(selectTotalAdmins);
   const totalactive = useAppSelector(selectVerifiedAdmins);
-
+const totalselectRejectedAdmins= useAppSelector(selectRejectedAdmins)
+const totalselectPendingAdmins = useAppSelector(selectPendingAdmins);
   // Search and filter selectors
   const searchQuery = useAppSelector(selectSearchQuery);
   const filters = useAppSelector(selectFilters);
@@ -291,7 +295,7 @@ const handlePageChange = (page: number) => {
 
 
   {/* Stats Cards */}
-        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
           {/* Total Admins */}
           <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
             <div className="flex items-center justify-between">
@@ -326,6 +330,22 @@ const handlePageChange = (page: number) => {
             </div>
           </div>
 
+
+  <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-white">
+                  Waiting for Approval
+                </p>
+                <p className="mt-1 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+                  {totalselectPendingAdmins}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 transition-transform duration-300 group-hover:scale-110 dark:bg-yellow-500/20">
+                <XCircle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+              </div>
+            </div>
+          </div>
           {/* Rejected */}
           <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
             <div className="flex items-center justify-between">
@@ -334,7 +354,7 @@ const handlePageChange = (page: number) => {
                   Rejected
                 </p>
                 <p className="mt-1 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                  {totaluser - totalactive}
+                  {totalselectRejectedAdmins}
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 transition-transform duration-300 group-hover:scale-110 dark:bg-yellow-500/20">

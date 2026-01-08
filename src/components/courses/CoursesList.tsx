@@ -41,6 +41,10 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
     "all" | "active" | "inactive" | "draft"
   >("all");
   const [courses, setCourses] = useState<any>([]);
+  const [inactivecourses, setInactivecourses] = useState<any>([]);
+  const [draftcourses, setdraftcourses] = useState<any>([]);
+  const [totalcoursecountwithactive, settotalcoursecountwithactive] = useState<any>([]);
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(5);
@@ -73,8 +77,14 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
 
       const res = await api.get(url);
       if (res.success) {
+        console.log("this is the course ", res.data)
         setCourses(res.data?.data?.courses || []);
         setTotalPages(res.data?.data?.totalPages || 1);
+        setInactivecourses(res.data?.data?.inactivecourseCounttotal);
+        setdraftcourses(res.data?.data?.draftcourseCounttotal);
+        settotalcoursecountwithactive(res.data?.data?.totalcoursecountwithactive)
+
+
       }
     } catch (err) {
       console.error("Failed to fetch courses:", err);
@@ -213,11 +223,11 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
   return (
     <div
       className={cn(
-        "grid overflow-auto rounded-[10px] px-7.5 pb-4 pt-7.5 dark:bg-gray-dark",
+        "grid overflow-auto rounded-[10px] px-7.5 pb-4 pt-7.5 dark:bg-gray-dark mt-15",
         className,
       )}
     >
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
             <FileBadge className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />
@@ -236,6 +246,79 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
           + Add Course
         </button>
       </div>
+
+
+
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center">
+            <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900">
+              <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Total Courses
+              </h3>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                {totalcoursecountwithactive+draftcourses+inactivecourses}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center">
+            <div className="rounded-lg bg-green-100 p-3 dark:bg-green-900">
+              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Active
+              </h3>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                
+                  {totalcoursecountwithactive}
+                
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center">
+            <div className="rounded-lg bg-yellow-100 p-3 dark:bg-yellow-900">
+              <FileText className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Draft
+              </h3>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                {draftcourses}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center">
+            <div className="rounded-lg bg-red-100 p-3 dark:bg-red-900">
+              <EyeOff className="h-6 w-6 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="ml-4">
+              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Inactive
+              </h3>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                {inactivecourses
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
       <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
         {/* Search and Filter Section */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
@@ -316,84 +399,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
         )}
       </div>
       {/* Stats Cards */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-          <div className="flex items-center">
-            <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-900">
-              <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Total Courses
-              </h3>
-              <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {courses.length}
-              </p>
-            </div>
-          </div>
-        </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-          <div className="flex items-center">
-            <div className="rounded-lg bg-green-100 p-3 dark:bg-green-900">
-              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Active
-              </h3>
-              <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {
-                  courses.filter(
-                    (course: { status: string }) => course.status === "active",
-                  ).length
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-          <div className="flex items-center">
-            <div className="rounded-lg bg-yellow-100 p-3 dark:bg-yellow-900">
-              <FileText className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Draft
-              </h3>
-              <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {
-                  courses.filter(
-                    (course: { status: string }) => course.status === "draft",
-                  ).length
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-          <div className="flex items-center">
-            <div className="rounded-lg bg-red-100 p-3 dark:bg-red-900">
-              <EyeOff className="h-6 w-6 text-red-600 dark:text-red-400" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Inactive
-              </h3>
-              <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {
-                  courses.filter(
-                    (course: { status: string }) =>
-                      course.status === "inactive",
-                  ).length
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <Table>
         <TableHeader>

@@ -113,6 +113,7 @@ export default function CourseLearnPage() {
       }
 
       const courseData: any = courseResponse.data.data.course;
+console.log("Course in state:", courseData);
 
       // Load progress data
       const progressResponse = await api.get(
@@ -164,76 +165,71 @@ export default function CourseLearnPage() {
   };
 
   const applyProgressToCourse = (courseData: any, progressData: any) => {
-    if (!courseData?.chapters) return courseData;
+  if (!courseData?.chapters) return courseData;
 
-    console.log(
-      "🔓 [FRONTEND] Applying progress to unlock chapters and lessons...",
-    );
+  const updatedCourse = JSON.parse(JSON.stringify(courseData));
 
-    const updatedCourse = JSON.parse(JSON.stringify(courseData));
-
-    // Reset all locking first
-    updatedCourse.chapters.forEach((chapter: any) => {
-      chapter.locked = true;
-      if (chapter.lessons) {
-        chapter.lessons.forEach((lesson: any) => {
-          lesson.locked = true;
-          lesson.completed = false;
-        });
-      }
-    });
-
-    // First chapter is always unlocked
-    if (updatedCourse.chapters.length > 0) {
-      updatedCourse.chapters[0].locked = false;
-      if (updatedCourse.chapters[0].lessons?.[0]) {
-        updatedCourse.chapters[0].lessons[0].locked = false;
-      }
+  // Reset locked state only, do NOT reset completed
+  updatedCourse.chapters.forEach((chapter: any) => {
+    chapter.locked = true;
+    if (chapter.lessons) {
+      chapter.lessons.forEach((lesson: any) => {
+        lesson.locked = true;
+        // lesson.completed stays as is
+      });
     }
+  });
 
-    // Apply progress data if available
-    if (progressData?.chapters) {
-      progressData.chapters.forEach((chapterProgress: any) => {
-        const chapter = updatedCourse.chapters.find(
-          (ch: any) => ch.id === chapterProgress.id,
-        );
-        if (chapter) {
-          chapter.locked = false;
+  // First chapter and first lesson are unlocked
+  if (updatedCourse.chapters.length > 0) {
+    updatedCourse.chapters[0].locked = false;
+    if (updatedCourse.chapters[0].lessons?.[0]) {
+      updatedCourse.chapters[0].lessons[0].locked = false;
+    }
+  }
 
-          if (chapter.lessons && chapterProgress.completed_lessons) {
-            chapter.lessons.forEach((lesson: any, index: number) => {
-              if (index < chapterProgress.completed_lessons) {
-                lesson.completed = true;
-                lesson.locked = false;
+  // Apply progress data
+  if (progressData?.chapters) {
+    progressData.chapters.forEach((chapterProgress: any) => {
+      const chapter = updatedCourse.chapters.find(
+        (ch: any) => ch.id === chapterProgress.id
+      );
+      if (chapter) {
+        chapter.locked = false;
 
-                if (index + 1 < chapter.lessons.length) {
-                  chapter.lessons[index + 1].locked = false;
-                }
+        if (chapter.lessons && chapterProgress.completed_lessons) {
+          chapter.lessons.forEach((lesson: any, index: number) => {
+            if (index < chapterProgress.completed_lessons) {
+              lesson.completed = true;
+              lesson.locked = false;
+
+              if (index + 1 < chapter.lessons.length) {
+                chapter.lessons[index + 1].locked = false;
               }
-            });
-          }
+            }
+          });
+        }
 
-          if (chapterProgress.completed || chapterProgress.mcq_passed) {
-            const currentIndex = updatedCourse.chapters.findIndex(
-              (ch: any) => ch.id === chapter.id,
-            );
-            if (
-              currentIndex !== -1 &&
-              currentIndex + 1 < updatedCourse.chapters.length
-            ) {
-              const nextChapter = updatedCourse.chapters[currentIndex + 1];
-              nextChapter.locked = false;
-              if (nextChapter.lessons?.[0]) {
-                nextChapter.lessons[0].locked = false;
-              }
+        // If chapter is marked complete in progress
+        if (chapterProgress.completed || chapterProgress.mcq_passed) {
+          const currentIndex = updatedCourse.chapters.findIndex(
+            (ch: any) => ch.id === chapter.id
+          );
+          if (currentIndex !== -1 && currentIndex + 1 < updatedCourse.chapters.length) {
+            const nextChapter = updatedCourse.chapters[currentIndex + 1];
+            nextChapter.locked = false;
+            if (nextChapter.lessons?.[0]) {
+              nextChapter.lessons[0].locked = false;
             }
           }
         }
-      });
-    }
+      }
+    });
+  }
 
-    return updatedCourse;
-  };
+  return updatedCourse;
+};
+
 
   const handleLessonClick = async (chapter: any, lesson: any) => {
     if (chapter.locked || lesson.locked) {
@@ -686,6 +682,8 @@ export default function CourseLearnPage() {
     }
 
     handleStartMCQ(chapter);
+        console.log("setcourse",course)
+
   };
 
   if (loading) {

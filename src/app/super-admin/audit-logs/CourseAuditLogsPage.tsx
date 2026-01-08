@@ -214,8 +214,8 @@ export default function CourseAuditLogsPage() {
                       className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800/60 dark:to-gray-900/30 p-4 hover:shadow-lg hover:scale-[1.01] transition-all duration-300 cursor-pointer"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="rounded-lg bg-blue-100 dark:bg-blue-900/40 p-2">
-                          <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <div className="rounded-lg bg-[#02517b] dark:bg-blue-900/40 p-2">
+                          <BookOpen className="h-5 w-5 text-white dark:text-blue-400" />
                         </div>
                         <div>
                           <h3 className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">

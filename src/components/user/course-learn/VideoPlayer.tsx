@@ -539,7 +539,7 @@ const VideoSection: React.FC<any> = ({
     return (
       <div
         ref={contentRef}
-        className="h-full w-full overflow-hidden rounded-lg bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-sm"
+        className="h-full w-full overflow-hidden rounded-lg bg-gradient-to-br  backdrop-blur-sm"
       >
         <div className="h-full overflow-y-auto p-6">
           <div className="mx-auto max-w-2xl">

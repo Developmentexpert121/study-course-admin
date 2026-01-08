@@ -38,6 +38,7 @@ import CompanyAboutSection from "@/components/Home/CompanyAboutSection";
 import CertificateSection from "@/components/Home/CertificateSection";
 import Testimonial from "@/components/Home/Testimonial";
 import Footer from "@/components/Home/Footer";
+import Contact  from "@/components/Home/contact";
 
 const Home = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -103,6 +104,7 @@ const Home = () => {
       <CompanyAboutSection />
       <CertificateSection />
       <Testimonial ratings={ratings?.ratings || []} />
+      <Contact/>
       <Footer
         email={email}
         setEmail={setEmail}

@@ -14,6 +14,9 @@ type SidebarContextType = {
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (open: boolean) => void;
   toggleMobileMenu: () => void;
+  isDesktopMenuOpen: boolean;
+  setIsDesktopMenuOpen: (open: boolean) => void;
+  toggleDesktopMenu: () => void;
 };
 
 const SidebarContext = createContext<SidebarContextType | null>(null);
@@ -35,6 +38,7 @@ export function SidebarProvider({
 }) {
   const [isOpen, setIsOpen] = useState(false); // Start with false to avoid hydration mismatch
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDesktopMenuOpen, setIsDesktopMenuOpen] = useState(true);
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
 
@@ -50,6 +54,9 @@ export function SidebarProvider({
 
   function toggleMobileMenu() {
     setIsMobileMenuOpen((prev) => !prev);
+  }
+  function toggleDesktopMenu() {
+    setIsDesktopMenuOpen((prev) => !prev);
   }
 
   function toggleSidebar() {
@@ -76,6 +83,9 @@ export function SidebarProvider({
         isMobileMenuOpen,
         setIsMobileMenuOpen,
         toggleMobileMenu,
+        isDesktopMenuOpen , 
+        setIsDesktopMenuOpen , 
+        toggleDesktopMenu
       }}
     >
       {children}
