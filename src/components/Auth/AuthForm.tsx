@@ -70,16 +70,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     }
   }, [type]);
 
-  useEffect(() => {
-    if (type === "register" || type === "reset-password") {
-      const password = type === "reset-password" ? formData.newPassword : formData.password;
-      if (password) {
-        setPasswordStrength(checkPasswordStrength(password));
-      } else {
-        setPasswordStrength(null);
-      }
-    }
-  }, [formData.password, formData.newPassword, type]);
+  // useEffect(() => {
+  //   if (type === "register" || type === "reset-password") {
+  //     const password = type === "reset-password" ? formData.newPassword : formData.password;
+  //     if (password) {
+  //       setPasswordStrength(checkPasswordStrength(password));
+  //     } else {
+  //       setPasswordStrength(null);
+  //     }
+  //   }
+  // }, [formData.password, formData.newPassword, type]);
 
   useEffect(() => {
     const verifyResetToken = async () => {
@@ -269,7 +269,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         };
 
         const apiErrorCode = response?.error?.code || "";
-        const errorMessage = messageMap[apiErrorCode] || response?.error?.message || "An error occurred. Please try again.";
+        const errorMessage = messageMap[apiErrorCode] || response?.error?.message || "Wrong Passsword";
 
         if (apiErrorCode.includes("EMAIL") || apiErrorCode.includes("USER_NOT_FOUND")) {
           setErrors(prev => ({ ...prev, email: errorMessage }));
@@ -308,8 +308,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
   const RoleTabs = () => (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
+      // initial={{ opacity: 0, y: 10 }}
+      // animate={{ opacity: 1, y: 0 }}
       className="mb-3"
     >
       <div className="text-left mb-3">

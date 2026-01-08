@@ -56,7 +56,7 @@ const EditMcq = ({ basePath }: { basePath: string }) => {
                 // Fetch courses
                 const coursesRes = await api.get("course/list?active=true");
                 setCourses(coursesRes.data?.data?.courses || []);
-
+                
                 // Fetch MCQ data
                 const mcqRes = await api.get(`mcq/${mcqId}`);
                 const mcqData = mcqRes.data?.data;

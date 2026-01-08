@@ -412,21 +412,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
           </div>
         )}
 
-        {/* CTA Section */}
-        <div className="mt-12 text-center">
-          <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600  text-white max-w-4xl mx-auto py-12">
-            <h2 className="mb-3 text-4xl font-bold">
-              Ready to Start Your Learning Journey?
-            </h2>
-            <p className="mx-auto mb-6 max-w-md text-blue-100 text-lg">
-              Join our community of learners and transform your career with
-              industry-relevant courses
-            </p>
-            <button className="rounded-full bg-white px-8 py-3 font-semibold text-blue-600 shadow-lg transition-colors duration-200 hover:bg-gray-100">
-              Explore All Courses
-            </button>
-          </div>
-        </div>
+     
       </div>
     </section>
   );

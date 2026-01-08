@@ -1116,7 +1116,7 @@ const CourseCard = ({
           <div className="w-6 h-6 rounded-full bg-[#2ec2b333] flex items-center justify-center">
           <span className="text-xs font-bold text-secondary">KS</span>
         </div>
-        <span className="text-xs text-muted-foreground font-medium">Karanveer singh</span>
+        <span className="text-xs text-muted-foreground font-medium capitalize">Karanveer singh</span>
         </div>
         <div className="mb-3 flex items-start justify-between">
           <span className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">

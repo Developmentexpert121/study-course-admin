@@ -118,6 +118,9 @@ const AddChapter = ({ basePath }: { basePath: string }) => {
     if (!content) newErrors.content = "Course Description is required";
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      toasterError(
+`Please fill ${Object.keys(newErrors).length} required field(s)`
+);
       return;
     }
     setErrors({});
