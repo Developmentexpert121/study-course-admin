@@ -61,7 +61,7 @@ export default function Unauthorized() {
           </button>
           <button
             onClick={() => router.push("/home")}
-            className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+            className="flex-1 rounded-lg bg-[#02517b]px-4 py-2 text-white transition-colors hover:bg-[#1A6A93]"
           >
             Home Page
           </button>

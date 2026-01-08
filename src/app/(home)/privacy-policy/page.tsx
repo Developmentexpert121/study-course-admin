@@ -28,7 +28,7 @@ const PrivacyPolicy = () => {
                                 href="https://www.freeprivacypolicy.com/free-privacy-policy-generator/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                                className="text-blue-600 hover:text-white dark:text-blue-400 dark:hover:text-blue-300 underline"
                             >
                                 Free Privacy Policy Generator
                             </a>
@@ -113,7 +113,7 @@ const PrivacyPolicy = () => {
                                             href="https://study-course-admin.vercel.app/"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                                            className="text-blue-600 hover:text-white dark:text-blue-400 dark:hover:text-blue-300 underline"
                                         >
                                             https://study-course-admin.vercel.app/
                                         </a>
@@ -184,7 +184,7 @@ const PrivacyPolicy = () => {
                                         href="https://www.freeprivacypolicy.com/blog/sample-privacy-policy-template/#Use_Of_Cookies_And_Tracking"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                                        className="text-blue-600 hover:text-white dark:text-blue-400 dark:hover:text-blue-300 underline"
                                     >
                                         Free Privacy Policy website
                                     </a>{' '}
@@ -388,7 +388,7 @@ const PrivacyPolicy = () => {
                                 <strong className="text-gray-900 dark:text-white">By email:</strong>{' '}
                                 <a
                                     href="mailto:info@devexhub.com"
-                                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                                    className="text-blue-600 hover:text-white dark:text-blue-400 dark:hover:text-blue-300 underline"
                                 >
                                     info@devexhub.com
                                 </a>

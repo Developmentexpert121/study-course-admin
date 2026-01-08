@@ -260,7 +260,7 @@ const CourseUsersManagement: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="border-b bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
             <button
               onClick={() => (window.location.href = "/admin/enangement")}
@@ -311,7 +311,7 @@ const CourseUsersManagement: React.FC = () => {
       </div>
 
       {/* Stats and Filters */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {/* Filters */}
         <div className="mb-6 rounded-lg border bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row">

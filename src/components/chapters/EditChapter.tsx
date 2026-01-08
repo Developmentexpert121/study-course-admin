@@ -406,7 +406,7 @@ const EditChapter = ({ basePath }: { basePath: string }) => {
                 setEditVideoFiles((prev) => [...prev, null]);
                 setUploadedEditVideoUrls((prev) => [...prev, ""]);
               }}
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-blue-700"
+              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#02517b]px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-[#1A6A93]"
             >
               ➕ Add Video
             </button>
@@ -421,7 +421,7 @@ const EditChapter = ({ basePath }: { basePath: string }) => {
             </button>
 
             <button
-              className="rounded-lg bg-primary px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg bg-[#1A6A93] hover:bg-[#02517b] px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               type="submit"
               disabled={isUploading}
             >

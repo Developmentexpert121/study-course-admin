@@ -209,7 +209,7 @@ const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>)
 
   return (
     <div className="min-h-screen p-6">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto">
         {/* Header */}
         <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
           <div>
@@ -493,7 +493,7 @@ const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>)
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 ">
                           {user.status === "active" ? (
                             <button
                               onClick={(e) => handleDeactivateUser(e, user.id)}
@@ -536,7 +536,7 @@ const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>)
                               e.stopPropagation();
                               handleViewDetails(user.id);
                             }}
-                            className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+                            className="inline-flex items-center rounded-lg bg-[#02517b]  px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1A6A93] "
                           >
                             <Eye className="mr-1 h-3.5 w-3.5" />
                             View

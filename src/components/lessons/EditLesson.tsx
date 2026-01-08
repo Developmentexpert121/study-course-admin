@@ -464,7 +464,7 @@ const EditLesson = ({ basePath }: { basePath: string }) => {
                         </p>
                         <button
                             onClick={() => router.back()}
-                            className="rounded-lg bg-primary px-6 py-3 font-medium text-white hover:bg-opacity-90"
+                            className="rounded-lg bg-[#1A6A93] hover:bg-[#02517b] px-6 py-3 font-medium text-white hover:bg-opacity-90"
                         >
                             Go Back
                         </button>
@@ -636,7 +636,7 @@ const EditLesson = ({ basePath }: { basePath: string }) => {
                         <button
                             type="button"
                             onClick={addVideoUrl}
-                            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-blue-700"
+                            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#02517b]px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-[#1A6A93]"
                         >
                             ➕ Add Another Video URL
                         </button>
@@ -669,7 +669,7 @@ const EditLesson = ({ basePath }: { basePath: string }) => {
                             <button
                                 type="button"
                                 onClick={addResource}
-                                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
+                                className="rounded-lg bg-[#1A6A93] hover:bg-[#02517b] px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90"
                             >
                                 Add Resource
                             </button>
@@ -840,7 +840,7 @@ const EditLesson = ({ basePath }: { basePath: string }) => {
                         <button
                             type="button"
                             onClick={() => setVideoFiles([...videoFiles, null])}
-                            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-blue-700"
+                            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#02517b]px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-[#1A6A93]"
                         >
                             ➕ Add Another Video
                         </button>
@@ -876,7 +876,7 @@ const EditLesson = ({ basePath }: { basePath: string }) => {
                         </button>
 
                         <button
-                            className="rounded-lg bg-primary px-6 py-3 font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="rounded-lg bg-[#1A6A93] hover:bg-[#02517b] px-6 py-3 font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             type="submit"
                             disabled={imageUploadLoading || videoUploadLoading}
                         >

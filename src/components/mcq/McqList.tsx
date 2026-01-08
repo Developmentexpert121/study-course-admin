@@ -271,7 +271,7 @@ export default function McqList({ basePath, className }: { basePath: string, cla
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
                                                     onClick={() => handleEdit(item.id)}
-                                                    className="rounded p-1 text-blue-600 transition hover:bg-blue-50 hover:text-blue-800 dark:hover:bg-blue-900/20"
+                                                    className="rounded p-1 text-blue-600 transition hover:bg-blue-50 hover:text-white dark:hover:bg-blue-900/20"
                                                     title="Edit MCQ"
                                                 >
                                                     <Pencil className="h-4 w-4" />

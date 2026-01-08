@@ -164,7 +164,7 @@ export default function CourseAuditLogsPage() {
           key={i}
           onClick={() => handlePageChange(i)}
           className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${i === page
-            ? 'bg-blue-600 text-white shadow-sm'
+            ? 'bg-[#02517b] text-white shadow-sm'
             : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
             }`}
         >
@@ -249,12 +249,12 @@ export default function CourseAuditLogsPage() {
 
   return (
     <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto">
+      <div className=" mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
-              <BookOpen className="h-8 w-8 mr-3 text-blue-600 dark:text-blue-500" />
+              <BookOpen className="h-8 w-8 mr-3 text-[#1A6A93] dark:text-blue-500" />
               Course Audit Logs
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">
@@ -264,7 +264,7 @@ export default function CourseAuditLogsPage() {
           <button
             onClick={handleRefresh}
             disabled={loading}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-4 py-2 bg-[#02517b] text-white rounded-lg hover:bg-[#1A6A93] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -286,7 +286,7 @@ export default function CourseAuditLogsPage() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h2>
             {localFilters.course_name !== "" && <button
               onClick={handleClearFilters}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium"
+              className="text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-blue-300 text-sm font-medium"
             >
               Clear Filters
             </button>}
@@ -311,7 +311,7 @@ export default function CourseAuditLogsPage() {
             <div className="flex items-center gap-3 pt-4">
               <button
                 onClick={handleApplyFilters}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium"
+                className="px-6 py-2 bg-[#02517b] text-white rounded-lg hover:bg-[#1A6A93] transition-colors shadow-sm font-medium"
               >
                 Apply Filters
               </button>
@@ -497,7 +497,7 @@ export default function CourseAuditLogsPage() {
                               setSelectedLog(log);
                               setShowDetails(true);
                             }}
-                            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colorsinline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+                            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-blue-300 text-sm font-medium transition-colorsinline-flex items-center rounded-lg bg-[#02517b] px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1A6A93]"
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             View

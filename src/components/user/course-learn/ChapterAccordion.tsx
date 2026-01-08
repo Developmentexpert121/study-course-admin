@@ -283,7 +283,7 @@ const ChapterAccordion: React.FC<ChapterAccordionProps> = ({
                     : !chapter.progress?.all_lessons_completed ||
                         !chapter.user_progress?.can_attempt_mcq
                       ? "cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600"
-                      : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg"
+                      : "bg-[#02517b]text-white hover:bg-[#1A6A93] hover:shadow-lg"
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">

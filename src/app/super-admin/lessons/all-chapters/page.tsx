@@ -161,7 +161,7 @@ export default function Chapters({ className }: any) {
                         });
                         setShowMediaModal(true);
                       }}
-                      className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                      className="flex items-center gap-1 text-blue-600 hover:text-white"
                     >
                       <ImageIcon size={16} /> View Images
                     </button>

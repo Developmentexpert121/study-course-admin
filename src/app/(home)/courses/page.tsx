@@ -733,7 +733,7 @@ const CoursesPage = () => {
                     <Filter className="h-4 w-4" />
                     Filters
                     {activeFiltersCount > 0 && (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-xs text-white">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#02517b]text-xs text-white">
                         {activeFiltersCount}
                       </span>
                     )}
@@ -772,7 +772,7 @@ const CoursesPage = () => {
                   </p>
                   <button
                     onClick={clearAllFilters}
-                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+                    className="rounded-lg bg-[#02517b]px-6 py-2 font-medium text-white transition-colors hover:bg-[#1A6A93]"
                   >
                     Clear all filters
                   </button>
@@ -956,7 +956,7 @@ const CoursesPage = () => {
                     </button>
                     <button
                       onClick={() => setMobileFiltersOpen(false)}
-                      className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+                      className="flex-1 rounded-lg bg-[#02517b]px-4 py-2 font-medium text-white hover:bg-[#1A6A93]"
                     >
                       Apply filters
                     </button>

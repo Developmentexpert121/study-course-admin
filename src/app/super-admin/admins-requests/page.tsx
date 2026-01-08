@@ -46,7 +46,7 @@ import {
   setPage,
   selectPendingAdmins,
   selectRejectedAdmins
-  
+
 } from "@/store/slices/adminslice/adminSlice";
 import { useRouter } from "next/navigation";
 import { join } from "path";
@@ -67,8 +67,8 @@ export default function AdminUsersPage() {
   const rejectedCount = useAppSelector(selectRejectedCount);
   const totaluser = useAppSelector(selectTotalAdmins);
   const totalactive = useAppSelector(selectVerifiedAdmins);
-const totalselectRejectedAdmins= useAppSelector(selectRejectedAdmins)
-const totalselectPendingAdmins = useAppSelector(selectPendingAdmins);
+  const totalselectRejectedAdmins = useAppSelector(selectRejectedAdmins)
+  const totalselectPendingAdmins = useAppSelector(selectPendingAdmins);
   // Search and filter selectors
   const searchQuery = useAppSelector(selectSearchQuery);
   const filters = useAppSelector(selectFilters);
@@ -78,29 +78,29 @@ const totalselectPendingAdmins = useAppSelector(selectPendingAdmins);
 
 
   const buildFetchPayload = (
-  page: number = 1,
-  search?: string,
-  status?: string,
-  email?: string,
-  name?: string
-) => {
-  const payload: any = {
-    page: page || 1,
-    limit: 10,
+    page: number = 1,
+    search?: string,
+    status?: string,
+    email?: string,
+    name?: string
+  ) => {
+    const payload: any = {
+      page: page || 1,
+      limit: 10,
+    };
+
+    if (search) payload.search = search;
+    if (status) payload.status = status;
+    if (email) payload.email = email;
+    if (name) payload.name = name;
+
+    return payload;
   };
 
-  if (search) payload.search = search;
-  if (status) payload.status = status;
-  if (email) payload.email = email;
-  if (name) payload.name = name;
+  // useEffect(() => {
 
-  return payload;
-};
-
-// useEffect(() => {
-  
-//   dispatch(fetchAdmins(payload));
-// }, [dispatch, searchQuery, filters]);
+  //   dispatch(fetchAdmins(payload));
+  // }, [dispatch, searchQuery, filters]);
 
 
   // Fetch admins on component mount and when search/filters change
@@ -116,10 +116,10 @@ const totalselectPendingAdmins = useAppSelector(selectPendingAdmins);
   }, [dispatch, searchQuery, filters]);
 
   // Handle page change
-const handlePageChange = (page: number) => {
-  const payload = buildFetchPayload(page, searchQuery, filters.status, filters.email, filters.name);
-  dispatch(fetchAdmins(payload));
-};
+  const handlePageChange = (page: number) => {
+    const payload = buildFetchPayload(page, searchQuery, filters.status, filters.email, filters.name);
+    dispatch(fetchAdmins(payload));
+  };
 
   // Handle search
   const handleSearch = () => {
@@ -271,7 +271,7 @@ const handlePageChange = (page: number) => {
 
   return (
     <div className="min-h-screen p-6">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto">
         {/* Header */}
         <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
           <div>
@@ -285,7 +285,7 @@ const handlePageChange = (page: number) => {
           </div>
           <button
             onClick={() => dispatch(fetchAdmins({ page: currentPage }))}
-            className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] hover:bg-blue-700 dark:bg-[#43bf79]"
+            className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] hover:bg-[#1A6A93] dark:bg-[#43bf79]"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
@@ -294,7 +294,7 @@ const handlePageChange = (page: number) => {
 
 
 
-  {/* Stats Cards */}
+        {/* Stats Cards */}
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
           {/* Total Admins */}
           <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
@@ -331,7 +331,7 @@ const handlePageChange = (page: number) => {
           </div>
 
 
-  <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
+          <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-gray-600 dark:text-white">
@@ -458,27 +458,27 @@ const handlePageChange = (page: number) => {
         {/* Rest of your component remains the same... */}
         {/* Stats Cards, Table, Pagination, etc. */}
 
-      
+
 
         {/* Table */}
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <table className="w-full min-w-[1024px] divide-y divide-gray-200 dark:divide-gray-700 md:min-w-full">
               <thead className="bg-gray-50 dark:bg-gray-900/50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 md:px-6 md:py-4">
                     Teacher Details
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 md:px-6 md:py-4">
                     Email Address
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                    Verification Status
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 md:px-6 md:py-4">
+                    <span className="hidden md:inline">Verification</span> Status
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                    Account Created
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 md:px-6 md:py-4">
+                    <span className="hidden md:inline">Account</span> Created
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 md:px-6 md:py-4">
                     Actions
                   </th>
                 </tr>
@@ -486,18 +486,18 @@ const handlePageChange = (page: number) => {
               <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-transparent">
                 {admins.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center">
-                      <User className="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600" />
-                      <p className="font-medium text-gray-500 dark:text-white">
+                    <td colSpan={5} className="px-4 py-8 text-center md:px-6 md:py-12">
+                      <User className="mx-auto mb-3 h-10 w-10 text-gray-300 dark:text-gray-600 md:h-12 md:w-12" />
+                      <p className="font-medium text-gray-500 dark:text-white md:text-base">
                         {hasActiveFilters ? "No Teacher match your filters" : "No admin users found"}
                       </p>
-                      <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
+                      <p className="mt-1 text-xs text-gray-400 dark:text-gray-500 md:text-sm">
                         {hasActiveFilters ? "Try adjusting your search or filters" : "Admin accounts will appear here once created"}
                       </p>
                       {hasActiveFilters && (
                         <button
                           onClick={handleClearFilters}
-                          className="mt-3 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
+                          className="mt-3 inline-flex items-center rounded-lg bg-[#02517b] px-3 py-1.5 text-xs text-white transition-colors  md:px-4 md:py-2 md:text-sm"
                         >
                           Clear Filters
                         </button>
@@ -510,48 +510,54 @@ const handlePageChange = (page: number) => {
                       key={index}
                       className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/30"
                     >
-                      <td className="whitespace-nowrap px-6 py-4">
+                      {/* Teacher Details */}
+                      <td className="whitespace-nowrap px-4 py-3 md:px-6 md:py-4">
                         <div className="flex items-center">
-                          <div className="h-12 w-12 flex-shrink-0">
+                          <div className="h-10 w-10 flex-shrink-0 md:h-12 md:w-12">
                             {admin.profileImage ? (
                               <img
-                                className="h-12 w-12 rounded-full border-2 border-gray-200 object-cover dark:border-gray-600"
+                                className="h-10 w-10 rounded-full border-2 border-gray-200 object-cover dark:border-gray-600 md:h-12 md:w-12"
                                 src={admin.profileImage}
                                 alt={admin.username}
                               />
                             ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-blue-300 bg-gradient-to-br from-blue-500 to-blue-700 dark:border-blue-400">
-                                <User className="h-6 w-6 text-white" />
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-blue-300 bg-[#02517b] dark:border-[#02517b] md:h-12 md:w-12">
+                                <User className="h-5 w-5 text-white md:h-6 md:w-6" />
                               </div>
                             )}
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                          <div className="ml-3 md:ml-4">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[120px] md:max-w-none">
                               {admin.username}
                             </div>
-                            <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                              <span className="rounded bg-gray-100 px-2 py-0.5 dark:bg-gray-700">
+                            <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 md:mt-1">
+                              <span className="rounded bg-gray-100 px-1.5 py-0.5 dark:bg-gray-700">
                                 ID: {admin.id}
                               </span>
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4">
+
+                      {/* Email Address */}
+                      <td className="whitespace-nowrap px-4 py-3 md:px-6 md:py-4">
                         <div className="flex items-center text-sm text-gray-900 dark:text-gray-300">
                           <Mail className="mr-2 h-4 w-4 flex-shrink-0 text-gray-400 dark:text-white" />
-                          <span className="truncate">{admin.email}</span>
+                          <span className="truncate max-w-[150px] md:max-w-[200px]">{admin.email}</span>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4">
+
+                      {/* Verification Status */}
+                      <td className="whitespace-nowrap px-4 py-3 md:px-6 md:py-4">
                         {(() => {
                           switch (admin.status) {
                             case "rejected":
                               return (
                                 <div className="group relative inline-block">
-                                  <span className="inline-flex cursor-help items-center rounded-full border border-red-200 bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 dark:border-red-500/30 dark:bg-red-500/20 dark:text-red-400">
-                                    <XCircle className="mr-1.5 h-4 w-4" />
-                                    Approval Rejected
+                                  <span className="inline-flex cursor-help items-center rounded-full border border-red-200 bg-red-100 px-2 py-1 text-xs font-semibold text-red-800 dark:border-red-500/30 dark:bg-red-500/20 dark:text-red-400 md:px-3 md:py-1.5">
+                                    <XCircle className="mr-1 h-3.5 w-3.5 md:h-4 md:w-4" />
+                                    <span className="hidden md:inline">Approval Rejected</span>
+                                    <span className="md:hidden">Rejected</span>
                                   </span>
                                   <div className="absolute bottom-full left-0 z-10 mb-2 hidden w-64 rounded-lg bg-gray-900 p-3 text-xs text-white shadow-lg group-hover:block dark:bg-gray-800">
                                     <div className="flex items-start gap-2">
@@ -569,9 +575,10 @@ const handlePageChange = (page: number) => {
                             case "pending":
                               return (
                                 <div className="group relative inline-block">
-                                  <span className="inline-flex cursor-help items-center rounded-full border border-yellow-200 bg-yellow-100 px-3 py-1.5 text-xs font-semibold text-yellow-800 dark:border-yellow-500/30 dark:bg-yellow-500/20 dark:text-yellow-400">
-                                    <RefreshCw className="mr-1.5 h-4 w-4" />
-                                    Waiting for Approval
+                                  <span className="inline-flex cursor-help items-center rounded-full border border-yellow-200 bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800 dark:border-yellow-500/30 dark:bg-yellow-500/20 dark:text-yellow-400 md:px-3 md:py-1.5">
+                                    <RefreshCw className="mr-1 h-3.5 w-3.5 md:h-4 md:w-4" />
+                                    <span className="hidden md:inline">Waiting for Approval</span>
+                                    <span className="md:hidden">Pending</span>
                                   </span>
                                   <div className="absolute bottom-full left-0 z-10 mb-2 hidden w-64 rounded-lg bg-gray-900 p-3 text-xs text-white shadow-lg group-hover:block dark:bg-gray-800">
                                     <div className="flex items-start gap-2">
@@ -589,9 +596,10 @@ const handlePageChange = (page: number) => {
                             case "approved":
                               return (
                                 <div className="group relative inline-block">
-                                  <span className="inline-flex cursor-help items-center rounded-full border border-green-200 bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 dark:border-green-500/30 dark:bg-green-500/20 dark:text-green-400">
-                                    <CheckCircle className="mr-1.5 h-4 w-4" />
-                                    Approved
+                                  <span className="inline-flex cursor-help items-center rounded-full border border-green-200 bg-green-100 px-2 py-1 text-xs font-semibold text-green-800 dark:border-green-500/30 dark:bg-green-500/20 dark:text-green-400 md:px-3 md:py-1.5">
+                                    <CheckCircle className="mr-1 h-3.5 w-3.5 md:h-4 md:w-4" />
+                                    <span className="hidden md:inline">Approved</span>
+                                    <span className="md:hidden">Approved</span>
                                   </span>
                                   <div className="absolute bottom-full left-0 z-10 mb-2 hidden w-64 rounded-lg bg-gray-900 p-3 text-xs text-white shadow-lg group-hover:block dark:bg-gray-800">
                                     <div className="flex items-start gap-2">
@@ -608,63 +616,71 @@ const handlePageChange = (page: number) => {
                               );
                             default:
                               return (
-                                <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-400">
-                                  <Shield className="mr-1.5 h-4 w-4" />
+                                <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-400 md:px-3 md:py-1.5">
+                                  <Shield className="mr-1 h-3.5 w-3.5 md:h-4 md:w-4" />
                                   Teacher
                                 </span>
                               );
                           }
                         })()}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-white">
+
+                      {/* Account Created */}
+                      <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600 dark:text-white md:px-6 md:py-4">
                         <div className="flex items-center">
                           <Calendar className="mr-2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                          <span>{formatDate(admin.createdAt)}</span>
+                          <span className="truncate max-w-[100px] md:max-w-none">{formatDate(admin.createdAt)}</span>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4">
+
+                      {/* Actions */}
+                      <td className="whitespace-nowrap px-4 py-3 md:px-6 md:py-4">
                         {(() => {
                           switch (admin.status) {
                             case "rejected":
                               return (
-                                <p className="text-sm italic text-gray-500 dark:text-white">
+                                <p className="text-xs italic text-gray-500 dark:text-white md:text-sm truncate">
                                   This admin is rejected
                                 </p>
                               );
                             case "pending":
                               return (
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2">
                                   <button
                                     onClick={() => handleApprove(admin.id)}
                                     disabled={actionLoading[admin.id]}
-                                    className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="inline-flex items-center justify-center rounded-lg bg-green-600 px-2 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 md:px-3 md:py-1.5"
                                   >
                                     {actionLoading[admin.id] ? (
                                       <>
-                                        <RefreshCw className="mr-1 h-3.5 w-3.5 animate-spin" />
-                                        Processing...
+                                        <RefreshCw className="mr-1 h-3 w-3 animate-spin md:h-3.5 md:w-3.5" />
+                                        <span className="hidden md:inline">Processing...</span>
+                                        <span className="md:hidden">...</span>
                                       </>
                                     ) : (
                                       <>
-                                        <Check className="mr-1 h-3.5 w-3.5" />
-                                        Approve
+                                        <Check className="mr-1 h-3 w-3 md:h-3.5 md:w-3.5" />
+                                        <span className="hidden md:inline">Approve</span>
+                                        <span className="md:hidden">✓</span>
                                       </>
                                     )}
                                   </button>
                                   <button
                                     onClick={() => handleReject(admin.id)}
                                     disabled={actionLoading[admin.id]}
-                                    className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="inline-flex items-center justify-center rounded-lg bg-red-600 px-2 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 md:px-3 md:py-1.5"
                                   >
                                     {actionLoading[admin.id] ? (
                                       <>
-                                        <RefreshCw className="mr-1 h-3.5 w-3.5 animate-spin" />
-                                        Processing...
+                                        <RefreshCw className="mr-1 h-3 w-3 animate-spin md:h-3.5 md:w-3.5" />
+                                        <span className="hidden md:inline">Processing...</span>
+                                        <span className="md:hidden">...</span>
                                       </>
                                     ) : (
                                       <>
-                                        <X className="mr-1 h-3.5 w-3.5" />
-                                        Reject
+                                        <X className="mr-1 h-3 w-3 md:h-3.5 md:w-3.5" />
+                                        <span className="hidden md:inline">Reject</span>
+                                        <span className="md:hidden">✕</span>
                                       </>
                                     )}
                                   </button>
@@ -674,15 +690,16 @@ const handlePageChange = (page: number) => {
                               return (
                                 <button
                                   onClick={() => handleViewDetails(admin.id)}
-                                  className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+                                  className="inline-flex items-center justify-center rounded-lg bg-[#02517b] px-2 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1A6A93] md:px-3 md:py-1.5"
                                 >
-                                  <Eye className="mr-1 h-3.5 w-3.5" />
-                                  View Details
+                                  <Eye className="mr-1 h-3 w-3 md:h-3.5 md:w-3.5" />
+                                  <span className="hidden md:inline">View Details</span>
+                                  <span className="md:hidden">View</span>
                                 </button>
                               );
                             default:
                               return (
-                                <p className="text-sm text-gray-500 dark:text-white">
+                                <p className="text-xs text-gray-500 dark:text-white md:text-sm truncate">
                                   Unknown status
                                 </p>
                               );

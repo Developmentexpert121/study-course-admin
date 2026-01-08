@@ -169,7 +169,7 @@ const MCQSection: React.FC<any> = ({
           ) : canAttemptMCQ ? (
             <button
               onClick={() => onStartMCQ(chapter)}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+              className="flex items-center gap-2 rounded-lg bg-[#02517b]px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1A6A93]"
             >
               <PlayCircle className="h-4 w-4" />
               {allLessonsCompleted ? "Start MCQ Test" : "Attempt MCQ Test"}

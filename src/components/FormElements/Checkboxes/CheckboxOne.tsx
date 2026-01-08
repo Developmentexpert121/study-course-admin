@@ -26,7 +26,7 @@ const CheckboxOne = () => {
             }`}
           >
             <span
-              className={`h-2.5 w-2.5 rounded-sm ${isChecked && "bg-primary"}`}
+              className={`h-2.5 w-2.5 rounded-sm ${isChecked && "bg-[#1A6A93] hover:bg-[#02517b]"}`}
             ></span>
           </div>
         </div>

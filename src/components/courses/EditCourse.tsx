@@ -581,7 +581,7 @@ const EditCourse = ({ basePath }: EditCourseProps) => {
                             <button
                                 type="button"
                                 onClick={addRichTextFeature}
-                                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                                className="flex items-center gap-2 rounded-lg bg-[#02517b]px-4 py-2 text-white hover:bg-[#1A6A93]"
                             >
                                 <Plus className="h-4 w-4" />
                                 Add Feature
@@ -769,7 +769,7 @@ const EditCourse = ({ basePath }: EditCourseProps) => {
                         </button>
 
                         <button
-                            className="rounded-lg bg-primary px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="rounded-lg bg-[#1A6A93] hover:bg-[#02517b] px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                             type="submit"
                             disabled={
                                 isUploading ||

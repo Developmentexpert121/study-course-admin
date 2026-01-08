@@ -106,7 +106,7 @@ export default function Chapters({ className }: any) {
     >
       <button
         onClick={() => router.back()}
-        className="mb-8 flex items-center text-blue-600 hover:text-blue-800"
+        className="mb-8 flex items-center text-blue-600 hover:text-white"
       >
         <ArrowLeft className="mr-2 h-5 w-5" />
         Back to Chapters
@@ -300,7 +300,7 @@ export default function Chapters({ className }: any) {
                         className={`flex items-center rounded-lg px-4 py-2 transition-colors ${
                           chapter.locked
                             ? "cursor-not-allowed bg-gray-300 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
-                            : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+                            : "bg-[#02517b]text-white hover:bg-[#1A6A93] dark:bg-blue-700 dark:hover:bg-blue-800"
                         }`}
                       >
                         {chapter.locked ? (

@@ -146,7 +146,7 @@ export default function CourseEnrollmentPage() {
           </h2>
           <button
             onClick={() => router.back()}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+            className="rounded-lg bg-[#02517b]px-4 py-2 text-white transition-colors hover:bg-[#1A6A93]"
           >
             Go Back
           </button>
@@ -159,7 +159,7 @@ export default function CourseEnrollmentPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="bg-white shadow-sm dark:bg-gray-800">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <button
             onClick={() => router.back()}
             className="flex items-center text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
@@ -172,7 +172,7 @@ export default function CourseEnrollmentPage() {
 
       {/* Course Hero Section */}
       <div className="bg-white shadow dark:bg-gray-800">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-8 md:flex-row">
             <div className="md:w-2/3">
               <div className="mb-4">
@@ -267,7 +267,7 @@ export default function CourseEnrollmentPage() {
 
                         <button
                           onClick={handleContinueLearning}
-                          className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+                          className="flex w-full items-center justify-center rounded-lg bg-[#02517b]px-4 py-3 font-medium text-white transition-colors hover:bg-[#1A6A93]"
                         >
                           <Play className="mr-2 h-5 w-5" />
                           Continue Learning
@@ -276,7 +276,7 @@ export default function CourseEnrollmentPage() {
                     ) : (
                       <button
                         onClick={handleContinueLearning}
-                        className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+                        className="flex w-full items-center justify-center rounded-lg bg-[#02517b]px-4 py-3 font-medium text-white transition-colors hover:bg-[#1A6A93]"
                       >
                         <Play className="mr-2 h-5 w-5" />
                         Start Learning
@@ -287,7 +287,7 @@ export default function CourseEnrollmentPage() {
                   <button
                     onClick={handleEnroll}
                     disabled={enrolling}
-                    className="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-700 disabled:bg-blue-400"
+                    className="w-full rounded-lg bg-[#02517b]px-4 py-3 font-medium text-white transition-colors hover:bg-[#1A6A93] disabled:bg-blue-400"
                   >
                     {enrolling
                       ? "Enrolling..."
@@ -307,7 +307,7 @@ export default function CourseEnrollmentPage() {
       </div>
 
       {/* Course Content Tabs */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 border-b border-gray-200 dark:border-gray-700">
           <nav className="-mb-px flex space-x-8">
             <button
@@ -445,7 +445,7 @@ export default function CourseEnrollmentPage() {
                   <button
                     onClick={handleEnroll}
                     disabled={enrolling}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:bg-blue-400"
+                    className="rounded-lg bg-[#02517b]px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1A6A93] disabled:bg-blue-400"
                   >
                     {enrolling ? "Enrolling..." : "Enroll to Access"}
                   </button>
@@ -582,7 +582,7 @@ export default function CourseEnrollmentPage() {
                 </div>
 
                 {course.is_enrolled && (
-                  <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700">
+                  <button className="rounded-lg bg-[#02517b]px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1A6A93]">
                     Write a Review
                   </button>
                 )}

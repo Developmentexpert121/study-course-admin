@@ -131,7 +131,7 @@ const CertificatesPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 transition-colors duration-200 dark:bg-gray-900">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="mb-8 text-center">
           <div className="mb-4 flex justify-center">
@@ -238,7 +238,7 @@ const CertificatesPage = () => {
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors duration-200 hover:bg-blue-700"
+                  className="rounded-lg bg-[#02517b]px-6 py-3 font-medium text-white transition-colors duration-200 hover:bg-[#1A6A93]"
                 >
                   Clear Search
                 </button>
@@ -366,7 +366,7 @@ const CertificateCard = ({
             )
           }
           disabled={downloading === certificate.id}
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:bg-blue-400"
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#02517b]px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-[#1A6A93] disabled:bg-blue-400"
         >
           {downloading === certificate.id ? (
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -452,7 +452,7 @@ const CertificateListItem = ({
           )
         }
         disabled={downloading === certificate.id}
-        className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-blue-700 disabled:bg-blue-400"
+        className="flex items-center gap-2 rounded-lg bg-[#02517b]px-4 py-2 text-white transition-colors duration-200 hover:bg-[#1A6A93] disabled:bg-blue-400"
       >
         {downloading === certificate.id ? (
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

@@ -153,7 +153,7 @@ export default function EnrolledCourses({ className }: any) {
         className,
       )}
     >
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto">
         {/* Header Section */}
         <div className="mb-8 text-center">
           <div className="mb-4 flex justify-center">

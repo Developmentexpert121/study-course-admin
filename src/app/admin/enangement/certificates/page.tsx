@@ -18,7 +18,7 @@ const CourseCertificatesPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="border-b bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
             <button
               onClick={() => (window.location.href = "/admin/courses")}
@@ -43,7 +43,7 @@ const CourseCertificatesPage: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="rounded-lg border bg-white p-8 text-center shadow-sm">
           <Award className="mx-auto mb-4 h-16 w-16 text-blue-500" />
           <h2 className="mb-2 text-xl font-semibold text-gray-900">
@@ -58,7 +58,7 @@ const CourseCertificatesPage: React.FC = () => {
               <Download className="mr-2 h-4 w-4" />
               Bulk Download
             </button>
-            <button className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+            <button className="inline-flex items-center rounded-md border border-transparent bg-[#02517b]px-4 py-2 text-sm font-medium text-white hover:bg-[#1A6A93]">
               <Mail className="mr-2 h-4 w-4" />
               Bulk Email
             </button>

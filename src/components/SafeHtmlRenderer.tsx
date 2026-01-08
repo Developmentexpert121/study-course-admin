@@ -78,7 +78,7 @@ const SafeHtmlRenderer: React.FC<SafeHtmlRendererProps> = ({
       {showMoreButton && shouldTruncate && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="mt-2 text-sm text-blue-600 hover:text-blue-800 focus:outline-none"
+          className="mt-2 text-sm text-blue-600 hover:text-white focus:outline-none"
         >
           {isExpanded ? "Show less" : "Show more"}
         </button>

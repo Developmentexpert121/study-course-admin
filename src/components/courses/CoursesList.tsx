@@ -213,7 +213,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
   return (
     <div
       className={cn(
-        "grid overflow-auto rounded-[10px] px-7.5 pb-4 pt-7.5 dark:bg-gray-dark mt-15",
+        "grid overflow-auto rounded-[10px] px-7.5 pb-4 pt-7.5 dark:bg-gray-dark ",
         className,
       )}
     >
@@ -546,7 +546,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                     <div className="flex items-center justify-center gap-3">
                       {/* Edit Button */}
                       <button
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-blue-600 hover:text-white"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(course.id);

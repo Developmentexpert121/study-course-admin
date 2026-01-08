@@ -60,7 +60,7 @@ export default function Page() {
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            className="rounded bg-[#02517b]px-4 py-2 text-white hover:bg-[#1A6A93]"
           >
             Retry
           </button>

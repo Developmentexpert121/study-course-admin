@@ -46,7 +46,7 @@ export function ContinueLearning() {
           </p>
           <Link
             href="/user/courses"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#02517b]px-6 py-3 font-medium text-white transition-colors hover:bg-[#1A6A93]"
           >
             Browse Courses
           </Link>
@@ -121,7 +121,7 @@ export function ContinueLearning() {
                     <div className="flex gap-3">
                       <Link
                         href={`/user/courses/${course.id}/learn`}
-                        className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+                        className="flex items-center gap-2 rounded-lg bg-[#02517b]px-6 py-2 font-medium text-white transition-colors hover:bg-[#1A6A93]"
                       >
                         <Play className="h-4 w-4" />
                         Continue

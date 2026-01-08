@@ -129,7 +129,7 @@ export default function AdminActivitiesPage() {
 
   return (
     <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto">
+      <div className=" mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -142,7 +142,7 @@ export default function AdminActivitiesPage() {
           <button
             onClick={handleRefresh}
             disabled={loading}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-4 py-2 bg-[#02517b]text-white rounded-lg hover:bg-[#1A6A93] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -230,7 +230,7 @@ export default function AdminActivitiesPage() {
               onClick={() => setShowFilters(!showFilters)}
               className={`inline-flex items-center px-4 py-2 rounded-lg transition-colors ${
                 showFilters || filterType !== 'all'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#02517b]text-white'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
@@ -255,7 +255,7 @@ export default function AdminActivitiesPage() {
                     onClick={() => setFilterType('all')}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       filterType === 'all'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-[#02517b]text-white'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                   >
@@ -267,7 +267,7 @@ export default function AdminActivitiesPage() {
                       onClick={() => setFilterType(type)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${
                         filterType === type
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-[#02517b]text-white'
                           : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >

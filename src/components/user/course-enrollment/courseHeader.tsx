@@ -39,8 +39,8 @@ export default function CourseHeader({
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent"></div>
         <div className="absolute top-4 left-4 flex gap-2">
-          <div className="inline-flex items-center rounded-full border text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-primary/80 bg-[#0e234ee6] text-white font-semibold px-3 py-1">UI/UX</div>
-          <div className="inline-flex items-center rounded-full border text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-primary/80 bg-primary text-white font-semibold px-3 py-1">6 Months</div>
+          <div className="inline-flex items-center rounded-full border text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-[#1A6A93] hover:bg-[#02517b]/80 bg-[#0e234ee6] text-white font-semibold px-3 py-1">UI/UX</div>
+          <div className="inline-flex items-center rounded-full border text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-[#1A6A93] hover:bg-[#02517b]/80 bg-[#1A6A93] hover:bg-[#02517b] text-white font-semibold px-3 py-1">6 Months</div>
         </div>
 
       </div>

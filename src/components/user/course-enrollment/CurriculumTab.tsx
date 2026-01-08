@@ -372,7 +372,7 @@ export default function CurriculumTab({
                                 `/user/courses/learn/?id=${courseId}`,
                               )
                             }
-                            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-all hover:bg-blue-700 hover:shadow-lg"
+                            className="flex items-center gap-2 rounded-lg bg-[#02517b]px-4 py-2 text-white transition-all hover:bg-[#1A6A93] hover:shadow-lg"
                           >
                             <PlayCircle className="h-4 w-4" />
                             {completedItems === 0

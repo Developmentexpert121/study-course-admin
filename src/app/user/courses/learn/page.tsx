@@ -719,7 +719,7 @@ export default function CourseLearnPage() {
           </p>
           <button
             onClick={() => window.history.back()}
-            className="mt-6 rounded-xl bg-blue-600 px-8 py-3 font-semibold text-white transition-all hover:bg-blue-700 hover:shadow-lg"
+            className="mt-6 rounded-xl bg-[#02517b]px-8 py-3 font-semibold text-white transition-all hover:bg-[#1A6A93] hover:shadow-lg"
           >
             Go Back
           </button>

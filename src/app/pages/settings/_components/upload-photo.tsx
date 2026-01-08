@@ -67,7 +67,7 @@ export function UploadPhotoForm() {
             Cancel
           </button>
           <button
-            className="flex items-center justify-center rounded-lg bg-primary px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90"
+            className="flex items-center justify-center rounded-lg bg-[#1A6A93] hover:bg-[#02517b] px-6 py-[7px] font-medium text-gray-2 hover:bg-opacity-90"
             type="submit"
           >
             Save

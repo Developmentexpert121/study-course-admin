@@ -331,7 +331,7 @@ export default function UserCourseDashboard({ className }: any) {
         className,
       )}
     >
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto">
         {/* Enhanced Header Section */}
         <div className="mb-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

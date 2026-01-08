@@ -781,7 +781,7 @@ const VideoSection: React.FC<any> = ({
                 onClick={handleManualComplete}
                 className={`flex items-center gap-2 rounded-lg px-4 py-2 font-semibold text-white transition-all hover:shadow-lg ${autoCompleteReady
                   ? "bg-green-600 hover:bg-green-700"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  : "bg-[#02517b]hover:bg-[#1A6A93]"
                   }`}
               >
                 <CheckCircle size={18} />

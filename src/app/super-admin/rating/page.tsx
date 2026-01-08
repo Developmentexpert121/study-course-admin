@@ -296,14 +296,14 @@ console.log("rating", ratings.filter((rating) => {
 
   return (
     <div className="min-h-screen p-6">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto">
         {/* Header */}
         <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
           <div>
             {courseTitle && (
               <button
                 onClick={() => router.push("/super-admin/courses")}
-                className="mb-2 inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
+                className="mb-2 inline-flex items-center text-sm text-blue-600 hover:text-white"
               >
                 <ArrowLeft className="mr-1 h-4 w-4" />
                 Back to Courses
@@ -609,7 +609,7 @@ console.log("rating", ratings.filter((rating) => {
                           <button
                             onClick={() => handleUnhideReview(rating.id)}
                             disabled={actionLoading === rating.id}
-                            className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="inline-flex items-center rounded-lg bg-[#02517b]px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1A6A93] disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <Eye className="mr-1 h-3.5 w-3.5" />
                             {actionLoading === rating.id

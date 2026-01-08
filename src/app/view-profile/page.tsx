@@ -82,7 +82,7 @@ export default function UserProfilePage({ className }: any) {
   const resetError = useAppSelector(selectResetError);
 
   // Use edit data if available, fallback to view data
-  const userData = currentUser?.data  || userProfile;
+  const userData = currentUser?.data || userProfile;
   const loading = updateLoading || loadingProfile;
   const error = updateError || errorProfile;
 
@@ -114,7 +114,7 @@ export default function UserProfilePage({ className }: any) {
   useEffect(() => {
     if (userId) {
       dispatch(fetchUserById(Number(userId)));
-      
+
       dispatch(getUserById(userId));
     }
   }, [dispatch, userId]);
@@ -167,7 +167,7 @@ export default function UserProfilePage({ className }: any) {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev : any) => ({
+    setFormData((prev: any) => ({
       ...prev,
       [field]: value,
     }));
@@ -342,7 +342,7 @@ export default function UserProfilePage({ className }: any) {
         )}
       >
         <Skeleton className="h-10 w-24 mb-8" />
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className=" mx-auto space-y-6">
           <Skeleton className="h-72 w-full rounded-2xl" />
           <Skeleton className="h-96 w-full rounded-2xl" />
         </div>
@@ -430,7 +430,7 @@ export default function UserProfilePage({ className }: any) {
         className="hidden"
       />
 
-      <div className="max-w-6xl mx-auto">
+      <div className=" mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <Button
@@ -442,7 +442,7 @@ export default function UserProfilePage({ className }: any) {
             Back
           </Button>
           <div className="flex gap-2">
-           
+
             <Badge className={cn("px-4 py-1", getRoleColor(userData.role))}>
               {userData.role?.charAt(0).toUpperCase() + userData.role?.slice(1)}
             </Badge>
@@ -453,148 +453,241 @@ export default function UserProfilePage({ className }: any) {
           {/* Main Profile Card */}
           <div className="lg:col-span-2">
             <Card className="overflow-hidden shadow-lg border-0 bg-white dark:bg-slate-900">
-              {/* Cover */}
-              <div className="h-32 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
 
-              <CardContent className="px-6 pb-6">
-                <div className="flex flex-col sm:flex-row sm:items-end sm:gap-6 -mt-16 mb-6">
-                  {/* Avatar */}
-                  <div className="relative group">
-                    <div className="w-32 h-32 rounded-2xl border-4 border-white shadow-xl overflow-hidden bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
-                      {profileImage ? (
-                        <>
-                          <Image
-                            src={profileImage}
-                            alt={userData.username}
-                            width={128}
-                            height={128}
-                            className="w-full h-full object-cover"
-                          />
-                          {editMode && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity cursor-pointer"
-                              onClick={() => fileInputRef.current?.click()}
-                            >
-                              <Camera className="w-8 h-8 text-white" />
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
-                          <span className="text-white text-5xl font-bold">
-                            {userData.username?.charAt(0).toUpperCase()}
-                          </span>
+
+              <CardContent className="px-6 py-6">
+                <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start mb-8">
+                  {/* Avatar Section */}
+                  <div className="flex flex-col items-center md:items-start gap-4">
+                    <div className="relative group">
+                      <div className="w-32 h-32 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-[#02517b] to-[#0a6da0] flex items-center justify-center">
+                        {profileImage ? (
+                          <>
+                            <Image
+                              src={profileImage}
+                              alt={userData.username}
+                              width={128}
+                              height={128}
+                              className="w-full h-full object-cover"
+                              priority
+                            />
+                            {editMode && (
+                              <button
+                                className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 rounded-2xl transition-all duration-200 cursor-pointer"
+                                onClick={() => fileInputRef.current?.click()}
+                                type="button"
+                              >
+                                <Camera className="w-8 h-8 text-white" />
+                              </button>
+                            )}
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#02517b] to-[#0a6da0]">
+                            <span className="text-white text-5xl font-bold">
+                              {userData.username?.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Status Indicator */}
+                      {userData.status === "active" && !editMode && (
+                        <div className="absolute bottom-3 right-3">
+                          <div className="w-5 h-5 bg-emerald-500 rounded-full border-3 border-white shadow-lg relative">
+                            <div className="absolute inset-1 bg-emerald-400 rounded-full animate-pulse"></div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Edit Photo Button */}
+                      {editMode && (
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center bg-white border-2 border-[#02517b] shadow-lg hover:shadow-xl transition-all duration-200 group/photo"
+                          type="button"
+                        >
+                          <Camera className="w-5 h-5 text-[#02517b] group-hover/photo:scale-110 transition-transform" />
+                        </button>
+                      )}
+
+                      {/* New Image Badge */}
+                      {selectedFile && !imageLoading && editMode && (
+                        <div className="absolute -top-2 -right-2">
+                          <Badge className="bg-[#02517b] text-white px-2 py-1 text-xs font-semibold shadow-md">
+                            New
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Loading Spinner */}
+                      {imageLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 backdrop-blur-sm">
+                          <div className="h-10 w-10 animate-spin rounded-full border-3 border-white border-t-transparent"></div>
                         </div>
                       )}
                     </div>
 
-                    {editMode && !profileImage && (
-                      <label
-                        htmlFor="imageInput"
-                        className="absolute bottom-0 right-0 z-20 flex w-8 h-8 cursor-pointer items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <Camera className="w-4 h-4" />
-                      </label>
-                    )}
 
-                    {userData.status === "active" && !editMode && (
-                      <div className="absolute bottom-3 right-3 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white shadow-lg"></div>
-                    )}
-
-                    {selectedFile && !imageLoading && editMode && (
-                      <div className="absolute -right-2 -top-2 rounded-full bg-blue-500 px-2 py-1 text-xs text-white font-semibold">
-                        New
-                      </div>
-                    )}
-
-                    {imageLoading && (
-                      <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black bg-opacity-50">
-                        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white"></div>
-                      </div>
-                    )}
                   </div>
 
-                  {/* User Info */}
-                  <div className="flex-1 pb-2 w-full">
-                    {editMode ? (
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Username
-                          </label>
-                          <Input
-                            value={formData.username}
-                            onChange={(e) =>
-                              handleInputChange("username", e.target.value)
-                            }
-                            placeholder="Enter your username"
-                            className="text-2xl font-bold"
-                            disabled={updateLoading}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Email
-                          </label>
-                          <p className="text-slate-600 dark:text-slate-400 flex items-center gap-2 p-2">
-                            <Mail className="w-4 h-4" />
-                            {userData.email}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-2 mb-3">
-                          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                            {formData.username}
-                          </h1>
-                          {userData.verified && (
-                            <CheckCircle className="w-6 h-6 text-blue-500" />
-                          )}
-                        </div>
-                        <p className="text-slate-600 dark:text-slate-400 flex items-center gap-2">
-                          <Mail className="w-4 h-4" />
-                          {userData.email}
-                        </p>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  {!editMode ? (
-                    <Button
-                      onClick={() => setEditMode(true)}
-                      className="self-end"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit Profile
-                    </Button>
-                  ) : (
-                    <div className="flex gap-2 self-end">
-                      <Button
-                        variant="outline"
-                        onClick={handleReset}
-                        disabled={updateLoading || imageLoading}
-                      >
-                        <RotateCcw className="w-4 h-4 mr-2" />
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleSave}
-                        disabled={updateLoading || imageLoading}
-                      >
-                        {updateLoading || imageLoading ? (
-                          <>
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
-                            Saving...
-                          </>
+                  {/* User Info Section */}
+                  <div className="flex-1 space-y-6">
+                    {/* Header Row */}
+                    <div className="flex flex-col  gap-4">
+                      <div className="space-y-2">
+                        {editMode ? (
+                          <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">
+                              Username
+                            </label>
+                            <Input
+                              value={formData.username}
+                              onChange={(e) => handleInputChange("username", e.target.value)}
+                              placeholder="Enter username"
+                              className="text-xl font-bold border-[#02517b]/30 focus:border-[#02517b] focus:ring-[#02517b]/20"
+                              disabled={updateLoading}
+                            />
+                          </div>
                         ) : (
-                          <>
-                            <Save className="w-4 h-4 mr-2" />
-                            Save
-                          </>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-3">
+                              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                                {formData.username}
+                              </h1>
+                              {userData.verified && (
+                                <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 px-2 py-1">
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  Verified
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <Mail className="w-4 h-4" />
+                              <span className="text-sm md:text-base">{userData.email}</span>
+                            </div>
+                          </div>
                         )}
-                      </Button>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2">
+                        {!editMode ? (
+                          <Button
+                            onClick={() => setEditMode(true)}
+                            className="bg-[#02517b] hover:bg-[#024a6f] text-white shadow-md hover:shadow-lg transition-all"
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit Profile
+                          </Button>
+                        ) : (
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              onClick={handleReset}
+                              disabled={updateLoading || imageLoading}
+                              className="border-gray-300 hover:border-gray-400"
+                            >
+                              <RotateCcw className="w-4 h-4 mr-2" />
+                              Cancel
+                            </Button>
+                            <Button
+                              onClick={handleSave}
+                              disabled={updateLoading || imageLoading}
+                              className="bg-[#02517b] hover:bg-[#024a6f] text-white shadow-md hover:shadow-lg transition-all"
+                            >
+                              {updateLoading || imageLoading ? (
+                                <>
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
+                                  Saving...
+                                </>
+                              ) : (
+                                <>
+                                  <Save className="w-4 h-4 mr-2" />
+                                  Save Changes
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Error Display */}
+                    {updateError && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3 animate-in fade-in duration-200">
+                        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        <div className="space-y-1">
+                          <p className="font-medium text-red-900">Update Failed</p>
+                          <p className="text-sm text-red-800">{updateError}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Success Message (if any) */}
+                    {!updateError && !editMode && (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Calendar className="w-4 h-4" />
+                        <span>
+                          Last updated:{" "}
+                          {userData.updatedAt
+                            ? new Date(userData.updatedAt).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })
+                            : "Recently"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* Email Display in Edit Mode */}
+                {editMode && (
+                  <div className="bg-white rounded-lg p-4 border border-gray-200 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    <div className="flex items-center gap-3 p-2 bg-white rounded border border-gray-300">
+                      <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <span className="text-gray-700 font-medium">{userData.email}</span>
+                      <Badge className="ml-auto bg-gray-100 text-gray-600 text-xs hover:bg-[#02517b] hover:text-white">
+                        Cannot change
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+                {/* Bio Section */}
+                <div className="space-y-2 mb-3">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Bio
+                  </label>
+                  {editMode ? (
+                    <div className="space-y-2">
+                      <Textarea
+                        value={formData.bio || ""}
+                        onChange={(e) => handleInputChange("bio", e.target.value)}
+                        placeholder="Tell us about yourself..."
+                        className="min-h-[120px] resize-none border-gray-300 focus:border-[#02517b] focus:ring-[#02517b]/20"
+                        maxLength={500}
+                      />
+                      <div className="flex justify-between items-center text-sm">
+                        <p className="text-gray-500">
+                          Brief description about yourself
+                        </p>
+                        <p className={`font-medium ${(formData.bio?.length || 0) >= 500
+                          ? "text-red-600"
+                          : "text-gray-500"
+                          }`}>
+                          {formData.bio?.length || 0}/500
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <p className="text-gray-700 whitespace-pre-line">
+                        {formData.bio || "No bio provided yet. Add a bio to tell others about yourself."}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -611,7 +704,7 @@ export default function UserProfilePage({ className }: any) {
                 )}
 
                 {/* Bio Section */}
-                <div>
+                {/* <div>
                   <h3 className="text-lg font-semibold mb-3 flex items-center gap-2 text-slate-900 dark:text-white">
                     <User className="w-4 h-4" />
                     About
@@ -644,7 +737,7 @@ export default function UserProfilePage({ className }: any) {
                       )}
                     </div>
                   )}
-                </div>
+                </div> */}
               </CardContent>
             </Card>
           </div>
@@ -661,9 +754,9 @@ export default function UserProfilePage({ className }: any) {
                     <p className="text-lg font-semibold text-slate-900 dark:text-white">
                       {userData.createdAt
                         ? new Date(userData.createdAt).toLocaleDateString(
-                            "en-US",
-                            { year: "numeric", month: "short", day: "numeric" }
-                          )
+                          "en-US",
+                          { year: "numeric", month: "short", day: "numeric" }
+                        )
                         : "N/A"}
                     </p>
                   </div>
@@ -675,9 +768,9 @@ export default function UserProfilePage({ className }: any) {
                     <p className="text-lg font-semibold text-slate-900 dark:text-white">
                       {userData.updatedAt
                         ? new Date(userData.updatedAt).toLocaleDateString(
-                            "en-US",
-                            { year: "numeric", month: "short", day: "numeric" }
-                          )
+                          "en-US",
+                          { year: "numeric", month: "short", day: "numeric" }
+                        )
                         : "N/A"}
                     </p>
                   </div>
@@ -691,8 +784,8 @@ export default function UserProfilePage({ className }: any) {
                         userData.role?.slice(1)}
                     </Badge>
                   </div>
-                 
-                  
+
+
                   <div className="h-px bg-slate-200 dark:bg-slate-700"></div>
                   <div>
                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
@@ -722,152 +815,224 @@ export default function UserProfilePage({ className }: any) {
           </div>
         </div>
 
-        {/* Security Section */}
-        <Card className="shadow-lg border-0 bg-white dark:bg-slate-900 overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-700 pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                  <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Security</CardTitle>
-                  <CardDescription className="text-xs mt-0.5">
-                    Manage your password and account security
-                  </CardDescription>
-                </div>
-              </div>
-              {!showResetForm && (
-                <Button
-                  onClick={() => setShowResetForm(true)}
-                  variant="outline"
-                >
-                  Change Password
-                </Button>
-              )}
+       {/* Security Section */}
+<Card className="border border-gray-200 dark:border-gray-800 shadow-lg rounded-xl overflow-hidden bg-white dark:bg-gray-900">
+  <CardHeader className="px-6 py-5 border-b border-gray-200 dark:border-gray-800">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-xl bg-[#02517b] flex items-center justify-center shadow-sm">
+          <Lock className="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+            Account Security
+          </CardTitle>
+          <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+            Manage your password and secure your account
+          </CardDescription>
+        </div>
+      </div>
+      
+      {!showResetForm && (
+        <Button
+          onClick={() => setShowResetForm(true)}
+          variant="outline"
+          className="border border-[#02517b] text-[#02517b] hover:bg-blue-50  dark:text-blue-400 dark:hover:bg-blue-900/30 transition-all duration-200 shadow-sm"
+        >
+          <Lock className="w-4 h-4 mr-2" />
+          Change Password
+        </Button>
+      )}
+    </div>
+  </CardHeader>
+
+  {showResetForm && (
+    <CardContent className="p-6">
+      {/* Success Message */}
+      {resetSuccess && (
+        <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-900/10 border border-emerald-200 dark:border-emerald-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
-          </CardHeader>
+            <div>
+              <h4 className="font-semibold text-emerald-900 dark:text-emerald-300">
+                Password Updated Successfully
+              </h4>
+              <p className="text-sm text-emerald-800 dark:text-emerald-400 mt-0.5">
+                Your password has been changed. Please use your new password for future logins.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
-          {showResetForm && (
-            <CardContent className="pt-6">
-              {resetSuccess && (
-                <div className="mb-6 bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-semibold text-emerald-900">
-                      Password Updated
-                    </h4>
-                    <p className="text-sm text-emerald-800 mt-0.5">
-                      Your password has been changed successfully.
-                    </p>
-                  </div>
-                </div>
+      {/* Error Message */}
+      {resetError && (
+        <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-900/10 border border-red-200 dark:border-red-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-red-900 dark:text-red-300">
+                Update Failed
+              </h4>
+              <p className="text-sm text-red-800 dark:text-red-400 mt-0.5">
+                {resetError}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Password Form */}
+      <div className="space-y-5">
+        {/* Current Password */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-900 dark:text-white">
+            Current Password
+          </label>
+          <div className="relative group">
+            <Input
+              type={showPasswords.old ? "text" : "password"}
+              name="oldPassword"
+              value={passwordForm.oldPassword}
+              onChange={handlePasswordChange}
+              placeholder="Enter your current password"
+              className="pr-12 h-11 border-gray-300 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 group-hover:border-gray-400 transition-colors duration-200"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPasswords(prev => ({ ...prev, old: !prev.old }))}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 p-1 rounded"
+            >
+              {showPasswords.old ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
               )}
+            </button>
+          </div>
+        </div>
 
-              {resetError && (
-                <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-semibold text-red-900">Error</h4>
-                    <p className="text-sm text-red-800 mt-0.5">{resetError}</p>
-                  </div>
-                </div>
+        {/* New Password */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-900 dark:text-white">
+            New Password
+          </label>
+          <div className="relative group">
+            <Input
+              type={showPasswords.new ? "text" : "password"}
+              name="newPassword"
+              value={passwordForm.newPassword}
+              onChange={handlePasswordChange}
+              placeholder="Enter a strong new password"
+              className="pr-12 h-11 border-gray-300 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 group-hover:border-gray-400 transition-colors duration-200"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 p-1 rounded"
+            >
+              {showPasswords.new ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
               )}
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Use at least 8 characters with a mix of letters, numbers, and symbols
+          </p>
+        </div>
 
-              <div className="space-y-5">
-                {[
-                  {
-                    field: "oldPassword",
-                    label: "Current Password",
-                    type: "old",
-                  },
-                  { field: "newPassword", label: "New Password", type: "new" },
-                  {
-                    field: "confirmPassword",
-                    label: "Confirm New Password",
-                    type: "confirm",
-                  },
-                ].map(({ field, label, type }) => (
-                  <div key={field} className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {label}
-                    </label>
-                    <div className="relative">
-                      <Input
-                        type={
-                          showPasswords[
-                            type as keyof typeof showPasswords
-                          ]
-                            ? "text"
-                            : "password"
-                        }
-                        name={field}
-                        value={
-                          passwordForm[
-                            field as keyof typeof passwordForm
-                          ] as string
-                        }
-                        onChange={handlePasswordChange}
-                        placeholder={
-                          field === "oldPassword"
-                            ? "Enter your current password"
-                            : "Enter a strong password"
-                        }
-                        className="pr-10"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowPasswords((prev : any) => ({
-                            ...prev,
-                            [type]: !prev[type as keyof typeof prev],
-                          }))
-                        }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                      >
-                        {showPasswords[
-                          type as keyof typeof showPasswords
-                        ] ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+        {/* Confirm Password */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-900 dark:text-white">
+            Confirm New Password
+          </label>
+          <div className="relative group">
+            <Input
+              type={showPasswords.confirm ? "text" : "password"}
+              name="confirmPassword"
+              value={passwordForm.confirmPassword}
+              onChange={handlePasswordChange}
+              placeholder="Confirm your new password"
+              className="pr-12 h-11 border-gray-300 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20 group-hover:border-gray-400 transition-colors duration-200"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 p-1 rounded"
+            >
+              {showPasswords.confirm ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </button>
+          </div>
+        </div>
 
-                <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-                  <Button
-                    onClick={handlePasswordSubmit}
-                    disabled={isResetting}
-                    className="flex-1"
-                  >
-                    {isResetting ? "Updating..." : "Update Password"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setShowResetForm(false);
-                      setPasswordForm({
-                        oldPassword: "",
-                        newPassword: "",
-                        confirmPassword: "",
-                        userId: userId,
-                      });
-                      dispatch(clearPasswordError());
-                    }}
-                    disabled={isResetting}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          )}
-        </Card>
+        {/* Password Strength Indicator (Optional) */}
+        <div className="pt-2">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-900 dark:text-white">Password Strength</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Medium</span>
+          </div>
+          <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+            <div className="h-full w-2/3 bg-yellow-500 rounded-full"></div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-800">
+          <Button
+            onClick={handlePasswordSubmit}
+            disabled={isResetting}
+            className=" h-11 bg-[#02517b] hover:from-blue-700 hover:to-blue-800 text-white shadow-sm hover:shadow-md transition-all duration-200"
+          >
+            {isResetting ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
+                Updating Password...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Update Password
+              </>
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setShowResetForm(false);
+              setPasswordForm({
+                oldPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+                userId: userId,
+              });
+              dispatch(clearPasswordError());
+            }}
+            disabled={isResetting}
+            className="h-11 border-[#02517b] dark:border-gray-700 text-[#02517b] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-[#02517b] transition-colors duration-200"
+          >
+            Cancel
+          </Button>
+        </div>
+
+ 
+      </div>
+    </CardContent>
+  )}
+</Card>
       </div>
     </div>
   );

@@ -477,7 +477,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             Verification link sent to <span className="font-semibold">{formData.email}</span>
           </p>
           <Link href="/auth/login">
-            <button className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium mb-3">
+            <button className="w-full bg-[#02517b]text-white py-2.5 rounded-lg font-medium mb-3">
               Continue to Login
             </button>
           </Link>

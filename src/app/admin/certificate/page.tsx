@@ -253,7 +253,7 @@
 
     return (
       <div className="min-h-screen p-6">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto ">
           {/* Header */}
           <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
             <div>
@@ -488,7 +488,7 @@
                         {hasActiveFilters && (
                           <button
                             onClick={handleClearSearch}
-                            className="mt-3 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
+                            className="mt-3 inline-flex items-center rounded-lg bg-[#02517b]px-4 py-2 text-sm text-white transition-colors hover:bg-[#1A6A93]"
                           >
                             Clear Filters
                           </button>
@@ -613,7 +613,7 @@
                                 return (
                                   <button
                                     // onClick={() => handleViewDetails(admin.id)}
-                                    className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+                                    className="inline-flex items-center rounded-lg bg-[#02517b]px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1A6A93]"
                                   >
                                     issued
                                   </button>

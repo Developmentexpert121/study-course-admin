@@ -27,7 +27,7 @@ const CheckboxFour = () => {
           >
             <span
               className={`h-2.5 w-2.5 rounded-full bg-transparent ${
-                isChecked && "!bg-primary"
+                isChecked && "!bg-[#1A6A93] hover:bg-[#02517b]"
               }`}
             >
               {" "}

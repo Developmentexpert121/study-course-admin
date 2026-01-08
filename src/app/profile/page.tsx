@@ -121,7 +121,7 @@ console.log("datdatdatdatdat",data)
                   )}
                   <label
                     htmlFor="profilePhoto"
-                    className="absolute bottom-0 right-0 z-20 flex size-8.5 cursor-pointer items-center justify-center rounded-full bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"
+                    className="absolute bottom-0 right-0 z-20 flex size-8.5 cursor-pointer items-center justify-center rounded-full bg-[#1A6A93] hover:bg-[#02517b] text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"
                   >
                     <CameraIcon />
                     <input

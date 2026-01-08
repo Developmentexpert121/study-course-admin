@@ -374,7 +374,7 @@ export default function ChapterDetail() {
         </div>
         <div className="h-2 w-full rounded-full bg-blue-200 dark:bg-blue-800">
           <div
-            className="h-2 rounded-full bg-blue-600 transition-all duration-300 dark:bg-blue-400"
+            className="h-2 rounded-full bg-[#02517b]transition-all duration-300 dark:bg-blue-400"
             style={{ width: `${progressPercentage}%` }}
           ></div>
         </div>
@@ -836,7 +836,7 @@ export default function ChapterDetail() {
                   disabled={!allAnswered}
                   className={`rounded-lg px-6 py-3 transition-colors ${
                     allAnswered
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                      ? "bg-[#02517b]text-white hover:bg-[#1A6A93]"
                       : "cursor-not-allowed bg-gray-300 text-gray-500 dark:bg-gray-600 dark:text-gray-400"
                   }`}
                 >
@@ -858,7 +858,7 @@ export default function ChapterDetail() {
               </div>
               <div className="h-2 w-full rounded-full bg-blue-200 dark:bg-blue-800">
                 <div
-                  className="h-2 rounded-full bg-blue-600 transition-all duration-300 dark:bg-blue-400"
+                  className="h-2 rounded-full bg-[#02517b]transition-all duration-300 dark:bg-blue-400"
                   style={{
                     width: `${(Object.keys(selectedAnswers).length / mcqs.length) * 100}%`,
                   }}
@@ -1151,7 +1151,7 @@ export default function ChapterDetail() {
             </div>
             <div className="h-2 w-full rounded-full bg-blue-200 dark:bg-blue-800">
               <div
-                className="h-2 rounded-full bg-blue-600 transition-all duration-300 dark:bg-blue-400"
+                className="h-2 rounded-full bg-[#02517b]transition-all duration-300 dark:bg-blue-400"
                 style={{
                   width: `${(Object.keys(selectedAnswers).length / mcqs.length) * 100}%`,
                 }}
@@ -1421,7 +1421,7 @@ export default function ChapterDetail() {
         <div className="mx-auto px-4">
           <button
             onClick={() => router.back()}
-            className="mb-8 flex items-center text-blue-600 hover:text-blue-800"
+            className="mb-8 flex items-center text-blue-600 hover:text-white"
           >
             <ArrowLeft className="mr-2 h-5 w-5" />
             Back to Chapters
@@ -1437,7 +1437,7 @@ export default function ChapterDetail() {
             </p>
             <button
               onClick={fetchChapterDetail}
-              className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
+              className="rounded-lg bg-[#02517b]px-6 py-2 text-white hover:bg-[#1A6A93]"
             >
               Try Again
             </button>
@@ -1456,7 +1456,7 @@ export default function ChapterDetail() {
             onClick={() =>
               router.push(`/user/courses/${chapter.course_id}/chapter`)
             }
-            className="mb-8 flex items-center text-blue-600 hover:text-blue-800"
+            className="mb-8 flex items-center text-blue-600 hover:text-white"
           >
             <ArrowLeft className="mr-2 h-5 w-5" />
             Back to Chapters

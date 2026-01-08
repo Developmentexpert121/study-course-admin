@@ -170,7 +170,7 @@ export default function UserCompleteDetailsPage({ className }: any) {
 
   return (
     <div
-      className={cn("mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8", className)}
+      className={cn("mx-auto px-4 py-8 sm:px-6 lg:px-8", className)}
     >
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
@@ -449,7 +449,7 @@ export default function UserCompleteDetailsPage({ className }: any) {
                       </div>
                       <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                         <div
-                          className="h-2 rounded-full bg-blue-600 transition-all duration-500"
+                          className="h-2 rounded-full bg-[#02517b]transition-all duration-500"
                           style={{ width: `${course.completion_percentage}%` }}
                         ></div>
                       </div>

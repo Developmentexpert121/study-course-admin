@@ -25,7 +25,7 @@ export function CourseFilters({
           onClick={() => onFilterChange(filter.id)}
           className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-200 ${
             activeFilter === filter.id
-              ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+              ? "border-blue-600 bg-[#02517b]text-white shadow-sm"
               : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
           }`}
         >
