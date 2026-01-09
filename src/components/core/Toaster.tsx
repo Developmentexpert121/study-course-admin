@@ -25,7 +25,7 @@ export const toasterError = (
   time: number = 3000,
   customId?: string | number,
 ) => {
-  toast(message || "An error has been encountered", {
+  toast(message, {
     type: "error",
     toastId: customId,
     position: "bottom-right",
