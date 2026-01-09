@@ -15,6 +15,11 @@ import {
   ChevronRight,
   Eye,
   Search,
+  AlertTriangle,
+  Info,
+  X as CloseIcon,
+  Check,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -29,6 +34,122 @@ import {
   activateUser,
   deactivateUser,
 } from "../../../store/slices/adminslice/userManagement";
+
+// Confirmation Modal Component
+interface ConfirmModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  type?: 'activate' | 'deactivate';
+  loading?: boolean;
+}
+
+const ConfirmModal: React.FC<ConfirmModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  type = 'deactivate',
+  loading = false
+}) => {
+  if (!isOpen) return null;
+
+  const getIconColor = () => {
+    return type === 'activate' 
+      ? 'bg-green-100 dark:bg-green-900/30' 
+      : 'bg-red-100 dark:bg-red-900/30';
+  };
+
+  const getIconElement = () => {
+    return type === 'activate' 
+      ? <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+      : <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />;
+  };
+
+  const getButtonColor = () => {
+    return type === 'activate'
+      ? 'bg-green-600 hover:bg-green-700'
+      : 'bg-red-600 hover:bg-red-700';
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={loading ? undefined : onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-gray-200 p-6 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-12 w-12 items-center justify-center rounded-full ${getIconColor()}`}>
+              {getIconElement()}
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {title}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+            disabled={loading}
+          >
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {message}
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 border-t border-gray-200 p-6 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className={`inline-flex items-center rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${getButtonColor()}`}
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                {type === 'activate' ? (
+                  <Check className="mr-2 h-4 w-4" />
+                ) : (
+                  <X className="mr-2 h-4 w-4" />
+                )}
+                {confirmText}
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function UsersWithProgressPage({ className }: any) {
   const router = useRouter();
@@ -53,7 +174,16 @@ export default function UsersWithProgressPage({ className }: any) {
     verificationStatus || "all",
   );
 
-
+  // Modal state
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: 'activate' | 'deactivate';
+    userId: string | null;
+  }>({
+    isOpen: false,
+    type: 'deactivate',
+    userId: null
+  });
 
   // Calculate stats
   const totalCount = totalUsers || 0;
@@ -75,16 +205,13 @@ export default function UsersWithProgressPage({ className }: any) {
     dispatch(setPage(page));
   };
 
-const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  
-  const newStatus = e.target.value;
-  setLocalVerificationStatus(newStatus);
-  
-  // Auto-trigger search when status changes
-  dispatch(setPage(1));
-  dispatch(setVerificationStatus(newStatus));
-  dispatch(setSearch(localSearchTerm)); // Keep current search term
-};
+  const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value;
+    setLocalVerificationStatus(newStatus);
+    dispatch(setPage(1));
+    dispatch(setVerificationStatus(newStatus));
+    dispatch(setSearch(localSearchTerm));
+  };
 
   const handleClearSearch = () => {
     setLocalSearchTerm("");
@@ -94,63 +221,90 @@ const handleVerificationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>)
     dispatch(setPage(1));
   };
 
- const handleKeyPress = (e: React.KeyboardEvent) => {
-  if (e.key === 'Enter') {
-    handleSearch();
-  }
-};
-const handleSearch = () => {
-  dispatch(setPage(1));
-  dispatch(setSearch(localSearchTerm));
-  dispatch(setVerificationStatus(localVerificationStatus)); // Keep status filter
-};
-  const handleDeactivateUser = async (e: React.MouseEvent, userId: string) => {
-    e.stopPropagation();
-
-    if (window.confirm("Are you sure you want to deactivate this user?")) {
-      setProcessingUserId(userId);
-      try {
-        const result = await dispatch(deactivateUser({ userId }));
-        if (deactivateUser.fulfilled.match(result)) {
-          dispatch(
-            fetchUsers({
-              page: currentPage,
-              limit,
-              search: searchTerm,
-              verificationStatus,
-            }),
-          );
-        }
-      } catch (error) {
-        console.error("Failed to deactivate user:", error);
-      } finally {
-        setProcessingUserId(null);
-      }
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
     }
   };
 
-  const handleActivateUser = async (e: React.MouseEvent, userId: string) => {
-    e.stopPropagation();
+  const handleSearch = () => {
+    dispatch(setPage(1));
+    dispatch(setSearch(localSearchTerm));
+    dispatch(setVerificationStatus(localVerificationStatus));
+  };
 
-    if (window.confirm("Are you sure you want to activate this user?")) {
-      setProcessingUserId(userId);
-      try {
-        const result = await dispatch(activateUser({ userId }));
-        if (activateUser.fulfilled.match(result)) {
-          dispatch(
-            fetchUsers({
-              page: currentPage,
-              limit,
-              search: searchTerm,
-              verificationStatus,
-            }),
-          );
-        }
-      } catch (error) {
-        console.error("Failed to activate user:", error);
-      } finally {
-        setProcessingUserId(null);
+  // Modal handlers
+  const openDeactivateModal = (userId: string) => {
+    setModalState({
+      isOpen: true,
+      type: 'deactivate',
+      userId
+    });
+  };
+
+  const openActivateModal = (userId: string) => {
+    setModalState({
+      isOpen: true,
+      type: 'activate',
+      userId
+    });
+  };
+
+  const closeModal = () => {
+    if (!processingUserId) {
+      setModalState({
+        isOpen: false,
+        type: 'deactivate',
+        userId: null
+      });
+    }
+  };
+
+  const handleDeactivateUser = async () => {
+    if (!modalState.userId) return;
+
+    setProcessingUserId(modalState.userId);
+    try {
+      const result = await dispatch(deactivateUser({ userId: modalState.userId }));
+      if (deactivateUser.fulfilled.match(result)) {
+        dispatch(
+          fetchUsers({
+            page: currentPage,
+            limit,
+            search: searchTerm,
+            verificationStatus,
+          }),
+        );
       }
+    } catch (error) {
+      console.error("Failed to deactivate user:", error);
+    } finally {
+      setProcessingUserId(null);
+      closeModal();
+    }
+  };
+
+  const handleActivateUser = async () => {
+    if (!modalState.userId) return;
+
+    setProcessingUserId(modalState.userId);
+    try {
+      const result = await dispatch(activateUser({ userId: modalState.userId }));
+      if (activateUser.fulfilled.match(result)) {
+        dispatch(
+          fetchUsers({
+            page: currentPage,
+            limit,
+            search: searchTerm,
+            verificationStatus,
+          }),
+        );
+      }
+    } catch (error) {
+      console.error("Failed to activate user:", error);
+    } finally {
+      setProcessingUserId(null);
+      closeModal();
     }
   };
 
@@ -217,6 +371,23 @@ const handleSearch = () => {
   return (
     <div className="min-h-screen p-6">
       <div className="mx-auto max-w-7xl">
+        {/* Confirmation Modal */}
+        <ConfirmModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          onConfirm={modalState.type === 'activate' ? handleActivateUser : handleDeactivateUser}
+          title={modalState.type === 'activate' ? 'Activate Student' : 'Deactivate Student'}
+          message={
+            modalState.type === 'activate'
+              ? 'Are you sure you want to activate this student? They will regain access to their courses and learning materials.'
+              : 'Are you sure you want to deactivate this student? They will lose access to their courses and learning materials.'
+          }
+          confirmText={modalState.type === 'activate' ? 'Activate' : 'Deactivate'}
+          cancelText="Cancel"
+          type={modalState.type}
+          loading={processingUserId === modalState.userId}
+        />
+
         {/* Header */}
         <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
           <div>
@@ -246,9 +417,7 @@ const handleSearch = () => {
           </button>
         </div>
 
-
-
-    {/* Stats Cards */}
+        {/* Stats Cards */}
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
           {/* Total Users */}
           <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
@@ -284,8 +453,7 @@ const handleSearch = () => {
             </div>
           </div>
 
-
-    {/* Unverified Users */}
+          {/* Unverified Users */}
           <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
             <div className="flex items-center justify-between">
               <div>
@@ -318,11 +486,7 @@ const handleSearch = () => {
               </div>
             </div>
           </div>
-
-
         </div>
-
-
 
         {/* Search and Filter Section */}
         <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
@@ -350,21 +514,21 @@ const handleSearch = () => {
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Verification Status
               </label>
-          <select
-  value={localVerificationStatus}
-  onChange={handleVerificationStatusChange}
-  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
->
-  <option value="all">All Student</option>
-  <option value="verified">Verified</option>
-  <option value="unverified">Unverified</option>
-</select>
+              <select
+                value={localVerificationStatus}
+                onChange={handleVerificationStatusChange}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#02517b] focus:outline-none focus:ring-2 focus:ring-[#02517b]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#43bf79] dark:focus:ring-[#43bf79]/20"
+              >
+                <option value="all">All Student</option>
+                <option value="verified">Verified</option>
+                <option value="unverified">Unverified</option>
+              </select>
             </div>
 
             {/* Action Buttons */}
             <div className="flex gap-2 sm:flex-col">
               <button
-         onClick={handleSearch}
+                onClick={handleSearch}
                 disabled={loading}
                 className="inline-flex items-center justify-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#43bf79] dark:hover:bg-[#43bf7999]"
               >
@@ -372,15 +536,15 @@ const handleSearch = () => {
                 Search
               </button>
 
-             {(searchTerm || localVerificationStatus !== "all") && (
-  <button
-    onClick={handleClearSearch}
-    disabled={loading}
-    className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-  >
-    Clear
-  </button>
-)}
+              {(searchTerm || localVerificationStatus !== "all") && (
+                <button
+                  onClick={handleClearSearch}
+                  disabled={loading}
+                  className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                >
+                  Clear
+                </button>
+              )}
             </div>
           </div>
 
@@ -404,8 +568,6 @@ const handleSearch = () => {
             </div>
           )}
         </div>
-
-    
 
         {/* Table */}
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
@@ -503,7 +665,10 @@ const handleSearch = () => {
                         <div className="flex items-center gap-2 flex-wrap">
                           {user.status === "active" ? (
                             <button
-                              onClick={(e) => handleDeactivateUser(e, user.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openDeactivateModal(user.id);
+                              }}
                               disabled={processingUserId === user.id}
                               className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
@@ -521,7 +686,10 @@ const handleSearch = () => {
                             </button>
                           ) : (
                             <button
-                              onClick={(e) => handleActivateUser(e, user.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openActivateModal(user.id);
+                              }}
                               disabled={processingUserId === user.id}
                               className="inline-flex items-center rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
@@ -539,22 +707,20 @@ const handleSearch = () => {
                             </button>
                           )}
 
-
-                          {user.enrolledCourses.length > 0 ? (
-  <button
-    onClick={(e) => {
-      e.stopPropagation();
-      handleViewDetails(user.id);
-    }}
-    className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
-  >
-    <Eye className="mr-1 h-3.5 w-3.5" />
-    View
-  </button>
-) : (
-  <span className="text-xs text-gray-500">No course enrolled</span>
-)}
-                          
+                          {user.enrolledCourses && user.enrolledCourses.length > 0 ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewDetails(user.id);
+                              }}
+                              className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+                            >
+                              <Eye className="mr-1 h-3.5 w-3.5" />
+                              View
+                            </button>
+                          ) : (
+                            <span className="text-xs text-gray-500">No course enrolled</span>
+                          )}
                         </div>
                       </td>
                     </tr>

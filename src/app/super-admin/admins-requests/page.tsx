@@ -299,7 +299,7 @@ export default function AdminUsersPage() {
 
     try {
       const result = await dispatch(approveAdmin(modalState.adminId)).unwrap();
-      alert(`✅ ${result.message}`);
+     
       dispatch(fetchAdmins({
         page: currentPage,
         search: searchQuery,
@@ -309,7 +309,7 @@ export default function AdminUsersPage() {
       }));
       closeModal();
     } catch (err: any) {
-      alert(`❌ ${err}`);
+     
       closeModal();
     }
   };
@@ -320,7 +320,7 @@ export default function AdminUsersPage() {
 
     try {
       const result = await dispatch(rejectAdmin(modalState.adminId)).unwrap();
-      alert(`✅ ${result.message}`);
+     
       dispatch(fetchAdmins({
         page: currentPage,
         search: searchQuery,
