@@ -22,11 +22,119 @@ import {
   Search,
   FileBadge,
   BookOpen,
+  AlertTriangle,
+  Check,
+  X as CloseIcon,
+  RefreshCw,
 } from "lucide-react";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { useRouter } from "next/navigation";
 import { useApiClient } from "@/lib/api";
 import SafeHtmlRenderer from "@/components/SafeHtmlRenderer";
+
+// Delete Confirmation Modal Component
+interface DeleteConfirmModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  itemName?: string;
+  confirmText?: string;
+  cancelText?: string;
+  loading?: boolean;
+}
+
+const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  itemName,
+  confirmText = "Delete",
+  cancelText = "Cancel",
+  loading = false,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={loading ? undefined : onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-gray-200 p-6 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {title}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+            disabled={loading}
+          >
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {message}
+          </p>
+          {itemName && (
+            <div className="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                Course to delete:
+              </p>
+              <p className="mt-1 font-semibold text-gray-900 dark:text-white">
+                {itemName}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 border-t border-gray-200 p-6 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                {confirmText}
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface CoursesListProps {
   basePath: string; // "admin" or "super-admin"
@@ -49,6 +157,19 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(5);
   const api = useApiClient();
+
+  // Delete Modal State
+  const [deleteModalState, setDeleteModalState] = useState<{
+    isOpen: boolean;
+    courseId: number | null;
+    courseName: string;
+  }>({
+    isOpen: false,
+    courseId: null,
+    courseName: "",
+  });
+
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -83,8 +204,6 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
         setInactivecourses(res.data?.data?.inactivecourseCounttotal);
         setdraftcourses(res.data?.data?.draftcourseCounttotal);
         settotalcoursecountwithactive(res.data?.data?.totalcoursecountwithactive)
-
-
       }
     } catch (err) {
       console.error("Failed to fetch courses:", err);
@@ -101,14 +220,33 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    const confirmDelete = confirm(
-      "Are you sure you want to delete this course?",
-    );
-    if (!confirmDelete) return;
+  // Open delete modal
+  const openDeleteModal = (courseId: number, courseName: string) => {
+    setDeleteModalState({
+      isOpen: true,
+      courseId,
+      courseName,
+    });
+  };
 
+  // Close delete modal
+  const closeDeleteModal = () => {
+    if (!deleteLoading) {
+      setDeleteModalState({
+        isOpen: false,
+        courseId: null,
+        courseName: "",
+      });
+    }
+  };
+
+  // Handle delete confirmation
+  const handleDeleteConfirm = async () => {
+    if (!deleteModalState.courseId) return;
+
+    setDeleteLoading(true);
     try {
-      const response = await api.delete(`course/${id}`);
+      const response = await api.delete(`course/${deleteModalState.courseId}`);
       if (response.success) {
         toasterSuccess("Course Deleted Successfully", 2000, "id");
 
@@ -117,18 +255,18 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
         } else {
           fetchCourses();
         }
+        closeDeleteModal();
       }
     } catch (error) {
       toasterError("Failed to delete course");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>, courseId: number) => {
     const newStatus = event.target.value;
-
-    // Call your API or state update function here to save the new status
-    handleToggleStatus(courseId, newStatus); // Replace with your actual function to update status
-
+    handleToggleStatus(courseId, newStatus);
   };
 
   const handleToggleStatus = async (id: number, status: string) => {
@@ -227,6 +365,19 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
         className,
       )}
     >
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteModalState.isOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Course"
+        message="This action cannot be undone. The course and all its content will be permanently deleted from the system."
+        itemName={deleteModalState.courseName}
+        confirmText="Delete Course"
+        cancelText="Cancel"
+        loading={deleteLoading}
+      />
+
       <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
@@ -246,8 +397,6 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
           + Add Course
         </button>
       </div>
-
-
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
@@ -276,9 +425,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                 Active
               </h3>
               <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                
-                  {totalcoursecountwithactive}
-                
+                {totalcoursecountwithactive}
               </p>
             </div>
           </div>
@@ -310,14 +457,12 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                 Inactive
               </h3>
               <p className="text-xl font-semibold text-gray-900 dark:text-white">
-                {inactivecourses
-                }
+                {inactivecourses}
               </p>
             </div>
           </div>
         </div>
       </div>
-
 
       <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
         {/* Search and Filter Section */}
@@ -398,8 +543,6 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
           </div>
         )}
       </div>
-      {/* Stats Cards */}
-
 
       <Table>
         <TableHeader>
@@ -465,9 +608,9 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                         // Dropdown for changing status instead of button
                         <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
                           <select
-                            value={course.status} // assuming `course.status` holds the current status
+                            value={course.status}
                             onChange={(e) => {
-                              handleStatusChange(e, course.id); // Call your status change handler
+                              handleStatusChange(e, course.id);
                             }}
                             className="rounded-full p-1.5 transition-colors bg-white text-sm font-medium text-gray-700 border border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
                             title="Select status"
@@ -475,7 +618,6 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                             <option value="inactive">Inactive</option>
                             <option value="active">Active</option>
                             <option value="draft">Draft</option>
-                            {/* Add more status options as needed */}
                           </select>
                         </div>
                       ) : (
@@ -561,7 +703,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
                         className="text-red-600 hover:text-red-800"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDelete(course.id);
+                          openDeleteModal(course.id, course.title);
                         }}
                         title="Delete Course"
                       >
