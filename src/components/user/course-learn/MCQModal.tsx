@@ -139,7 +139,7 @@ const MCQModal: React.FC<MCQModalProps> = ({
             {shuffledMCQs.map((mcq, index) => (
               <div
                 key={mcq.id}
-                className="rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:border-blue-300 hover:shadow-lg dark:border-slate-600 dark:bg-slate-700/50 dark:hover:border-blue-500"
+                className="rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:border-[#02517b] hover:shadow-lg dark:border-slate-600 dark:bg-slate-700/50 dark:hover:border-blue-500"
               >
                 <div className="mb-4 flex items-start gap-4">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-sm font-bold text-white">
@@ -163,7 +163,7 @@ const MCQModal: React.FC<MCQModalProps> = ({
                       key={optIndex}
                       className={`flex cursor-pointer items-center gap-4 rounded-xl border-2 p-4 transition-all ${
                         userAnswers[mcq.id] === optIndex
-                          ? "border-blue-300 bg-blue-50 shadow-md dark:border-blue-600 dark:bg-blue-900/20"
+                          ? "border-[#02517b] bg-blue-50 shadow-md dark:border-blue-600 dark:bg-blue-900/20"
                           : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800/50 dark:hover:border-slate-500 dark:hover:bg-slate-700/50"
                       }`}
                     >

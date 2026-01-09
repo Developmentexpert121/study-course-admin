@@ -252,7 +252,7 @@
     }
 
     return (
-      <div className="min-h-screen p-6">
+      <div className="min-h-screen p-6 md:mt-0 mt-20">
         <div className="mx-auto">
           {/* Header */}
           <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
@@ -512,13 +512,13 @@
                                   alt={cert.user.name}
                                 />
                               ) : (
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-blue-300 bg-gradient-to-br from-blue-500 to-blue-700 dark:border-blue-400">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#02517b] bg-[#02517b]">
                                   <User className="h-6 w-6 text-white" />
                                 </div>
                               )}
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              <div className="text-sm font-semibold text-gray-900 dark:text-white text-left">
                                 {cert.user.name}
                               </div>
                               <div className="mt-1 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">

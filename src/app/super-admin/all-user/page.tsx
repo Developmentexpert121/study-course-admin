@@ -369,7 +369,7 @@ export default function UsersWithProgressPage({ className }: any) {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6 md:mt-0 mt-20">
       <div className="mx-auto max-w-7xl">
         {/* Confirmation Modal */}
         <ConfirmModal
@@ -619,7 +619,7 @@ export default function UsersWithProgressPage({ className }: any) {
                                 alt={user.username}
                               />
                             ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#b4c0c77a] bg-[#02517b] dark:border-blue-400">
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#b4c0c77a] bg-[#02517b] dark:border-[ #02517b]">
                                 <User className="h-6 w-6 text-white" />
                               </div>
                             )}

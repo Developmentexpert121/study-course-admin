@@ -12,13 +12,13 @@ const Contact: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        
+
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1500));
-        
+
         setIsSubmitting(false);
         setFormSubmitted(true);
-        
+
         // Reset form after 3 seconds
         setTimeout(() => setFormSubmitted(false), 3000);
     };
@@ -59,7 +59,7 @@ const Contact: React.FC = () => {
     ];
 
     return (
-        <section className="py-12   bg-gradient-to-b from-background via-background to-muted/30">
+        <section className="py-12   ">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
                 {/* Header Section */}
                 <div className="text-center mb-12 md:mb-16">
@@ -73,7 +73,7 @@ const Contact: React.FC = () => {
                         Let&apos;s Start a
                         <span className="bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent"> Conversation</span>
                     </h2>
-                    <p className="text-base md:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
+                    <p className="text-base md:text-xl text-muted-foreground md:max-w-2xl mx-auto px-4">
                         Have questions about our courses? Need technical support? We&apos;re here to help you succeed in your learning journey.
                     </p>
                 </div>
@@ -82,11 +82,11 @@ const Contact: React.FC = () => {
                     {/* Left Column - Contact Info */}
                     <div className="lg:col-span-1">
                         <div className="lg:sticky lg:top-24">
-                            <div className="bg-gradient-to-br from-card to-card/80 rounded-xl md:rounded-2xl p-6 md:p-8 shadow-xl md:shadow-2xl border border-border/50 backdrop-blur-sm">
+                            <div className=" rounded-xl md:rounded-2xl p-6 md:p-8 shadow-xl md:shadow-2xl border border-border/50 backdrop-blur-sm">
                                 <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-6 md:mb-8">
                                     Contact Information
                                 </h3>
-                                
+
                                 <div className="space-y-4 md:space-y-6 mb-8 md:mb-10">
                                     {contactInfo.map((item, index) => (
                                         <div key={index} className="flex items-start gap-3 md:gap-4 p-3 md:p-4 rounded-lg md:rounded-xl hover:bg-muted/50 transition-colors group">
@@ -104,7 +104,7 @@ const Contact: React.FC = () => {
                                     ))}
                                 </div>
 
-                        
+
                             </div>
                         </div>
                     </div>
@@ -138,7 +138,7 @@ const Contact: React.FC = () => {
                                     </div>
                                     <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-2 md:mb-3">Message Sent Successfully!</h3>
                                     <p className="text-muted-foreground text-sm md:text-base px-4">
-                                        Thank you for reaching out. We&apos;ll get back to you within 2-4 hours.
+                                        Thank you for reaching out. We’ll get back to you shortly.
                                     </p>
                                 </div>
                             ) : (
@@ -148,56 +148,144 @@ const Contact: React.FC = () => {
                                             <label className="text-xs md:text-sm font-semibold text-foreground flex items-center gap-1 md:gap-2" htmlFor="name">
                                                 Your Name
                                             </label>
-                                            <input 
-                                                type="text" 
-                                                className="w-full rounded-lg md:rounded-xl border-2 px-3 md:px-4 py-3 md:py-4 text-sm md:text-base bg-background/50 border-border hover:border-primary/50 focus:border-primary focus:ring-2 md:focus:ring-4 focus:ring-primary/20 transition-all duration-300"
-                                                id="name" 
-                                                placeholder="John Doe" 
-                                                required 
+                                            <input
+                                                type="text"
+                                                className="w-full  bg-white rounded-lg md:rounded-xl border-2 px-3 md:px-4 py-3 md:py-4 text-sm md:text-base  border-border hover:border-primary/50 focus:border-primary focus:ring-2 md:focus:ring-4 focus:ring-primary/20 transition-all duration-300"
+                                                id="name"
+                                                placeholder="John Doe"
+                                                required
                                             />
                                         </div>
                                         <div className="space-y-2 md:space-y-3">
                                             <label className="text-xs md:text-sm font-semibold text-foreground flex items-center gap-1 md:gap-2" htmlFor="email">
                                                 Email Address
                                             </label>
-                                            <input 
-                                                type="email" 
-                                                className="w-full rounded-lg md:rounded-xl border-2 px-3 md:px-4 py-3 md:py-4 text-sm md:text-base bg-background/50 border-border hover:border-primary/50 focus:border-primary focus:ring-2 md:focus:ring-4 focus:ring-primary/20 transition-all duration-300"
-                                                id="email" 
-                                                placeholder="you@example.com" 
-                                                required 
+                                            <input
+                                                type="email"
+                                                className="w-full rounded-lg md:rounded-xl border-2 px-3 md:px-4 py-3 md:py-4 text-sm md:text-base bg-white border-border hover:border-primary/50 focus:border-primary focus:ring-2 md:focus:ring-4 focus:ring-primary/20 transition-all duration-300"
+                                                id="email"
+                                                placeholder="you@example.com"
+                                                required
                                             />
                                         </div>
                                     </div>
-                                    
+
                                     <div className="space-y-2 md:space-y-3">
                                         <label className="text-xs md:text-sm font-semibold text-foreground flex items-center gap-1 md:gap-2" htmlFor="subject">
                                             Subject
                                         </label>
-                                        <input 
-                                            type="text" 
-                                            className="w-full rounded-lg md:rounded-xl border-2 px-3 md:px-4 py-3 md:py-4 text-sm md:text-base bg-background/50 border-border hover:border-primary/50 focus:border-primary focus:ring-2 md:focus:ring-4 focus:ring-primary/20 transition-all duration-300"
-                                            id="subject" 
-                                            placeholder="How can we help?" 
-                                            required 
+                                        <input
+                                            type="text"
+                                            className="w-full rounded-lg md:rounded-xl border-2 px-3 md:px-4 py-3 md:py-4 text-sm md:text-base bg-white border-border hover:border-primary/50 focus:border-primary focus:ring-2 md:focus:ring-4 focus:ring-primary/20 transition-all duration-300"
+                                            id="subject"
+                                            placeholder="How can we help?"
+                                            required
                                         />
                                     </div>
-                                    
+
                                     <div className="space-y-2 md:space-y-3">
                                         <label className="text-xs md:text-sm font-semibold text-foreground flex items-center gap-1 md:gap-2" htmlFor="message">
                                             Your Message
                                         </label>
-                                        <textarea 
-                                            className="w-full rounded-lg md:rounded-xl border-2 px-3 md:px-4 py-3 md:py-4 text-sm md:text-base bg-background/50 border-border hover:border-primary/50 focus:border-primary focus:ring-2 md:focus:ring-4 focus:ring-primary/20 transition-all duration-300 min-h-[120px] md:min-h-[180px] resize-none"
-                                            id="message" 
-                                            placeholder="Tell us more about your inquiry, question, or feedback..." 
-                                            required 
+                                        <textarea
+                                            className="w-full rounded-lg md:rounded-xl border-2 px-3 md:px-4 py-3 md:py-4 text-sm md:text-base bg-white border-border hover:border-primary/50 focus:border-primary focus:ring-2 md:focus:ring-4 focus:ring-primary/20 transition-all duration-300 min-h-[120px] md:min-h-[180px] resize-none"
+                                            id="message"
+                                            placeholder="Tell us more about your inquiry, question, or feedback..."
+                                            required
                                         ></textarea>
                                     </div>
-                                    
+
+                                    {/* GDPR Compliance Section */}
+                                    <div className="space-y-4 md:space-y-5 p-4 md:p-6 rounded-lg md:rounded-xl bg-white border border-border/50">
+                                        <div className="space-y-3 md:space-y-4">
+                                            <h3 className="text-sm md:text-base font-semibold text-foreground flex items-center gap-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 md:w-5 md:h-5">
+                                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                                </svg>
+                                                Data Protection & Privacy
+                                            </h3>
+
+                                            <div className="space-y-3">
+                                                {/* Privacy Policy */}
+                                                <div className="flex items-start gap-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="privacy-policy"
+                                                        required
+                                                        className="
+        mt-1
+        w-4 h-4 md:w-5 md:h-5
+        rounded
+        border border-border
+        bg-white dark:bg-background
+        accent-primary
+        focus:ring-2 focus:ring-primary/20
+        transition-colors
+      "
+                                                    />
+                                                    <label htmlFor="privacy-policy" className="text-xs md:text-sm text-muted-foreground">
+                                                        I agree to the{" "}
+                                                        <a
+                                                            href="/privacy-policy"
+                                                            className="text-primary hover:text-primary/80 font-medium underline underline-offset-2 transition-colors"
+                                                        >
+                                                            Privacy Policy
+                                                        </a>{" "}
+                                                        and understand how my personal data will be processed.
+                                                    </label>
+                                                </div>
+
+                                                {/* Data Processing */}
+                                                <div className="flex items-start gap-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="data-processing"
+                                                        required
+                                                        className="
+        mt-1
+        w-4 h-4 md:w-5 md:h-5
+        rounded
+        border border-border
+        bg-white dark:bg-background
+        accent-primary
+        focus:ring-2 focus:ring-primary/20
+        transition-colors
+      "
+                                                    />
+                                                    <label htmlFor="data-processing" className="text-xs md:text-sm text-muted-foreground">
+                                                        I consent to the processing of my personal data for the purpose of responding to my inquiry.
+                                                    </label>
+                                                </div>
+
+                                                {/* Marketing Consent */}
+                                                <div className="flex items-start gap-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="marketing-consent"
+                                                        className="
+        mt-1
+        w-4 h-4 md:w-5 md:h-5
+        rounded
+        border border-border
+        bg-white dark:bg-background
+        accent-primary
+        focus:ring-2 focus:ring-primary/20
+        transition-colors
+      "
+                                                    />
+                                                    <label htmlFor="marketing-consent" className="text-xs md:text-sm text-muted-foreground">
+                                                        I would like to receive occasional updates, newsletters, and marketing communications.
+                                                        (You can unsubscribe at any time)
+                                                    </label>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+
                                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 pt-2 md:pt-4">
-                                    
-                                        <button 
+                                        <button
                                             type="submit"
                                             disabled={isSubmitting}
                                             className="relative overflow-hidden group inline-flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg font-semibold text-white bg-gradient-to-r from-primary to-[#8b5cf6] hover:from-primary/90 hover:to-[#8b5cf6]/90 rounded-lg md:rounded-xl shadow-lg hover:shadow-xl md:hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto min-w-[160px] md:min-w-[200px] order-1 sm:order-2"

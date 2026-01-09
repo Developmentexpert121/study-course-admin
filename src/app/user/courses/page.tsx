@@ -299,7 +299,7 @@ export default function EnrolledCourses({ className }: any) {
                 return (
                   <div
                     key={enrollment.enrollment_id}
-                    className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg transition-all duration-300 hover:border-blue-300 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
+                    className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg transition-all duration-300 hover:border-[#02517b] hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
                   >
                     {/* Progress Ribbon */}
                     <div className="absolute -right-8 top-6 z-10 rotate-45 bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-1 text-xs font-semibold text-white shadow-lg">

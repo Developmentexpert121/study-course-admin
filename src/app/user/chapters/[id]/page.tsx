@@ -761,7 +761,7 @@ export default function ChapterDetail() {
                             className={`flex cursor-pointer items-center rounded-md p-3 transition-colors ${
                               !isSubmitted
                                 ? isSelected
-                                  ? "border border-blue-300 bg-blue-100 dark:border-blue-700 dark:bg-blue-900/30"
+                                  ? "border border-[#02517b] bg-blue-100 dark:border-blue-700 dark:bg-blue-900/30"
                                   : "border border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
                                 : isUserSelected && isCorrectAnswer
                                   ? "border border-green-300 bg-green-100 dark:border-green-700 dark:bg-green-900/30"
@@ -1066,7 +1066,7 @@ export default function ChapterDetail() {
                           className={`flex cursor-pointer items-center rounded-md p-3 transition-colors ${
                             !isSubmitted
                               ? isSelected
-                                ? "border border-blue-300 bg-blue-100 dark:border-blue-700 dark:bg-blue-900/30"
+                                ? "border border-[#02517b] bg-blue-100 dark:border-blue-700 dark:bg-blue-900/30"
                                 : "border border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
                               : isUserSelected && isCorrectAnswer
                                 ? "border border-green-300 bg-green-100 dark:border-green-700 dark:bg-green-900/30"

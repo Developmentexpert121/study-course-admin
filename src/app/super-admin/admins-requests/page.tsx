@@ -392,7 +392,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6 md:mt-0 mt-20">
       <div className="mx-auto max-w-7xl">
         {/* Confirmation Modal */}
         <ConfirmModal
@@ -644,7 +644,7 @@ export default function AdminUsersPage() {
                                 alt={admin.username}
                               />
                             ) : (
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-blue-300 bg-[#02517b] dark:border-[#02517b] md:h-12 md:w-12">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#02517b] bg-[#02517b] dark:border-[#02517b] md:h-12 md:w-12">
                                 <User className="h-5 w-5 text-white md:h-6 md:w-6" />
                               </div>
                             )}

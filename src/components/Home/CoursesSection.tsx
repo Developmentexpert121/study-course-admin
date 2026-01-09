@@ -76,9 +76,8 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
           Explore 
           <span className="bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent"> Courses</span> 
         </h2>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12 text-center">
+        <p className="text-xl text-gray-600 md:max-w-2xl mx-auto mb-12 text-center">
           Master practical, in-demand skills with expert guidance 
-          <br />
          and take your career forward with confidence
         </p>
 

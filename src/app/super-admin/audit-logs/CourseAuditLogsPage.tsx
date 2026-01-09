@@ -243,7 +243,7 @@ export default function CourseAuditLogsPage() {
                       </div>
 
                       <span
-                        className={`mt-3 sm:mt-0 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border capitalize ${actionColor.bg} ${actionColor.text} ${actionColor.border}`}
+                        className={`mt-5 sm:mt-0 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium w-max  border capitalize ${actionColor.bg} ${actionColor.text} ${actionColor.border}`}
                       >
                         {log.action}
                       </span>

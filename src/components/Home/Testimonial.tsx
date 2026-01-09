@@ -131,7 +131,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
               TESTIMONIALS
             </div>
             <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
-              Loved by Our Students
+                Loved by <span className= "bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent">Our Students</span>
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
               Join thousands of satisfied learners who have transformed their
@@ -153,7 +153,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
             TESTIMONIALS
           </div>
           <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
-            Loved by Our Students
+            Loved by <span className= "bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent">Our Students</span>
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-gray-600">
             Join thousands of satisfied learners who have transformed their

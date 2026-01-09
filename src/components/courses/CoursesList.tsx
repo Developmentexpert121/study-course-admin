@@ -227,7 +227,7 @@ export default function CoursesList({ basePath, className }: CoursesListProps) {
         className,
       )}
     >
-      <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
+      <div className="mb-4 flex items-center justify-between flex-wrap gap-3 md:mt-0 mt-20">
         <div>
           <h1 className="flex items-center text-2xl font-bold text-gray-900 dark:text-white">
             <FileBadge className="mr-3 h-8 w-8 text-[#02517b] dark:text-[#43bf79]" />

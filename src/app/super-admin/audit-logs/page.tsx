@@ -248,7 +248,7 @@ export default function CourseAuditLogsPage() {
   const displayStats = stats || mockStats;
 
   return (
-    <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900 md:mt-0 mt-20">
       <div className=" mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
