@@ -678,7 +678,7 @@ export default function CertificatesPage() {
                         {hasActiveFilters && (
                           <button
                             onClick={handleClearSearch}
-                            className="mt-3 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
+                            className="mt-3 inline-flex items-center rounded-lg bg-[#02517b]px-4 py-2 text-sm text-white transition-colors hover:bg-[#1A6A93]"
                           >
                             Clear Filters
                           </button>

@@ -360,7 +360,7 @@ const CourseManagementDashboard: React.FC = () => {
           {!searchTerm && statusFilter === "all" && (
             <Link
               href={"/admin/courses/add-courses"}
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition-all duration-200 hover:bg-blue-700"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#02517b]px-6 py-3 font-semibold text-white transition-all duration-200 hover:bg-[#1A6A93]"
             >
               <Plus className="h-5 w-5" />
               Create Your First Course
@@ -413,7 +413,7 @@ const CourseManagementDashboard: React.FC = () => {
                 key={page}
                 onClick={() => handlePageChange(page)}
                 className={`flex h-10 w-10 items-center justify-center rounded-lg border text-sm font-medium transition-all duration-200 ${page === pagination.currentPage
-                  ? "border-blue-600 bg-blue-600 text-white"
+                  ? "border-blue-600 bg-[#02517b]text-white"
                   : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
                   }`}
               >

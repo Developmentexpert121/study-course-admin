@@ -733,7 +733,7 @@ const CoursesPage = () => {
                     <Filter className="h-4 w-4" />
                     Filters
                     {activeFiltersCount > 0 && (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-xs text-white">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#02517b]text-xs text-white">
                         {activeFiltersCount}
                       </span>
                     )}
@@ -772,7 +772,7 @@ const CoursesPage = () => {
                   </p>
                   <button
                     onClick={clearAllFilters}
-                    className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+                    className="rounded-lg bg-[#02517b]px-6 py-2 font-medium text-white transition-colors hover:bg-[#1A6A93]"
                   >
                     Clear all filters
                   </button>
@@ -956,7 +956,7 @@ const CoursesPage = () => {
                     </button>
                     <button
                       onClick={() => setMobileFiltersOpen(false)}
-                      className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+                      className="flex-1 rounded-lg bg-[#02517b]px-4 py-2 font-medium text-white hover:bg-[#1A6A93]"
                     >
                       Apply filters
                     </button>
@@ -1116,7 +1116,7 @@ const CourseCard = ({
           <div className="w-6 h-6 rounded-full bg-[#2ec2b333] flex items-center justify-center">
           <span className="text-xs font-bold text-secondary">KS</span>
         </div>
-        <span className="text-xs text-muted-foreground font-medium">Karanveer singh</span>
+        <span className="text-xs text-muted-foreground font-medium capitalize">Karanveer singh</span>
         </div>
         <div className="mb-3 flex items-start justify-between">
           <span className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">

@@ -102,7 +102,7 @@ export default function AccessDenied() {
           </button>
           <button
             onClick={() => router.push("/home")}
-            className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+            className="rounded-lg bg-[#02517b]px-6 py-3 font-medium text-white transition-colors hover:bg-[#1A6A93]"
           >
             Go Home
           </button>

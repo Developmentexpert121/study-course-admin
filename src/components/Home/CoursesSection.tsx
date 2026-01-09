@@ -73,12 +73,13 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
     <section id="courses" className="py-20 bg-gradient-to-br from-gray-50 to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 ">
         <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl text-center">
-          Explore My Courses
+          Explore 
+          <span className="bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent"> Courses</span> 
         </h2>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12 text-center">
-          DevexHub empowers you to build in-demand skills quickly and take
+          Master practical, in-demand skills with expert guidance 
           <br />
-          your career to the next level in today's evolving job market.
+         and take your career forward with confidence
         </p>
 
         <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -105,7 +106,12 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
                     <span className="ml-1 text-sm font-semibold text-gray-700">4.8</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mb-3"><div className="w-6 h-6 rounded-full bg-[#2ec2b333] flex items-center justify-center"><span className="text-xs font-bold text-secondary">KS</span></div><span className="text-xs text-muted-foreground font-medium">Karanveer singh</span></div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-6 h-6 rounded-full bg-[#2ec2b333] flex items-center justify-center">
+                    <span className="text-xs font-bold text-secondary">KS</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground font-medium capitalize">Karanveer singh</span>
+                    </div>
 
                 <h3 className="mb-2 text-lg font-semibold text-gray-800">
                   {course.title}

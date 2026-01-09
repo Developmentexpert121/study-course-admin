@@ -74,7 +74,7 @@ const Wishlist = () => {
   if (loading && wishlist.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 p-6 dark:from-gray-900 dark:to-blue-900/20">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto">
           <div className="flex h-96 items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <div className="relative">
@@ -134,7 +134,7 @@ const Wishlist = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 p-6 dark:from-gray-900 dark:to-blue-900/20">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto">
         {/* Enhanced Header */}
         <div className="mb-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

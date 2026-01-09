@@ -70,16 +70,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
     }
   }, [type]);
 
-  useEffect(() => {
-    if (type === "register" || type === "reset-password") {
-      const password = type === "reset-password" ? formData.newPassword : formData.password;
-      if (password) {
-        setPasswordStrength(checkPasswordStrength(password));
-      } else {
-        setPasswordStrength(null);
-      }
-    }
-  }, [formData.password, formData.newPassword, type]);
+  // useEffect(() => {
+  //   if (type === "register" || type === "reset-password") {
+  //     const password = type === "reset-password" ? formData.newPassword : formData.password;
+  //     if (password) {
+  //       setPasswordStrength(checkPasswordStrength(password));
+  //     } else {
+  //       setPasswordStrength(null);
+  //     }
+  //   }
+  // }, [formData.password, formData.newPassword, type]);
 
   useEffect(() => {
     const verifyResetToken = async () => {
@@ -308,8 +308,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
   const RoleTabs = () => (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
+      // initial={{ opacity: 0, y: 10 }}
+      // animate={{ opacity: 1, y: 0 }}
       className="mb-3"
     >
       <div className="text-left mb-3">
@@ -477,7 +477,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
             Verification link sent to <span className="font-semibold">{formData.email}</span>
           </p>
           <Link href="/auth/login">
-            <button className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium mb-3">
+            <button className="w-full bg-[#02517b]text-white py-2.5 rounded-lg font-medium mb-3">
               Continue to Login
             </button>
           </Link>

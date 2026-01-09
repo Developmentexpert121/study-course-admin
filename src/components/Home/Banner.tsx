@@ -16,11 +16,13 @@ const Banner: React.FC = () => {
             items-center
             h-auto md:h-full">
         <div className="animate-fadeInUp">
-          <h1 className="text-6xl font-extrabold text-gray-900 leading-tight mb-6">
-            Kickstart Your <span className="bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent">IT Journey</span>
+          <h1 className="lg:text-5xl md:3xl font-extrabold text-4xl text-gray-900 leading-tight mb-6 ">
+            Learn the skills today that   
+           <span className="bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent mr-2">  shape your future</span> 
+             tomorrow
           </h1>
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            Learn the newest IT technologies and gain hands-on experience with courses designed to turn knowledge into real-world skills.
+Build skills that matter with expert-led training in web, design, marketing, and AI automation.
           </p>
           <a
             href="#courses"
@@ -42,7 +44,7 @@ const Banner: React.FC = () => {
               ></path>
             </svg>
           </a>
-
+{/* 
           <div className="flex items-center space-x-8 mt-12">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
@@ -113,7 +115,7 @@ const Banner: React.FC = () => {
               </div>
               <span className="text-gray-700 font-medium">SEO</span>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="relative">

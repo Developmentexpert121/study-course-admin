@@ -383,7 +383,7 @@ const EditMcq = ({ basePath }: { basePath: string }) => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="hover:bg-primary-dark flex items-center justify-center rounded-lg bg-primary px-6 py-3 font-medium text-white disabled:opacity-50 sm:px-8"
+                            className="hover:bg-[#1A6A93] hover:bg-[#02517b]-dark flex items-center justify-center rounded-lg bg-[#1A6A93] hover:bg-[#02517b] px-6 py-3 font-medium text-white disabled:opacity-50 sm:px-8"
                         >
                             {loading ? (
                                 <>

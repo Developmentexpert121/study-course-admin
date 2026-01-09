@@ -274,7 +274,7 @@ export default function RatingsManagementPage() {
 //                   <button
 //                     onClick={() => handleAddRating(rating.id)}
 //                     disabled={actionLoading === rating.id}
-//                     className="flex items-center gap-1 rounded-md bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+//                     className="flex items-center gap-1 rounded-md bg-[#02517b]px-2 py-1 text-xs text-white hover:bg-[#1A6A93] disabled:opacity-50"
 //                   >
 //                     <Check className="h-3 w-3" />
 //                     Activate

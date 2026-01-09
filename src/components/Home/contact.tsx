@@ -32,7 +32,7 @@ const Contact: React.FC = () => {
             ),
             title: "Call Us",
             description: "(+91) 9875905952",
-            subtext: "Mon-Fri, 9AM-6PM EST"
+            subtext: "Mon-Fri, 9AM-6PM IST"
         },
         {
             icon: (
@@ -53,7 +53,7 @@ const Contact: React.FC = () => {
                 </svg>
             ),
             title: "Office",
-            description: "devexhub course",
+            description: "Devex Hub ",
             subtext: "GR Square, Plot No D-254, 4th Floor, Phase-8A, Mohali"
         }
     ];
@@ -63,7 +63,7 @@ const Contact: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
                 {/* Header Section */}
                 <div className="text-center mb-12 md:mb-16">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-primary/10 text-primary text-xs md:text-sm font-medium mb-4 md:mb-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-gradient-to-r from-primary to-[#8b5cf6]  text-white text-xs md:text-sm font-medium mb-4 md:mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 md:w-4 md:h-4">
                             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                         </svg>
@@ -104,20 +104,7 @@ const Contact: React.FC = () => {
                                     ))}
                                 </div>
 
-                                <div className="p-4 md:p-6 rounded-lg md:rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-primary to-[#8b5cf6] flex items-center justify-center shrink-0">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 md:w-5 md:h-5">
-                                                <circle cx="12" cy="12" r="10"></circle>
-                                                <polyline points="12 6 12 12 16 14"></polyline>
-                                            </svg>
-                                        </div>
-                                        <div className="min-w-0">
-                                            <h4 className="font-heading font-semibold text-foreground text-sm md:text-base">Quick Response Time</h4>
-                                            <p className="text-xs md:text-sm text-muted-foreground">Average reply: 2 hours</p>
-                                        </div>
-                                    </div>
-                                </div>
+                        
                             </div>
                         </div>
                     </div>
@@ -209,12 +196,7 @@ const Contact: React.FC = () => {
                                     </div>
                                     
                                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 pt-2 md:pt-4">
-                                        <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground order-2 sm:order-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 md:w-4 md:h-4">
-                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                            </svg>
-                                            <span>Your information is secure and private</span>
-                                        </div>
+                                    
                                         <button 
                                             type="submit"
                                             disabled={isSubmitting}

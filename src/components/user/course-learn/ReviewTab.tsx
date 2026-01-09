@@ -320,7 +320,7 @@ console.log("this is the review of user", reviews)
             {currentUserId && !userHasReviewed && !showReviewForm && (
               <button
                 onClick={handleAddReviewClick}
-                className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                className="mt-4 rounded-lg bg-[#02517b]px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1A6A93]"
               >
                 Add Your Review
               </button>
@@ -337,7 +337,7 @@ console.log("this is the review of user", reviews)
                 <div className="flex gap-2">
                   <button
                     onClick={handleEditClick}
-                    className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-700"
+                    className="flex items-center gap-1 rounded-lg bg-[#02517b]px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-[#1A6A93]"
                   >
                     <Edit3 className="h-3 w-3" />
                     Edit Review
@@ -444,7 +444,7 @@ console.log("this is the review of user", reviews)
               <button
                 type="submit"
                 disabled={submitting || formData.score === 0}
-                className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+                className="flex items-center gap-2 rounded-lg bg-[#02517b]px-6 py-2 font-medium text-white transition-colors duration-200 hover:bg-[#1A6A93] disabled:cursor-not-allowed disabled:bg-gray-400"
               >
                 {submitting ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -477,7 +477,7 @@ console.log("this is the review of user", reviews)
             <div className="flex gap-2">
               <button
                 onClick={handleEditClick}
-                className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                className="flex items-center gap-2 rounded-lg bg-[#02517b]px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-[#1A6A93]"
               >
                 <Edit3 className="h-4 w-4" />
                 Edit

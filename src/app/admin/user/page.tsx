@@ -68,7 +68,7 @@ const UsersClient = () => {
           <p className="mb-4 text-gray-500">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="inline-flex items-center rounded-md border border-transparent bg-[#02517b]px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#1A6A93] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Try Again
           </button>

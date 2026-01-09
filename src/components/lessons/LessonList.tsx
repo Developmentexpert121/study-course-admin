@@ -228,7 +228,7 @@ export default function LessonsList({ basePath, className }: { basePath: string,
                                                     setActiveMedia({ type: "image", items: images });
                                                     setShowMediaModal(true);
                                                 }}
-                                                className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                                                className="flex items-center gap-1 text-blue-600 hover:text-white"
                                             >
                                                 <ImageIcon size={16} /> Images
                                             </button>

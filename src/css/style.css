@@ -120,7 +120,7 @@
 }
 
 .tableCheckbox:checked ~ div {
-  @apply border-primary bg-primary;
+  @apply border-primary bg-[#1A6A93] hover:bg-[#02517b];
 }
 
 .apexcharts-legend-text {
@@ -293,7 +293,7 @@ span.flatpickr-weekday,
 .flatpickr-day.startRange.nextMonthDay,
 .flatpickr-day.endRange.nextMonthDay {
   background: #3c50e0;
-  @apply !border-primary !bg-primary hover:!border-primary hover:!bg-primary;
+  @apply !border-primary !bg-[#1A6A93] hover:bg-[#02517b] hover:!border-primary hover:!bg-[#1A6A93] hover:bg-[#02517b];
 }
 
 .flatpickr-day.selected.startRange + .endRange:not(:nth-child(7n + 1)),
@@ -303,7 +303,7 @@ span.flatpickr-weekday,
 }
 
 .map-btn .jvm-zoom-btn {
-  @apply flex h-7.5 w-7.5 items-center justify-center rounded border border-stroke bg-white px-0 pb-0.5 pt-0 text-2xl leading-none text-dark-5 hover:border-primary hover:bg-primary hover:text-white dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6 dark:hover:border-primary dark:hover:bg-primary dark:hover:text-white;
+  @apply flex h-7.5 w-7.5 items-center justify-center rounded border border-stroke bg-white px-0 pb-0.5 pt-0 text-2xl leading-none text-dark-5 hover:border-primary hover:bg-[#1A6A93] hover:bg-[#02517b] hover:text-white dark:border-dark-3 dark:bg-dark-2 dark:text-dark-6 dark:hover:border-primary dark:hover:bg-[#1A6A93] hover:bg-[#02517b] dark:hover:text-white;
 }
 
 .mapOne .jvm-zoom-btn {
@@ -339,7 +339,7 @@ span.flatpickr-weekday,
 }
 
 .taskCheckbox:checked ~ .box {
-  @apply border-primary bg-primary dark:border-primary;
+  @apply border-primary bg-[#1A6A93] hover:bg-[#02517b] dark:border-primary;
 }
 
 .custom-input-date::-webkit-calendar-picker-indicator {
@@ -461,7 +461,7 @@ span.flatpickr-weekday,
 }
 
 .data-table-common .datatable-table > tbody > tr {
-  @apply hover:bg-primary hover:bg-opacity-5;
+  @apply hover:bg-[#1A6A93] hover:bg-[#02517b] hover:bg-opacity-5;
 }
 
 .data-table-one .datatable-table > tbody > tr > td:first-child {
@@ -489,11 +489,11 @@ span.flatpickr-weekday,
 }
 
 .data-table-common .datatable-pagination a {
-  @apply flex h-8 w-8 cursor-pointer items-center justify-center rounded p-0 font-medium text-dark-5 hover:bg-primary hover:text-white dark:text-dark-6;
+  @apply flex h-8 w-8 cursor-pointer items-center justify-center rounded p-0 font-medium text-dark-5 hover:bg-[#1A6A93] hover:bg-[#02517b] hover:text-white dark:text-dark-6;
 }
 
 .data-table-common .datatable-pagination .datatable-active a {
-  @apply bg-primary text-white;
+  @apply bg-[#1A6A93] hover:bg-[#02517b] text-white;
 }
 
 .data-table-common .datatable-pagination li.datatable-hidden {
@@ -517,11 +517,11 @@ span.flatpickr-weekday,
 }
 
 .rangeSliderCommon .noUi-connect {
-  @apply h-1.5 rounded-full bg-primary;
+  @apply h-1.5 rounded-full bg-[#1A6A93] hover:bg-[#02517b];
 }
 
 .rangeSliderOne .noUi-horizontal .noUi-handle {
-  @apply -top-2 h-5.5 w-5.5 rounded-full border-none bg-primary shadow-none;
+  @apply -top-2 h-5.5 w-5.5 rounded-full border-none bg-[#1A6A93] hover:bg-[#02517b] shadow-none;
 }
 
 .rangeSliderTwo .noUi-horizontal .noUi-handle {

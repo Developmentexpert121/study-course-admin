@@ -174,7 +174,7 @@ const AddMcq = ({ basePath }: { basePath: string }) => {
                         </label>
                         {formData.options.map((option, idx) => (
                             <div key={idx} className="flex items-center gap-3">
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-white">
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1A6A93] hover:bg-[#02517b] text-xs font-medium text-white">
                                     {idx + 1}
                                 </div>
                                 <InputGroup
@@ -206,7 +206,7 @@ const AddMcq = ({ basePath }: { basePath: string }) => {
                                     }
                                     disabled={!option.trim()}
                                     className={`rounded-lg border p-3 text-center transition-colors ${formData.answer === idx.toString()
-                                        ? "border-primary bg-primary text-white"
+                                        ? "border-primary bg-[#1A6A93] hover:bg-[#02517b] text-white"
                                         : "border-stroke bg-transparent text-dark hover:bg-gray-50 dark:border-dark-3 dark:text-white dark:hover:bg-dark-2"
                                         } ${!option.trim()
                                             ? "cursor-not-allowed opacity-50"
@@ -287,7 +287,7 @@ const AddMcq = ({ basePath }: { basePath: string }) => {
                         <button
                             type="submit"
                             disabled={loading || !formData.answer}
-                            className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex items-center gap-2 rounded-lg bg-[#1A6A93] hover:bg-[#02517b] px-6 py-3 font-medium text-white hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             {loading ? (
                                 <>

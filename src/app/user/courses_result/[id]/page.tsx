@@ -432,7 +432,7 @@ export default function CourseResultsPage() {
         <div className="mx-auto px-4">
           <button
             onClick={() => router.push(`/user/courses`)}
-            className="mb-8 flex items-center text-blue-600 hover:text-blue-800"
+            className="mb-8 flex items-center text-blue-600 hover:text-white"
           >
             <ArrowLeft className="mr-2 h-5 w-5" />
             Go Backs
@@ -448,7 +448,7 @@ export default function CourseResultsPage() {
             </p>
             <button
               onClick={fetchCourseResults}
-              className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
+              className="rounded-lg bg-[#02517b]px-6 py-2 text-white hover:bg-[#1A6A93]"
             >
               Try Again
             </button>
@@ -465,7 +465,7 @@ export default function CourseResultsPage() {
         <div className="mb-8">
           <button
             onClick={() => router.push(`/user/courses`)}
-            className="mb-6 flex items-center text-blue-600 hover:text-blue-800"
+            className="mb-6 flex items-center text-blue-600 hover:text-white"
           >
             <ArrowLeft className="mr-2 h-5 w-5" />
             Go Back
@@ -569,7 +569,7 @@ export default function CourseResultsPage() {
               </div>
               <div className="h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                 <div
-                  className="h-3 rounded-full bg-blue-600 transition-all duration-500"
+                  className="h-3 rounded-full bg-[#02517b]transition-all duration-500"
                   style={{ width: `${results.progress_percentage}%` }}
                 ></div>
               </div>

@@ -123,7 +123,7 @@ const AboutPage = () => {
                 Contact
               </a>
               <div className="mt-3 flex gap-3">
-                <button className="flex-1 rounded-full border border-blue-600 px-5 py-2 font-semibold text-blue-600 transition-all duration-300 ease-in-out hover:bg-blue-600 hover:text-white hover:shadow-lg">
+                <button className="flex-1 rounded-full border border-blue-600 px-5 py-2 font-semibold text-blue-600 transition-all duration-300 ease-in-out hover:bg-[#02517b]hover:text-white hover:shadow-lg">
                   Login
                 </button>
                 <button className="flex-1 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2 font-semibold text-white transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-xl">

@@ -109,67 +109,68 @@ export function SidebarUserProfile() {
       ) : (
         // Actual User Profile Content
         <>
-          <figure
-            className="flex cursor-pointer items-center gap-2.5 rounded-lg px-5 py-2.5 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          >
-            <div className="relative">
-              {profileImageLoading ? (
-                <div className="size-12 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
-              ) : (
-                <Image
-                  src={userImage}
-                  className="size-12 h-8 w-8 overflow-hidden rounded-full"
-                  alt={`Avatar for ${USER.name}`}
-                  role="presentation"
-                  width={200}
-                  height={200}
-                  onLoad={() => setProfileImageLoading(false)}
-                  onError={() => setProfileImageLoading(false)}
-                />
-              )}
-            </div>
-            <figcaption
-              className={cn(
-                "space-y-1 text-base font-medium",
-                isOpen ? "block" : "group-hover:block",
-              )}
-            >
-              <div className=" leading-none text-dark dark:text-white">
-                {USER.name}
-              </div>
-              {/* <div className="w-40 truncate leading-none text-gray-6">
-                {USER.email}
-              </div> */}
-            </figcaption>
-          </figure>
+         <div className="group">
+  {/* Parent group content */}
+  
+  <figure
+    className="flex cursor-pointer items-center gap-2.5 rounded-lg px-5 py-2.5 transition-colors hover:bg-[#1A6A93] dark:hover:bg-gray-800 group/child"
+    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+  >
+    <div className="relative">
+      {profileImageLoading ? (
+        <div className="size-12 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+      ) : (
+        <Image
+          src={userImage}
+          className="size-12 h-8 w-8 overflow-hidden rounded-full"
+          alt={`Avatar for ${USER.name}`}
+          role="presentation"
+          width={200}
+          height={200}
+          onLoad={() => setProfileImageLoading(false)}
+          onError={() => setProfileImageLoading(false)}
+        />
+      )}
+    </div>
+    <figcaption
+      className={cn(
+        "space-y-1 text-base font-medium",
+        isOpen ? "block" : "group-hover:block",
+      )}
+    >
+      <div className="leading-none text-dark dark:text-white group-hover/child:text-white">
+        {USER.name}
+      </div>
+    </figcaption>
+  </figure>
+</div>
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
             <div className="absolute bottom-full left-0 right-0 mb-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-dark">
               <ul className="py-1">
-                <li className="flex items-center gap-3 p-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800">     
-                    
-                    
-                     <div className="relative">
-              {profileImageLoading ? (
-                <div className="size-12 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
-              ) : (
-                <Image
-                  src={userImage}
-                  className="size-12 h-8 w-8 overflow-hidden rounded-full"
-                  alt={`Avatar for ${USER.name}`}
-                  role="presentation"
-                  width={200}
-                  height={200}
-                  onLoad={() => setProfileImageLoading(false)}
-                  onError={() => setProfileImageLoading(false)}
-                />
-              )}
-            </div>
-                <div className="w-40 truncate leading-none text-gray-6">
-                {USER.email}
-              </div> 
+                <li className="flex items-center gap-3 p-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800">
+
+
+                  <div className="relative">
+                    {profileImageLoading ? (
+                      <div className="size-12 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    ) : (
+                      <Image
+                        src={userImage}
+                        className="size-12 h-8 w-8 overflow-hidden rounded-full"
+                        alt={`Avatar for ${USER.name}`}
+                        role="presentation"
+                        width={200}
+                        height={200}
+                        onLoad={() => setProfileImageLoading(false)}
+                        onError={() => setProfileImageLoading(false)}
+                      />
+                    )}
+                  </div>
+                  <div className="w-40 truncate leading-none text-gray-6">
+                    {USER.email}
+                  </div>
                 </li>
                 <li className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark transition-colors hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800">
                   <ThemeToggleSwitch />

@@ -171,7 +171,7 @@ export function CourseCard({
           </div>
           <Link
             href={`/user/courses/${course.id}`}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 hover:shadow-md"
+            className="rounded-lg bg-[#02517b]px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#1A6A93] hover:shadow-md"
           >
             {course.status === "in-progress"
               ? "Continue"

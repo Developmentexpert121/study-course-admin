@@ -43,8 +43,7 @@ const Footer: React.FC<FooterProps> = ({
         {/* Intro Text */}
         <div className="text-center mb-12 animate-fade-in">
           <h3 className="text-lg md:text-xl font-medium leading-8 max-w-3xl mx-auto text-primary-foreground/90">
-            We are a trustworthy web development and digital marketing company. We believe in delivering
-            High-Quality services to our customers with the ultimate motto of &quot;Happy Clients&quot;.
+          Expert-led courses that focus on real skills, real practice, and real career outcomes.
           </h3>
         </div>
 

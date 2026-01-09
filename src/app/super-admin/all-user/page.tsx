@@ -662,7 +662,7 @@ export default function UsersWithProgressPage({ className }: any) {
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 ">
                           {user.status === "active" ? (
                             <button
                               onClick={(e) => {

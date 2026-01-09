@@ -21,7 +21,7 @@ const SwitcherThree = () => {
           <div className="block h-8 w-14 rounded-full bg-gray-3 dark:bg-[#5A616B]"></div>
           <div
             className={`dot absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-switch-1 transition ${
-              enabled && "!right-1 !translate-x-full !bg-primary dark:!bg-white"
+              enabled && "!right-1 !translate-x-full !bg-[#1A6A93] hover:bg-[#02517b] dark:!bg-white"
             }`}
           >
             <span className={`hidden ${enabled && "!block"}`}>

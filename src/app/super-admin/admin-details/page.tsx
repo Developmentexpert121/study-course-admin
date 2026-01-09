@@ -133,7 +133,7 @@ export default function UserCoursesPage() {
 
   return (
     <div className="min-h-screen p-6">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -147,7 +147,7 @@ export default function UserCoursesPage() {
           </div>
           <button
             onClick={handleRefresh}
-            className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white shadow-sm transition-colors hover:bg-blue-700"
+            className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#1A6A93]"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
