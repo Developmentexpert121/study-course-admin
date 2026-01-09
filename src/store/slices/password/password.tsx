@@ -62,7 +62,7 @@ export const resetPassword = createAsyncThunk(
         );
       }
 
-      const response = await reduxApiClient.post("user/reset-password", {
+      const response = await reduxApiClient.post("user/reset-passwords", {
         userId,
         oldPassword,
         newPassword,

@@ -18,6 +18,8 @@ interface Course {
 const CoursesSection: React.FC<any> = ({ courses }) => {
   const router = useRouter();
 
+
+
   if (courses.length === 0) return null;
 
   return (
@@ -73,16 +75,17 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
     <section id="courses" className="py-20 bg-gradient-to-br from-gray-50 to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 ">
         <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl text-center">
-          Explore 
-          <span className="bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent"> Courses</span> 
+          Explore
+          <span className="bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent"> Courses</span>
         </h2>
         <p className="text-xl text-gray-600 md:max-w-2xl mx-auto mb-12 text-center">
-          Master practical, in-demand skills with expert guidance 
-         and take your career forward with confidence
+          Master practical, in-demand skills with expert guidance
+          and take your career forward with confidence
         </p>
 
         <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {courses.map((course: any, index: any) => (
+
             <div
               key={course.id || index}
               className="bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-1 hover:drop-shadow-lg"
@@ -95,41 +98,43 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
 
               <div className="p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
+                  {/* <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
                     Design
-                  </span>
+                  </span> */}
 
 
                   <div className="flex items-center text-yellow-500">
                     <FaStar className="text-sm" />
-                    <span className="ml-1 text-sm font-semibold text-gray-700">4.8</span>
+                    <span className="ml-1 text-sm font-semibold text-gray-700">{course?.ratings_summary?.total_ratings}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-6 h-6 rounded-full bg-[#2ec2b333] flex items-center justify-center">
-                    <span className="text-xs font-bold text-secondary">KS</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground font-medium capitalize">Karanveer singh</span>
-                    </div>
+
+                  <span className="text-xs text-muted-foreground font-medium capitalize">{course.creator_info.username}</span>
+                </div>
 
                 <h3 className="mb-2 text-lg font-semibold text-gray-800">
                   {course.title}
                 </h3>
 
                 <p className="text-gray-600 text-sm mb-4">
-                  Master modern design principles and create stunning user experiences
+                  <div
+                    dangerouslySetInnerHTML={{ __html: course?.description || "" }}
+                  ></div>
+
                 </p>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <span className="flex items-center">
+
+                    <span className="flex items-center text-sm text-gray-500">
                       <FiClock className="mr-1" />
-                      12 weeks
+                      {course?.duration ?? 0} weeks
                     </span>
 
-                    <span className="flex items-center">
+                    <span className="flex items-center text-sm text-gray-500">
                       <FaUsers className="mr-1" />
-                      250+
+                      {course?.total_enrollments ?? 0}+
                     </span>
                   </div>
 

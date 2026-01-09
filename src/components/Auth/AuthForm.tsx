@@ -13,6 +13,7 @@ import {
   FiCheckCircle, FiUsers, FiShield, FiChevronRight
 } from "react-icons/fi";
 import { HiAcademicCap, HiUserGroup } from "react-icons/hi";
+import { toast } from "react-toastify";
 
 interface AuthFormProps {
   type: "login" | "register" | "forgot-password" | "reset-password";
@@ -133,9 +134,17 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       }
     }
 
-    if ((type === "register" || type === "reset-password") && formData.password !== formData.confirmPassword) {
+     if (type === "register" || type === "reset-password") {
+    const password = type === "reset-password" ? formData.newPassword : formData.password;
+    const confirmPassword = formData.confirmPassword;
+
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
+  }
+
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -210,7 +219,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
       }
 
       const response = await api.post(endpoint, payload);
-
+      console.log('====================================');
+      console.log(response);
+      console.log('====================================');
       if (response.success) {
         setShowSuccessAnimation(true);
 
@@ -256,6 +267,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           setTimeout(() => router.push("/auth/login"), 1500);
         }
       } else {
+        if(response.error.code==="WRONG_EMAIL"){
+           toasterError("Email does not exists", 3000);
+        }
+        else if(response.error.code==="Invalid login"){
+           toasterError("Wrong Password", 3000);
+        }
         const messageMap: Record<string, string> = {
           ERR_AUTH_USERNAME_OR_EMAIL_ALREADY_EXIST: "Email already exists.",
           ERR_INVALID_CREDENTIALS: "Invalid email or password.",
@@ -269,7 +286,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         };
 
         const apiErrorCode = response?.error?.code || "";
-        const errorMessage = messageMap[apiErrorCode] || response?.error?.message || "Wrong Passsword";
+        const errorMessage = messageMap[apiErrorCode] || response?.error?.message ;
 
         if (apiErrorCode.includes("EMAIL") || apiErrorCode.includes("USER_NOT_FOUND")) {
           setErrors(prev => ({ ...prev, email: errorMessage }));
@@ -280,6 +297,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
         }
       }
     } catch (error) {
+  
+      console.log('====================================');
       toasterError("Network error. Please check your connection.", 3000, "network-error");
     } finally {
       setIsSubmitting(false);

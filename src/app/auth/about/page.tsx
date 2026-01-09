@@ -52,6 +52,13 @@ const AboutPage = () => {
             <a href="/#about" className="text-blue-600">
               About
             </a>
+
+
+            <a href="/#about" className="text-blue-600">
+              Contact
+            </a>
+            
+
           </nav>
 
           {/* Login / Sign Up */}
