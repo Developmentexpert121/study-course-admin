@@ -338,7 +338,7 @@ export default function UserCourseDashboard({ className }: any) {
           onClick={() => setPage(i)}
           className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 ${page === i
             ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25"
-            : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-blue-500"
+            : "border border-gray-200 bg-white text-gray-700 hover:border-[#02517b] hover:bg-blue-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-blue-500"
             }`}
         >
           {i}
@@ -917,7 +917,7 @@ export default function UserCourseDashboard({ className }: any) {
                   <button
                     disabled={page === 1}
                     onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                    className="flex items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition-all duration-300 hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:border-blue-500"
+                    className="flex items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition-all duration-300 hover:border-[#02517b] hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:border-blue-500"
                   >
                     Previous
                   </button>
@@ -929,7 +929,7 @@ export default function UserCourseDashboard({ className }: any) {
                     onClick={() =>
                       setPage((prev) => Math.min(prev + 1, totalPages))
                     }
-                    className="flex items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition-all duration-300 hover:border-blue-300 hover:bg-blue-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:border-blue-500"
+                    className="flex items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition-all duration-300 hover:border-[#02517b] hover:bg-blue-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:border-blue-500"
                   >
                     Next
                   </button>

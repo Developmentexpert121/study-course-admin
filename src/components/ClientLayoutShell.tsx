@@ -75,7 +75,7 @@ export default function ClientLayoutShell({ children }: PropsWithChildren) {
             {!isDesktopMenuOpen && (
               <button
                 onClick={toggleDesktopMenu}
-                className="inline-flex h-10 w-10 flex-col items-center justify-center rounded-lg mx-8 bg-[#02517b] py-2 hover:bg-gray-100 dark:hover:bg-gray-700 mt-3"
+                className="inline-flex h-10 w-10 flex-col items-center justify-center rounded-lg mx-8 bg-[#02517b] py-2  dark:hover:bg-gray-700 mt-3"
                 aria-label="Open menu"
               >
                 <span className="mb-1 h-0.5 w-4 bg-white dark:bg-gray-300"></span>

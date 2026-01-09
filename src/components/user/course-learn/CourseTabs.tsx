@@ -35,7 +35,7 @@ const CourseTabs: React.FC<CourseTabsProps> & {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 border-b-2 px-4 py-4 text-sm font-semibold transition-all duration-300 ${
                 activeTab === tab.id
-                  ? "border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400"
+                  ? "border-blue-500 text-blue-600 dark:border-[ #02517b] dark:text-blue-400"
                   : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-slate-300"
               }`}
             >

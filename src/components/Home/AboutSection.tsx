@@ -33,7 +33,7 @@ const AboutSection: React.FC = () => {
         {/* Right Content Section */}
         <div className="lg:w-1/2">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
-            Build Your Future Skills From Anywhere
+            Build Your Future Skills 
             <span className="bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent"> From Anywhere</span>
           </h2>
           <p className="text-lg text-gray-600 mb-8 leading-relaxed">

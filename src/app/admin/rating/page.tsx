@@ -289,8 +289,8 @@ export default function RatingsManagementPage() {
   }
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="mx-auto">
+    <div className="min-h-screen p-6 ">
+      <div className="mx-auto ">
         {/* Header */}
         <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
           <div>
@@ -509,7 +509,7 @@ export default function RatingsManagementPage() {
                                 alt={rating.user.username}
                               />
                             ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-blue-300 bg-gradient-to-br from-blue-500 to-blue-700 dark:border-blue-400">
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#02517b] bg-[#02517b]">
                                 <User className="h-6 w-6 text-white" />
                               </div>
                             )}

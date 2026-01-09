@@ -29,12 +29,12 @@ const Footer: React.FC<FooterProps> = ({
   loading,
 }) => {
   const socialLinks = [
-    { icon: <FaTwitter />, label: "Twitter", href: "#" },
-    { icon: <FaLinkedinIn />, label: "LinkedIn", href: "#" },
-    { icon: <FaInstagram />, label: "Instagram", href: "#" },
-    { icon: <FaYoutube />, label: "YouTube", href: "#" },
-    { icon: <FaBehance />, label: "Behance", href: "#" },
-    { icon: <FaFacebookF />, label: "Facebook", href: "#" },
+    { icon: <FaTwitter />, label: "Twitter", href: "https://x.com/devexhub" },
+    { icon: <FaLinkedinIn />, label: "LinkedIn", href: "https://www.linkedin.com/company/devex-hub" },
+    { icon: <FaInstagram />, label: "Instagram", href: "https://www.instagram.com/devexhub" },
+    { icon: <FaYoutube />, label: "YouTube", href: "https://www.youtube.com/@DevexHub" },
+    { icon: <FaBehance />, label: "Behance", href: "https://www.behance.net/devexhub4" },
+    { icon: <FaFacebookF />, label: "Facebook", href: "https://www.facebook.com/devexhub" },
   ];
 
   return (
@@ -71,6 +71,7 @@ const Footer: React.FC<FooterProps> = ({
                 href={social.href}
                 className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white btn-animate hover:bg-white/30 hover:scale-110 transition-all duration-300"
                 aria-label={social.label}
+                target="_blank"
               >
                 <span className="text-lg">{social.icon}</span>
               </a>

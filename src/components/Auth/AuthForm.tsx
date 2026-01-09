@@ -328,7 +328,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
           whileTap={{ scale: 0.98 }}
           onClick={() => handleRoleChange("user")}
           className={`relative flex items-center justify-center gap-3 rounded-xl p-1.5 transition-all duration-200 ${formData.role === "user"
-            ? "bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-2 border-blue-500 dark:border-blue-400"
+            ? "bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-2 border-blue-500 dark:border-[ #02517b]"
             : "border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
             }`}
         >
