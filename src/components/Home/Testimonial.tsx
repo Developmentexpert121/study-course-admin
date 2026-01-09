@@ -123,23 +123,7 @@ const Testimonial: React.FC<TestimonialProps> = ({ ratings }) => {
 
   if (visibleRatings.length === 0) {
     return (
-      <section className="bg-gradient-to-br from-slate-50 to-blue-50/30 py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
-              TESTIMONIALS
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
-              Loved by Our Students
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
-              Join thousands of satisfied learners who have transformed their
-              careers
-            </p>
-          </div>
-        </div>
-      </section>
+      <></>
     );
   }
 

@@ -2,11 +2,124 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { PlusCircleIcon, SearchIcon, ImageIcon, VideoIcon } from "lucide-react";
+import { 
+    PlusCircle, 
+    Search, 
+    Image, 
+    Video,
+    AlertTriangle,
+    X,
+    RefreshCw,
+    Trash2,
+} from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { useApiClient } from "@/lib/api";
 import SafeHtmlRenderer from "@/components/SafeHtmlRenderer";
+
+// Delete Confirmation Modal Component
+interface DeleteConfirmModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  itemName?: string;
+  confirmText?: string;
+  cancelText?: string;
+  loading?: boolean;
+}
+
+const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  itemName,
+  confirmText = "Delete",
+  cancelText = "Cancel",
+  loading = false,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={loading ? undefined : onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-gray-200 p-6 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {title}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+            disabled={loading}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {message}
+          </p>
+          {itemName && (
+            <div className="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                Lesson to delete:
+              </p>
+              <p className="mt-1 font-semibold text-gray-900 dark:text-white">
+                {itemName}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 border-t border-gray-200 p-6 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                {confirmText}
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function LessonsList({ basePath, className }: { basePath: string, className?: string }) {
     const api = useApiClient();
@@ -24,6 +137,19 @@ export default function LessonsList({ basePath, className }: { basePath: string,
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [limit] = useState(6);
+
+    // Delete Modal State
+    const [deleteModalState, setDeleteModalState] = useState<{
+        isOpen: boolean;
+        lessonId: number | null;
+        lessonName: string;
+    }>({
+        isOpen: false,
+        lessonId: null,
+        lessonName: "",
+    });
+
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     const searchParams = useSearchParams();
     const chapterId = searchParams.get("chapter_id");
@@ -64,26 +190,57 @@ export default function LessonsList({ basePath, className }: { basePath: string,
         }
     };
 
-    const handleDelete = async (lessonId: number) => {
-        if (!confirm("🗑️ Are you sure you want to delete this lesson?")) return;
+    // Open delete modal
+    const openDeleteModal = (lessonId: number, lessonName: string) => {
+        setDeleteModalState({
+            isOpen: true,
+            lessonId,
+            lessonName,
+        });
+    };
 
+    // Close delete modal
+    const closeDeleteModal = () => {
+        if (!deleteLoading) {
+            setDeleteModalState({
+                isOpen: false,
+                lessonId: null,
+                lessonName: "",
+            });
+        }
+    };
+
+    // Handle delete confirmation
+    const handleDeleteConfirm = async () => {
+        if (!deleteModalState.lessonId) return;
+
+        setDeleteLoading(true);
         try {
-            const res = await api.delete(`lessons/${lessonId}`);
+            const res = await api.delete(`lessons/${deleteModalState.lessonId}`);
             if (res.success) {
-                toasterSuccess("Lesson deleted successfully!", 3000, "id");
+                toasterSuccess("Lesson deleted successfully!", 2000, "id");
 
                 if (lessons.length === 1 && page > 1) {
                     setPage((prev) => prev - 1);
                 } else {
                     fetchLessons(chapterId!);
                 }
+                closeDeleteModal();
             } else {
                 toasterError(res.error.code, 1000, "id");
             }
         } catch (err) {
             console.error("❌ Delete failed:", err);
-            alert("⚠️ Something went wrong while deleting the lesson.");
+            toasterError("Failed to delete lesson");
+        } finally {
+            setDeleteLoading(false);
         }
+    };
+
+    const handleDelete = (lessonId: number, lessonTitle: string) => {
+        openDeleteModal(lessonId, lessonTitle);
+
+        
     };
 
     return (
@@ -92,10 +249,23 @@ export default function LessonsList({ basePath, className }: { basePath: string,
                 "rounded-[10px] bg-white px-7.5 pb-4 pt-7.5 shadow-md dark:bg-gray-dark", className
             )}
         >
+            {/* Delete Confirmation Modal */}
+            <DeleteConfirmModal
+                isOpen={deleteModalState.isOpen}
+                onClose={closeDeleteModal}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Lesson"
+                message="This action cannot be undone. The lesson and all its content will be permanently deleted from the system."
+                itemName={deleteModalState.lessonName}
+                confirmText="Delete Lesson"
+                cancelText="Cancel"
+                loading={deleteLoading}
+            />
+
             <div className="tab-buttons mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h2 className="w-96 text-base font-bold leading-snug text-dark dark:text-white sm:text-lg md:text-xl lg:text-2xl">
                     Lesson List for course: {courseName}
-                    <br className="block sm:hidden" /> {/* Break only on mobile */}
+                    <br className="block sm:hidden" />
                     <span className="block sm:inline">
                         chapter: {chapterorder} {chapterName}
                     </span>
@@ -110,7 +280,7 @@ export default function LessonsList({ basePath, className }: { basePath: string,
                             onChange={(e) => setSearch(e.target.value)}
                             className="focus:[#005479] w-full rounded-full border border-gray-300 bg-gray-50 py-2.5 pl-12 pr-4 text-sm text-gray-900 shadow-sm outline-none focus:border-[#005479] focus:ring-1 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         />
-                        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                     </div>
 
                     <button
@@ -131,7 +301,7 @@ export default function LessonsList({ basePath, className }: { basePath: string,
                         }
                         className="flex items-center justify-center gap-2 rounded-full bg-[#005479] px-5 py-2.5 text-sm font-medium text-white shadow-md transition hover:bg-[#01537969] dark:bg-[#1dbd96]"
                     >
-                        <PlusCircleIcon size={18} />
+                        <PlusCircle size={18} />
                         Add Lesson
                     </button>
                 </div>
@@ -228,9 +398,9 @@ export default function LessonsList({ basePath, className }: { basePath: string,
                                                     setActiveMedia({ type: "image", items: images });
                                                     setShowMediaModal(true);
                                                 }}
-                                                className="flex items-center gap-1 text-blue-600 hover:text-white"
+                                                className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
                                             >
-                                                <ImageIcon size={16} /> Images
+                                                <Image size={16} /> Images
                                             </button>
                                         )}
 
@@ -242,7 +412,7 @@ export default function LessonsList({ basePath, className }: { basePath: string,
                                                 }}
                                                 className="flex items-center gap-1 text-green-600 hover:text-green-800"
                                             >
-                                                <VideoIcon size={16} /> Videos
+                                                <Video size={16} /> Videos
                                             </button>
                                         )}
 
@@ -258,7 +428,7 @@ export default function LessonsList({ basePath, className }: { basePath: string,
                                         </button>
 
                                         <button
-                                            onClick={() => handleDelete(lesson.id)}
+                                            onClick={() => handleDelete(lesson.id, lesson.title)}
                                             className="flex items-center gap-1 text-red-600 hover:text-red-800"
                                         >
                                             🗑️ Delete

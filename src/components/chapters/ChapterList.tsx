@@ -12,12 +12,15 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState, useRef } from "react";
 import {
     Pencil,
-    SearchIcon,
+    Search,
     Trash2,
     MoreVertical,
     BookOpen,
     FileQuestion,
-    CheckCircle
+    CheckCircle,
+    AlertTriangle,
+    X,
+    RefreshCw,
 } from "lucide-react";
 import { toasterError, toasterSuccess } from "@/components/core/Toaster";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -44,11 +47,114 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { AiOutlineDrag } from "react-icons/ai";
 
+// Delete Confirmation Modal Component
+interface DeleteConfirmModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  itemName?: string;
+  confirmText?: string;
+  cancelText?: string;
+  loading?: boolean;
+}
+
+const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  itemName,
+  confirmText = "Delete",
+  cancelText = "Cancel",
+  loading = false,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={loading ? undefined : onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-gray-200 p-6 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {title}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+            disabled={loading}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {message}
+          </p>
+          {itemName && (
+            <div className="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                Chapter to delete:
+              </p>
+              <p className="mt-1 font-semibold text-gray-900 dark:text-white">
+                {itemName}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 border-t border-gray-200 p-6 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                {confirmText}
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 type SortableRowProps = {
     id: number;
     children: (listeners: DraggableSyntheticListeners) => React.ReactNode;
 };
-
 
 function SortableRow({ id, children }: SortableRowProps) {
   const {
@@ -76,9 +182,6 @@ function SortableRow({ id, children }: SortableRowProps) {
   );
 }
 
-
-
-
 export default function ChaptersList({ basePath }: any) {
     const router = useRouter();
     const [search, setSearch] = useState("");
@@ -96,22 +199,24 @@ export default function ChaptersList({ basePath }: any) {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
 
+    // Delete Modal State
+    const [deleteModalState, setDeleteModalState] = useState<{
+        isOpen: boolean;
+        chapterId: number | null;
+        chapterName: string;
+    }>({
+        isOpen: false,
+        chapterId: null,
+        chapterName: "",
+    });
 
-    // const handleCompleteChapter = async () => {
-    //     await dispatch(
-    //         markChapterComplete({
-    //             userId: 1,
-    //             courseId: 2,
-    //             chapterId: 3,
-    //         })
-    //     );
-    // };
-
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     const searchParams = useSearchParams();
     const courseId = searchParams.get("course_id");
     const courseName = searchParams.get("course");
     const api = useApiClient();
+    
     useEffect(() => {
         if (courseId) {
             fetchChapters(courseId);
@@ -156,34 +261,59 @@ export default function ChaptersList({ basePath }: any) {
         setActiveDropdown(null);
         router.push(`/${basePath}/chapters/edit-chapters?id=${id}`);
     };
-    const handleDelete = async (id: number) => {
+
+    // Open delete modal
+    const openDeleteModal = (chapterId: number, chapterName: string) => {
         setActiveDropdown(null);
-        const confirmDelete = confirm(
-            "Are you sure you want to delete this chapter?",
-        );
-        if (!confirmDelete) return;
+        setDeleteModalState({
+            isOpen: true,
+            chapterId,
+            chapterName,
+        });
+    };
 
+    // Close delete modal
+    const closeDeleteModal = () => {
+        if (!deleteLoading) {
+            setDeleteModalState({
+                isOpen: false,
+                chapterId: null,
+                chapterName: "",
+            });
+        }
+    };
+
+    // Handle delete confirmation
+    const handleDeleteConfirm = async () => {
+        if (!deleteModalState.chapterId) return;
+
+        setDeleteLoading(true);
         try {
-            const response = await api.delete(`chapter/${id}`);
+            const response = await api.delete(`chapter/${deleteModalState.chapterId}`);
             if (response.success) {
-                toasterSuccess("Chapter Deleted Successfully", 3000, "id");
+                toasterSuccess("Chapter Deleted Successfully", 2000, "id");
 
-                // Check if this was the last item on the current page
                 if (chapters.length === 1 && page > 1) {
-                    // If it was the last item and we're not on page 1, go to previous page
                     setPage((prev) => prev - 1);
                 } else {
-                    // Otherwise, refresh the current page
                     if (courseId) {
                         await fetchChapters(courseId);
                     }
                 }
+                closeDeleteModal();
             } else {
                 toasterError(response.error.code, 3000, "id");
             }
         } catch (error) {
             console.error("Failed to delete chapter:", error);
+            toasterError("Failed to delete chapter");
+        } finally {
+            setDeleteLoading(false);
         }
+    };
+
+    const handleDelete = (id: number, title: string) => {
+        openDeleteModal(id, title);
     };
 
     const handleAddLessons = (chapterId: number) => {
@@ -231,7 +361,7 @@ export default function ChaptersList({ basePath }: any) {
                 order: index + 1,
             }));
 
-            // 🔥 Persist order
+            // Persist order
             api.patch("chapter/order", {
                 chapters: reordered.map(c => ({
                     id: c.id,
@@ -246,13 +376,25 @@ export default function ChaptersList({ basePath }: any) {
         });
     };
 
-
     return (
         <div
             className={cn(
                 "grid rounded-[10px] bg-white px-7.5 pb-4 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card",
             )}
         >
+            {/* Delete Confirmation Modal */}
+            <DeleteConfirmModal
+                isOpen={deleteModalState.isOpen}
+                onClose={closeDeleteModal}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Chapter"
+                message="This action cannot be undone. The chapter and all its content will be permanently deleted from the system."
+                itemName={deleteModalState.chapterName}
+                confirmText="Delete Chapter"
+                cancelText="Cancel"
+                loading={deleteLoading}
+            />
+
             <div className="chapters mb-4 flex items-center justify-between">
                 <h2 className="text-body-2xlg font-bold text-dark dark:text-white">
                     All Chapters list from {courseName}
@@ -267,7 +409,7 @@ export default function ChaptersList({ basePath }: any) {
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full rounded-full border border-gray-300 bg-gray-50 py-2.5 pl-12 pr-4 text-sm text-gray-900 shadow-sm outline-none focus:border-[#02537a] focus:ring-1 focus:ring-[#02537a] dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
                         />
-                        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                     </div>
 
                     <button
@@ -378,13 +520,10 @@ export default function ChaptersList({ basePath }: any) {
                                     <TableHead className="!text-left">Title</TableHead>
                                     <TableHead>Content</TableHead>
                                     <TableHead>Course Name</TableHead>
-                                    {/* <TableHead>Images</TableHead>
-              <TableHead>Videos</TableHead> */}
                                     <TableHead>Created At</TableHead>
                                     <TableHead>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
-
 
                             <TableBody>
                                 {chapters.length > 0 ? (
@@ -392,7 +531,6 @@ export default function ChaptersList({ basePath }: any) {
                                         <SortableRow key={chapter.id} id={chapter.id}>
                                             {(listeners: any) => (
                                                 <>
-                                                    {/* Order / Drag handle */}
                                                     <TableCell
                                                         onClick={(e) => e.stopPropagation()}
                                                         className="flex items-center justify-center gap-2 ml-2"
@@ -405,7 +543,6 @@ export default function ChaptersList({ basePath }: any) {
                                                         {chapter.order}
                                                     </TableCell>
 
-                                                    {/* EVERYTHING ELSE UNCHANGED */}
                                                     <TableCell
                                                         className="cursor-pointer !text-left hover:bg-gray-50 dark:hover:bg-gray-800"
                                                         onClick={() =>
@@ -470,8 +607,6 @@ export default function ChaptersList({ basePath }: any) {
                                     </TableRow>
                                 )}
                             </TableBody>
-
-
                         </Table>
                     </SortableContext>
                 </DndContext>
@@ -512,7 +647,7 @@ export default function ChaptersList({ basePath }: any) {
                             </button>
 
                             <button
-                                onClick={() => handleDelete(activeDropdown)}
+                                onClick={() => handleDelete(activeDropdown, chapters.find(ch => ch.id === activeDropdown)?.title || "")}
                                 className="flex items-center gap-3 px-4 py-3 text-left text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                             >
                                 <Trash2 size={16} />
@@ -520,8 +655,6 @@ export default function ChaptersList({ basePath }: any) {
                             </button>
 
                             <button
-
-                                // onClick={() => handleCompleteChapter()}
                                 className="flex items-center gap-3 px-4 py-3 text-left text-sm text-emerald-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                             >
                                 <CheckCircle size={16} />

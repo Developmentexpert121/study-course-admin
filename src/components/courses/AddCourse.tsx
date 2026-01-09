@@ -509,7 +509,7 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
 
                         <div className="w-full sm:w-1/2">
                             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
-                                Price Type *
+                                Price Type 
                             </label>
                             <select
                                 name="priceType"
@@ -630,7 +630,9 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                             accept="image/*"
                             onChange={handleChange}
                         />
-
+<span className="mb-2 block text-xs text-gray-500 dark:text-gray-400">
+  Only images less than 1 MB are allowed
+</span>
                         {/* Image Upload Loader */}
                         {isUploading && (
                             <div className="mb-4 flex items-center gap-3 rounded-lg border border-stroke bg-gray-50 p-4 dark:border-dark-3 dark:bg-dark-2">
@@ -687,6 +689,10 @@ const AddCourse = ({ basePath }: AddCourseProps) => {
                             accept="video/*"
                             onChange={handleChange}
                         />
+
+                        <span className="mb-2 block text-xs text-gray-500 dark:text-gray-400">
+  Only Video less than 5 MB are allowed
+</span>
                         {typeof formData.introVideo === "string" && (
                             <div className="relative mb-5.5 mt-2 w-max">
                                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-white">
