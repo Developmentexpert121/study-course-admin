@@ -18,6 +18,7 @@ import {
   Search,
   Filter,
   X as CloseIcon,
+  AlertTriangle,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import Pagination from "@/components/pagination/pagination";
@@ -46,16 +47,122 @@ import {
   setPage,
   selectPendingAdmins,
   selectRejectedAdmins
-
 } from "@/store/slices/adminslice/adminSlice";
 import { useRouter } from "next/navigation";
-import { join } from "path";
+
+// Confirmation Modal Component
+interface ConfirmModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  type?: 'approve' | 'reject';
+  loading?: boolean;
+}
+
+const ConfirmModal: React.FC<ConfirmModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  type = 'approve',
+  loading = false
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={loading ? undefined : onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-gray-200 p-6 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            {type === 'approve' ? (
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+            )}
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {title}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+            disabled={loading}
+          >
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {message}
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 border-t border-gray-200 p-6 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className={`inline-flex items-center rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+              type === 'approve'
+                ? 'bg-green-600 hover:bg-green-700'
+                : 'bg-red-600 hover:bg-red-700'
+            }`}
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                {type === 'approve' ? (
+                  <Check className="mr-2 h-4 w-4" />
+                ) : (
+                  <X className="mr-2 h-4 w-4" />
+                )}
+                {confirmText}
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function AdminUsersPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  // Redux selectors - get data from store
+  // Redux selectors
   const admins = useAppSelector(selectAdmins);
   const totalCount = useAppSelector(selectTotalCount);
   const currentPage = useAppSelector(selectCurrentPage);
@@ -67,15 +174,22 @@ export default function AdminUsersPage() {
   const rejectedCount = useAppSelector(selectRejectedCount);
   const totaluser = useAppSelector(selectTotalAdmins);
   const totalactive = useAppSelector(selectVerifiedAdmins);
-  const totalselectRejectedAdmins = useAppSelector(selectRejectedAdmins)
+  const totalselectRejectedAdmins = useAppSelector(selectRejectedAdmins);
   const totalselectPendingAdmins = useAppSelector(selectPendingAdmins);
-  // Search and filter selectors
   const searchQuery = useAppSelector(selectSearchQuery);
   const filters = useAppSelector(selectFilters);
 
-  // Local state for search input
+  // Local state
   const [localSearchTerm, setLocalSearchTerm] = useState(searchQuery || '');
-
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: 'approve' | 'reject';
+    adminId: string | null;
+  }>({
+    isOpen: false,
+    type: 'approve',
+    adminId: null
+  });
 
   const buildFetchPayload = (
     page: number = 1,
@@ -97,15 +211,7 @@ export default function AdminUsersPage() {
     return payload;
   };
 
-  // useEffect(() => {
-
-  //   dispatch(fetchAdmins(payload));
-  // }, [dispatch, searchQuery, filters]);
-
-
-  // Fetch admins on component mount and when search/filters change
   useEffect(() => {
-    const payload = buildFetchPayload(1, searchQuery, filters.status, filters.email, filters.name);
     dispatch(fetchAdmins({
       page: 1,
       search: searchQuery,
@@ -115,23 +221,21 @@ export default function AdminUsersPage() {
     }));
   }, [dispatch, searchQuery, filters]);
 
-  // Handle page change
   const handlePageChange = (page: number) => {
     const payload = buildFetchPayload(page, searchQuery, filters.status, filters.email, filters.name);
     dispatch(fetchAdmins(payload));
   };
 
-  // Handle search
   const handleSearch = () => {
     dispatch(setPage(1));
     dispatch(setSearchQuery(localSearchTerm));
-    dispatch(setStatusFilter(filters.status)); // Keep status filter
+    dispatch(setStatusFilter(filters.status));
   };
 
   const handleClearSearch = () => {
     setLocalSearchTerm('');
     dispatch(setSearchQuery(''));
-    dispatch(setStatusFilter('')); // Clear status filter too
+    dispatch(setStatusFilter(''));
     dispatch(setPage(1));
   };
 
@@ -141,7 +245,6 @@ export default function AdminUsersPage() {
     }
   };
 
-  // Handle filter changes
   const handleStatusFilter = (status: string) => {
     dispatch(setStatusFilter(status));
   };
@@ -154,28 +257,49 @@ export default function AdminUsersPage() {
     dispatch(setEmailFilter(email));
   };
 
-  // Clear all filters
   const handleClearFilters = () => {
     dispatch(clearFilters());
     setLocalSearchTerm("");
   };
 
-  // Check if any filters are active
   const hasActiveFilters = searchQuery || filters.status || filters.email || filters.name;
 
-  // Handle approve action
-  const handleApprove = async (adminId: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to approve this admin? They will receive access to create courses and manage students.",
-      )
-    ) {
-      return;
+  // Open modal for approval
+  const openApproveModal = (adminId: string) => {
+    setModalState({
+      isOpen: true,
+      type: 'approve',
+      adminId
+    });
+  };
+
+  // Open modal for rejection
+  const openRejectModal = (adminId: string) => {
+    setModalState({
+      isOpen: true,
+      type: 'reject',
+      adminId
+    });
+  };
+
+  // Close modal
+  const closeModal = () => {
+    if (!actionLoading[modalState.adminId || '']) {
+      setModalState({
+        isOpen: false,
+        type: 'approve',
+        adminId: null
+      });
     }
+  };
+
+  // Handle approve action
+  const handleApprove = async () => {
+    if (!modalState.adminId) return;
 
     try {
-      const result = await dispatch(approveAdmin(adminId)).unwrap();
-      alert(`✅ ${result.message}`);
+      const result = await dispatch(approveAdmin(modalState.adminId)).unwrap();
+     
       dispatch(fetchAdmins({
         page: currentPage,
         search: searchQuery,
@@ -183,20 +307,20 @@ export default function AdminUsersPage() {
         email: filters.email,
         name: filters.name
       }));
+      closeModal();
     } catch (err: any) {
-      alert(`❌ ${err}`);
+     
+      closeModal();
     }
   };
 
   // Handle reject action
-  const handleReject = async (adminId: string) => {
-    if (!confirm("Are you sure you want to reject this admin application?")) {
-      return;
-    }
+  const handleReject = async () => {
+    if (!modalState.adminId) return;
 
     try {
-      const result = await dispatch(rejectAdmin(adminId)).unwrap();
-      alert(`✅ ${result.message}`);
+      const result = await dispatch(rejectAdmin(modalState.adminId)).unwrap();
+     
       dispatch(fetchAdmins({
         page: currentPage,
         search: searchQuery,
@@ -204,6 +328,7 @@ export default function AdminUsersPage() {
         email: filters.email,
         name: filters.name
       }));
+      closeModal();
     } catch (err: any) {
       if (err === "Session expired. Please login again.") {
         alert("❌ Session expired. Please login again.");
@@ -213,15 +338,14 @@ export default function AdminUsersPage() {
       } else {
         alert(`❌ ${err}`);
       }
+      closeModal();
     }
   };
 
-  // Handle view admin details
   const handleViewDetails = (admin: any) => {
     router.push(`/super-admin/admin-details/?id=${admin}`);
   };
 
-  // Format date helper function
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -231,7 +355,6 @@ export default function AdminUsersPage() {
     });
   };
 
-  // Loading state
   if (loading && admins.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6">
@@ -245,7 +368,6 @@ export default function AdminUsersPage() {
     );
   }
 
-  // Error state
   if (error && admins.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6">
@@ -271,7 +393,24 @@ export default function AdminUsersPage() {
 
   return (
     <div className="min-h-screen p-6">
-      <div className="mx-auto">
+      <div className="mx-auto max-w-7xl">
+        {/* Confirmation Modal */}
+        <ConfirmModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          onConfirm={modalState.type === 'approve' ? handleApprove : handleReject}
+          title={modalState.type === 'approve' ? 'Approve Teacher' : 'Reject Teacher'}
+          message={
+            modalState.type === 'approve'
+              ? 'Are you sure you want to approve this teacher? They will receive access to create courses and manage students.'
+              : 'Are you sure you want to reject this teacher application? This action will deny their access to the platform.'
+          }
+          confirmText={modalState.type === 'approve' ? 'Approve' : 'Reject'}
+          cancelText="Cancel"
+          type={modalState.type}
+          loading={actionLoading[modalState.adminId || '']}
+        />
+
         {/* Header */}
         <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-0">
           <div>
@@ -285,18 +424,15 @@ export default function AdminUsersPage() {
           </div>
           <button
             onClick={() => dispatch(fetchAdmins({ page: currentPage }))}
-            className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] hover:bg-[#1A6A93] dark:bg-[#43bf79]"
+            className="inline-flex items-center rounded-lg bg-[#02517b] px-4 py-2 text-white shadow-sm transition-colors hover:bg-[#02517b99] dark:bg-[#43bf79]"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </button>
         </div>
 
-
-
         {/* Stats Cards */}
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-          {/* Total Admins */}
           <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
             <div className="flex items-center justify-between">
               <div>
@@ -313,7 +449,6 @@ export default function AdminUsersPage() {
             </div>
           </div>
 
-          {/* Verified */}
           <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
             <div className="flex items-center justify-between">
               <div>
@@ -330,7 +465,6 @@ export default function AdminUsersPage() {
             </div>
           </div>
 
-
           <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
             <div className="flex items-center justify-between">
               <div>
@@ -342,34 +476,31 @@ export default function AdminUsersPage() {
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 transition-transform duration-300 group-hover:scale-110 dark:bg-yellow-500/20">
-                <XCircle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                <RefreshCw className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
             </div>
           </div>
-          {/* Rejected */}
+
           <div className="group rounded-xl border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-900/60">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-gray-600 dark:text-white">
                   Rejected
                 </p>
-                <p className="mt-1 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+                <p className="mt-1 text-3xl font-bold text-red-600 dark:text-red-400">
                   {totalselectRejectedAdmins}
                 </p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 transition-transform duration-300 group-hover:scale-110 dark:bg-yellow-500/20">
-                <XCircle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 transition-transform duration-300 group-hover:scale-110 dark:bg-red-500/20">
+                <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
             </div>
           </div>
         </div>
 
-
-
         {/* Search and Filter Section */}
         <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800/50">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            {/* Search Input */}
             <div className="flex-1">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Search Teacher
@@ -387,7 +518,6 @@ export default function AdminUsersPage() {
               </div>
             </div>
 
-            {/* Verification Status Filter */}
             <div className="sm:w-48">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Approval Status
@@ -404,7 +534,6 @@ export default function AdminUsersPage() {
               </select>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex gap-2 sm:flex-col">
               <button
                 onClick={handleSearch}
@@ -415,7 +544,7 @@ export default function AdminUsersPage() {
                 Search
               </button>
 
-              {(searchQuery || filters.status || filters.email || filters.name) && (
+              {hasActiveFilters && (
                 <button
                   onClick={handleClearFilters}
                   disabled={loading}
@@ -427,8 +556,7 @@ export default function AdminUsersPage() {
             </div>
           </div>
 
-          {/* Active Search Info */}
-          {(searchQuery || filters.status || filters.email || filters.name) && (
+          {hasActiveFilters && (
             <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <span>Active filters:</span>
               {searchQuery && (
@@ -454,11 +582,6 @@ export default function AdminUsersPage() {
             </div>
           )}
         </div>
-
-        {/* Rest of your component remains the same... */}
-        {/* Stats Cards, Table, Pagination, etc. */}
-
-
 
         {/* Table */}
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
@@ -647,7 +770,7 @@ export default function AdminUsersPage() {
                               return (
                                 <div className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-2">
                                   <button
-                                    onClick={() => handleApprove(admin.id)}
+                                    onClick={() => openApproveModal(admin.id)}
                                     disabled={actionLoading[admin.id]}
                                     className="inline-flex items-center justify-center rounded-lg bg-green-600 px-2 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 md:px-3 md:py-1.5"
                                   >
@@ -666,7 +789,7 @@ export default function AdminUsersPage() {
                                     )}
                                   </button>
                                   <button
-                                    onClick={() => handleReject(admin.id)}
+                                    onClick={() => openRejectModal(admin.id)}
                                     disabled={actionLoading[admin.id]}
                                     className="inline-flex items-center justify-center rounded-lg bg-red-600 px-2 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 md:px-3 md:py-1.5"
                                   >
@@ -718,7 +841,6 @@ export default function AdminUsersPage() {
         {totaluser > 1 && (
           <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50">
             <div className="block items-center justify-between gap-4 sm:flex">
-              {/* Page Info */}
               <div className="mb-3 text-center text-sm text-gray-600 dark:text-white sm:mb-0 sm:text-left">
                 Page{" "}
                 <span className="font-semibold text-gray-900 dark:text-white">
@@ -735,9 +857,7 @@ export default function AdminUsersPage() {
                 )}
               </div>
 
-              {/* Pagination Controls */}
               <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
-                {/* Previous Button */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1 || loading}
@@ -747,7 +867,6 @@ export default function AdminUsersPage() {
                   <span className="xs:inline hidden">Previous</span>
                 </button>
 
-                {/* Page Numbers */}
                 <div className="flex flex-wrap items-center justify-center gap-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                     (page) => {
@@ -791,7 +910,6 @@ export default function AdminUsersPage() {
                   )}
                 </div>
 
-                {/* Next Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages || loading}

@@ -18,32 +18,32 @@ export default function CompanyAboutSection() {
         const [entry] = entries;
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
-          
+
           const animate = (
             setter: React.Dispatch<React.SetStateAction<number>>,
             end: number,
             duration = 1500
           ) => {
             let startTime: number | null = null;
-            
+
             const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
-            
+
             const step = (timestamp: number) => {
               if (!startTime) startTime = timestamp;
               const elapsed = timestamp - startTime;
               const progress = Math.min(elapsed / duration, 1);
               const easedProgress = easeOutQuart(progress);
-              
+
               const current = Math.floor(easedProgress * end);
               setter(current);
-              
+
               if (progress < 1) {
                 window.requestAnimationFrame(step);
               } else {
                 setter(end);
               }
             };
-            
+
             window.requestAnimationFrame(step);
           };
 
@@ -83,15 +83,10 @@ export default function CompanyAboutSection() {
               </span>
             </h2>
             <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-              At DevexHub, our mission is to empower learners to unlock their
-              full potential through accessible, high-quality, and
-              industry-relevant education. We believe that learning should be
-              practical, engaging, and tailored to modern career needs.
+              DevexHub is an online learning platform that helps you build useful skills for your future. We offer simple and practical courses in web development, design, digital marketing, and AI automation, taught by experienced trainers. You can learn from anywhere, at your own pace, with easy lessons and lifetime access. Along with learning, we also guide and support you to grow with confidence and move ahead in your career.
             </p>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              With a strong community of passionate mentors, DevexHub focuses on
-              building skills that make you job-ready — from mastering new
-              technologies to gaining confidence in real-world projects.
+          Whether you want to upgrade your skills, switch careers, or start something of your own, Devex Hub is here to guide you at every step of your journey.
             </p>
 
             <div className="grid grid-cols-2 gap-6 mb-8">
@@ -127,7 +122,7 @@ export default function CompanyAboutSection() {
             </div>
 
 
-           
+
           </div>
 
           <div className="lg:w-1/2">
@@ -162,7 +157,7 @@ export default function CompanyAboutSection() {
               </div>
             </div>
 
-       
+
           </div>
         </div>
       </div>

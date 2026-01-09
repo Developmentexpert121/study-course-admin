@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function RatingsManagementPage() {
   return (
-    <div>RatingsManagementPage</div>
+    <div></div>
   )
 }
 

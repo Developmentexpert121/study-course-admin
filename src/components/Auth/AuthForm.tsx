@@ -216,7 +216,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type }) => {
 
         if (type === "register") {
           if (formData.role === "admin") {
-            toasterSuccess("Admin account created successfully! You can now log in.");
+            toasterSuccess("Your teacher account is under review. You'll receive an email once approved.");
             setTimeout(() => setIsAdminRegistered(true), 1500);
           } else {
             toasterSuccess("Please check your email to verify your account!");

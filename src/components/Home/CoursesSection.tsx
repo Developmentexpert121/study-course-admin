@@ -77,9 +77,9 @@ const CoursesSection: React.FC<any> = ({ courses }) => {
           <span className="bg-gradient-to-r from-primary to-[#ec4899] bg-clip-text text-transparent"> Courses</span> 
         </h2>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12 text-center">
-          DevexHub empowers you to build in-demand skills quickly and take
+          Master practical, in-demand skills with expert guidance 
           <br />
-          your career to the next level in today's evolving job market.
+         and take your career forward with confidence
         </p>
 
         <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
